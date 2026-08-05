@@ -2,7 +2,12 @@
 
 ## Status
 
-In smoke test. No long run has started yet.
+Mechanics validated by smoke test (2026-08-06): dynamic mixture sampling,
+mid-run config flip (importance change + category removal), length shaping
+with close-bias exploration, controller ticks, val-split delegation. No long
+run has started yet. One smoke found and fixed a real bug: verl instantiates
+the custom dataset class for BOTH train and val splits, and the first smoke's
+val split became a million-row virtual dataset (see section 3).
 
 ## Contents
 
@@ -77,9 +82,17 @@ the exact skill arm A refused to learn. Example (Black to move):
          5 . B . B B  5
     winning set: {e1}. e1 is on the top row. Black's c1-e2-d3 group needs it.
 
-Generation: random playouts stop at a deep stone count. We keep a position if
-the mover has an instant win, all instant wins are edge cells, and at least
-one legal move still loses. The solver then labels the full winning set.
+Generation (current corpus): random playouts stop at a deep stone count. We
+keep a position if the mover has an instant win, all instant wins are edge
+cells, and at least one legal move still loses. The solver then labels the
+full winning set.
+
+Generation (next expansion, adopted after review): play a random game to the
+end, then step back one move. The position before the winning move has an
+instant win by construction, so no rejection on that predicate. A variant
+removes one stone from the finished board instead; that variant must re-check
+that the board is no longer terminal, because hex chains can be redundant —
+removing one stone does not always remove the win.
 
 ### gen_m1 (1368 rows)
 
@@ -119,6 +132,11 @@ loads it through its `data.custom_cls` hook. It works like this:
 - A new parquet file becomes a live category at that moment. The stock verl
   dataset class tokenizes it. The training process prints one line, for
   example: `[curriculum] loaded category 'edge_m1' (2240 rows)`.
+- IMPORTANT: verl instantiates this same class for the validation split. The
+  class detects val files by name and delegates them wholesale to the stock
+  dataset (finite length, fixed contents). The first smoke lacked this
+  delegation; validation became a million-row virtual dataset and the run
+  hung generating it. Preserve the delegation if you modify the class.
 
 Two fail-open rules protect a running job:
 
@@ -150,10 +168,12 @@ things:
 
 3. Compute each category's share of future batches:
 
-        share_c = max( importance_c × sqrt(p_c × (1 − p_c)) / sqrt(k_c),
+        share_c = max( importance_c × sigma_c / sqrt(k_c),
                        floor_c × importance_c )
 
-   Then normalize the shares to sum to 1.
+   where sigma_c is the empirical mean within-prompt standard deviation of
+   shaped scores, with sqrt(p_c × (1 − p_c)) as the fallback prior when the
+   category has too few samples. Then normalize the shares to sum to 1.
 
 4. Write `weights.json` atomically (write to a temp file, then rename), and
    append one audit line to `results/curriculum_log.jsonl`. Real example:
@@ -199,15 +219,23 @@ samples in without human action. For a category with no data yet, the
 controller assumes p = 0.5 (the optimistic prior), which pulls new categories
 in at full importance-proportional share immediately.
 
-### One GRPO subtlety
+### One GRPO subtlety, and why arm C changes the advantage
 
-GRPO normalizes advantages inside each group. This flattens the gradient
-magnitude across groups. The practical effect: a category's realized objective
-weight tracks its share of MIXED groups (groups with both +1 and -1 rewards),
-not its raw sample share. The formula above approximates this well in the
-common range. If a category's mixed-group fraction is extreme, the controller
-under- or over-weights it somewhat. We log the mixed-group fraction per
-category and will correct the formula if the error matters in practice.
+Stock GRPO divides each group's advantages by the group's reward standard
+deviation. That deletes magnitude information: a group with rewards
+{1.0, 1.0, 0.75, 0.75} and a group with rewards {1.0, 1.0, 0.9998, 0.9998}
+both normalize to advantages of exactly ±1, and the optimizer pushes equally
+hard on both. At saturation, with length shaping active, this becomes a
+pathology: full-force gradient pressure on one-token length differences, and
+confident gradients on pure sampling noise. It also breaks the controller's
+premise, which assumes a sample's gradient signal scales with its group's
+reward spread.
+
+Arm C therefore runs with mean-only advantages (`ADV_STD_NORM=False`,
+Dr.GRPO style): advantage = reward − group mean, no std division. Push then
+scales with the actual reward gap, and the controller's Neyman premise is
+true of the trainer by construction. A reward deadband (section 6) removes
+the remaining noise floor.
 
 ## 5. How to add and remove categories
 
@@ -260,10 +288,29 @@ mathematics honest: an early close that the bias forced is still a real token
 the model produced, and PPO's clipping bounds the small off-policy distortion
 on that one token.
 
+Two protections added after the smoke rounds:
+
+- Deadband: the length term is quantized to buckets of about 32 tokens.
+  Length differences inside one bucket give exactly equal rewards, therefore
+  zero advantage, therefore no gradient. The model cannot profit from chasing
+  one-token noise.
+- Mean-only advantages (see the GRPO subtlety in section 4): the push on a
+  length difference is proportional to the reward difference, instead of the
+  flat ±1 that stock GRPO produces.
+
 ## 7. What we measure, and the registered predictions
 
 Fixed evaluation sets, unchanged across the arm: 277 general positions plus 60
-edge one-move wins, all excluded from training. Per-category curves come from
+edge one-move wins, all excluded from training.
+
+Where the curves live (wandb project `hex-rl-cot-deconfusion`):
+
+- The training run logs validation metrics split per category automatically,
+  because each parquet row's `data_source` is `hex_<category>`. Look for
+  `val-core/hex_edge_m1/...`, `val-core/hex_judge/...`, and so on.
+- The controller logs to a companion run named `<exp>-controller`: weights,
+  per-category success EMA, sigma, and token cost, under `mix/*`. The field
+  `mix/train_step` carries the trainer's step so both runs share an x-axis. Per-category curves come from
 the training side channel; every scored sample lands in
 `results/rollouts/<run>.jsonl` with its category, kind, raw and shaped scores,
 and full reasoning text.
