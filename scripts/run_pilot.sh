@@ -48,6 +48,8 @@ python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     algorithm.use_kl_in_reward=False \
     data.train_files=${DATA_DIR:-data/verl_hex}/train.parquet \
+    ${CURRICULUM:+data.custom_cls.path=/workspace/hex-rl-cot-deconfusion/hexenv/dynamic_dataset.py} \
+    ${CURRICULUM:+data.custom_cls.name=DynamicCurriculumDataset} \
     data.val_files=${DATA_DIR:-data/verl_hex}/val.parquet \
     data.train_batch_size=$BATCH \
     data.max_prompt_length=768 \

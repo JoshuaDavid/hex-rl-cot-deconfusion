@@ -1,0 +1,8 @@
+# Arm C curriculum: human-editable. Controller reads every ~10 min.
+# enabled: false => category weight goes to 0 on next tick (hot removal).
+categories:
+  judge:    {importance: 0.6, floor: 0.05}
+  edge_m1:  {importance: 1.5, floor: 0.10}
+  gen_m1:   {importance: 1.0, floor: 0.08}
+  mate2:    {importance: 0.7, floor: 0.05}
+  general:  {importance: 1.0, floor: 0.10}
