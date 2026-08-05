@@ -41,6 +41,42 @@ def item_t2(b, rng):
     return ex, q, val, ["Yes", "No"]
 
 
+def item_t2b(b, rng):
+    cell = rng.choice(["a1", "b1", "a2", "b2"])
+    val = "Yes" if cell in ("a1", "b1") else "No"
+    ex = ("Worked example:\nQuestion: Is cell a2 one of the TOP edge cells (a1, b1)?\n"
+          "The TOP edge cells are a1 and b1. a2 is not in that list.\nAnswer: No\n\n")
+    q = (f"Question: Is cell {cell} one of the TOP edge cells (a1, b1)?\n"
+         "Answer with one line: 'Answer: Yes' or 'Answer: No'.\n")
+    return ex, q, val, ["Yes", "No"]
+
+
+def item_t5b(b, rng):
+    stones = {cell for c, cell in b.moves if c == BLACK}
+    has = bool(stones & {"a1", "b1"}) and bool(stones & {"a2", "b2"})
+    ex = ("Worked example:\nMoves played: 1. Black a1, 2. White b1, 3. Black b2.\n"
+          "Question: Is at least one of a1, b1 a Black stone, AND at least one of a2, b2 a Black stone?\n"
+          "Black stones: a1, b2. a1 is in the first list. b2 is in the second list.\nAnswer: Yes\n\n")
+    q = ("Question: Is at least one of a1, b1 a Black stone, AND at least one of a2, b2 a Black stone?\n"
+         "Answer with one line: 'Answer: Yes' or 'Answer: No'.\n")
+    return ex, q, ("Yes" if has else "No"), ["Yes", "No"]
+
+
+def item_t6b(b, rng):
+    from hexenv.board import EMPTY as _E
+    lbl = {_E: "Neither", BLACK: "Black", WHITE: "White"}[b.winner()]
+    ex = ("Worked example:\nMoves played: 1. Black b1, 2. White a2, 3. Black b2.\n"
+          "Question: Which player, if any, has already completed a winning connection?\n"
+          "Black stones: b1, b2. b1 is a TOP edge cell, b2 is a BOTTOM edge cell, and b1-b2\n"
+          "is an adjacent pair. So Black has a chain from TOP to BOTTOM.\nAnswer: Black\n\n")
+    q = ("Question: Which player, if any, has already completed a winning connection? "
+         "(Black needs a chain of adjacent Black stones with a TOP edge cell and a BOTTOM edge cell; "
+         "White needs a chain of adjacent White stones with a LEFT edge cell and a RIGHT edge cell.)\n"
+         "Answer with one line: 'Answer: Black' or 'Answer: White' or 'Answer: Neither'.\n"
+         )
+    return ex, q, lbl, ["Black", "White", "Neither"]
+
+
 def item_t3(b, rng):
     pair = rng.choice([("a1","b1"),("a1","a2"),("b1","a2"),("b1","b2"),("a2","b2"),("a1","b2"),("b2","a1")])
     adj = set(pair) != {"a1","b2"}
@@ -96,8 +132,9 @@ def main():
     tok = AutoTokenizer.from_pretrained(model)
     llm = LLM(model=model, max_model_len=4096, gpu_memory_utilization=0.75)
 
-    makers = {"T1_occupancy": item_t1, "T2_edge": item_t2, "T3_adjacency": item_t3,
-              "T4_colorpair": item_t4, "T5_edgepair": item_t5, "T6_judge": item_t6}
+    makers = {"T2_edge_A": item_t2, "T2_edge_B": item_t2b,
+              "T5_edgepair_A": item_t5, "T5_edgepair_B": item_t5b,
+              "T6_judge_A": item_t6, "T6_judge_B": item_t6b}
     for name, mk in makers.items():
         prompts, labels, vocabs = [], [], []
         # balance labels where possible
@@ -105,7 +142,7 @@ def main():
         for b in allb * 3:
             ex, q, lbl, vocab = mk(b, rng)
             items.append((HEADER + ex + "Now the actual board:\n" +
-                          ("" if name in ("T2_edge","T3_adjacency") else move_history(b) + "\n") + q,
+                          ("" if name.startswith(("T2_edge","T3_adjacency")) else move_history(b) + "\n") + q,
                           lbl, vocab))
         # take a label-balanced subset of 18
         by = {}
@@ -131,7 +168,7 @@ def main():
                 nat += s["natural_close"]
                 tl.append(s["think_tokens"])
         tl.sort()
-        print(f"{name:>14}: acc {acc/n:.3f}  nat-close {nat/n:.3f}  think-p50 {tl[len(tl)//2]}  (n={n})", flush=True)
+        print(f"{name:>16}: acc {acc/n:.3f}  nat-close {nat/n:.3f}  think-p50 {tl[len(tl)//2]}  (n={n})", flush=True)
 
 
 if __name__ == "__main__":

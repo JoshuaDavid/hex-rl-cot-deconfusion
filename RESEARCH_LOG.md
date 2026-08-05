@@ -370,3 +370,8 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - Footnote 1: exit 127 was bash lazy-reading run_pilot.sh while I edited it mid-run (mangled trailing tokens in the RUNNING instance only; file intact). Rule: never edit a script a live run is executing — copy-on-launch (run scripts now get copied to results/<exp>.sh at launch; TODO).
 - Footnote 2: mixture stats in short smokes need prompt-level (not sample-level) counting.
 - Arm C mechanics now fully validated: dynamic dataset, controller, hot add/remove, length shaping + close-bias, empirical sigma, deadband, ADV_STD_NORM flag. Ready to draft the launch proposal.
+
+## 2026-08-06 07:40 — [fork] Wording A/B launched + arm C launch mechanics
+
+- A/B registered (before results): T2_B (edge-cell-membership wording) >=0.95: 70%. T5_B >=0.9: 55%. T6_B (grammatical judge + explicit chain definition) >=0.85: 50%.
+- Launch mechanics: config.yaml RESET from smoke flip (mate2 re-enabled, judge importance back to 0.6 — the flip would otherwise have leaked into the launch); sliced val parquet built (data/verl_hex_C: hex_val_general 277 + hex_val_edge 60).
