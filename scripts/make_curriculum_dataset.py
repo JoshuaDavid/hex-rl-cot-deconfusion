@@ -21,15 +21,15 @@ from hexenv.reward import board_from_gt
 from hexenv.prompts import move_prompt
 
 MIXES = {
-    "B1": {"edge_m1": 0.35, "gen_m1": 0.35, "mate2": 0.0, "general": 0.30},
-    "B2": {"edge_m1": 0.20, "gen_m1": 0.20, "mate2": 0.35, "general": 0.25},
-    "B3": {"edge_m1": 0.05, "gen_m1": 0.05, "mate2": 0.20, "general": 0.70},
+    "B1": {"judge": 0.15, "edge_m1": 0.30, "gen_m1": 0.30, "mate2": 0.0, "general": 0.25},
+    "B2": {"judge": 0.05, "edge_m1": 0.20, "gen_m1": 0.15, "mate2": 0.35, "general": 0.25},
+    "B3": {"judge": 0.0, "edge_m1": 0.05, "gen_m1": 0.05, "mate2": 0.20, "general": 0.70},
 }
 TRAIN_SIZE = 5000
 
 
 def key_of(r):
-    return (r["size"], tuple(map(tuple, r["moves"])), r["to_move"])
+    return (r["size"], tuple(map(tuple, r["moves"])), r.get("to_move", "J"))
 
 
 def load(path):
@@ -41,7 +41,31 @@ def load(path):
     return rows
 
 
+JUDGE_SUFFIX = (
+    "\nHas either player ALREADY completed a winning connection on this board?"
+    "\nEnd your response with exactly one line of the form:"
+    "\nAnswer: Black|White|Neither\n"
+)
+
+
 def to_row(r):
+    if "judge_label" in r:
+        gt = {"task": "judge", "size": r["size"], "moves": r["moves"],
+              "judge_label": r["judge_label"]}
+        from hexenv.prompts import RULES
+        from hexenv.render import render_ascii
+        from hexenv.board import Board, BLACK, WHITE
+        b = Board(r["size"])
+        for c, cell in r["moves"]:
+            b.play(cell, BLACK if c == "B" else WHITE)
+        prompt = RULES.format(n=r["size"], board=render_ascii(b)) + JUDGE_SUFFIX
+        return {
+            "data_source": "hex_solver",
+            "prompt": [{"role": "user", "content": prompt}],
+            "ability": "hex_judge",
+            "reward_model": {"style": "rule", "ground_truth": json.dumps(gt)},
+            "extra_info": {"size": r["size"], "task": "judge"},
+        }
     gt = {"size": r["size"], "moves": r["moves"], "to_move": r["to_move"],
           "winning_moves": r["winning_moves"]}
     return {
@@ -83,7 +107,10 @@ def main():
     val_keys |= {key_of(r) for r in val_edge}
     general = [r for r in general if key_of(r) not in val_keys]
 
-    pools = {"edge_m1": edge_m1, "gen_m1": gen_m1, "mate2": mate2, "general": general}
+    judge = [json.loads(l) for l in open("data/corpus_judge.jsonl")] \
+        if os.path.exists("data/corpus_judge.jsonl") else []
+    pools = {"judge": judge, "edge_m1": edge_m1, "gen_m1": gen_m1,
+             "mate2": mate2, "general": general}
     rows, seen = [], set()
     for name, frac in mix.items():
         want = int(TRAIN_SIZE * frac)

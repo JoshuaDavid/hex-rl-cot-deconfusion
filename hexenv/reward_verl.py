@@ -20,8 +20,27 @@ def _legal_moves(gt):
     return {f"{chr(ord('a') + x)}{y + 1}" for x in range(n) for y in range(n)} - occ
 
 
+_ANSWER_RE = re.compile(r"[Aa]nswer:\s*\*{0,2}(Black|White|Neither)\b", re.IGNORECASE)
+
+
 def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kwargs):
     gt = json.loads(ground_truth) if isinstance(ground_truth, str) else ground_truth
+    if gt.get("task") == "judge":
+        m = _ANSWER_RE.findall(solution_str)
+        ans = m[-1].capitalize() if m else None
+        score = 1.0 if ans == gt["judge_label"] else -1.0
+        kind = "win" if score > 0 else ("lose" if ans else "unparsed")
+        log_path = os.environ.get("HEX_ROLLOUT_LOG")
+        if log_path:
+            try:
+                with open(log_path, "a") as f:
+                    f.write(json.dumps({"gt": gt, "move": ans, "kind": kind,
+                                        "score": score, "response": solution_str}) + "\n")
+            except OSError:
+                pass
+        return {"score": score, "kind_win": float(kind == "win"),
+                "kind_lose": float(kind == "lose"), "kind_illegal": 0.0,
+                "kind_unparsed": float(kind == "unparsed")}
     m = _MOVE_RE.findall(solution_str)
     move = m[-1].lower() if m else None
     if move is None or move not in _legal_moves(gt):
