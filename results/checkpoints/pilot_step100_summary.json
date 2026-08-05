@@ -1,0 +1,27 @@
+{
+  "model": "checkpoints/pilot_1p7b/global_step_100/hf",
+  "k": 4,
+  "temperature": 0.6,
+  "n_samples": 600,
+  "legal_rate": 0.9016666666666666,
+  "win_rate": 0.31666666666666665,
+  "natural_close_rate": 0.0,
+  "think_tokens_p50": 2160,
+  "per_size": {
+    "5": {
+      "n": 212,
+      "legal": 0.892,
+      "win": 0.231
+    },
+    "6": {
+      "n": 236,
+      "legal": 0.924,
+      "win": 0.386
+    },
+    "7": {
+      "n": 152,
+      "legal": 0.882,
+      "win": 0.329
+    }
+  }
+}
