@@ -25,7 +25,7 @@ import requests
 from hexenv.board import Board, BLACK, WHITE
 from hexenv.prompts import move_prompt, extract_move
 
-THINK_BUDGET = 2160
+THINK_BUDGET = int(os.environ.get("HEX_THINK_BUDGET", "2160"))
 ANSWER_BUDGET = 8
 
 
@@ -42,7 +42,7 @@ def find_server(retries=20, delay=30):
     raise RuntimeError("no vLLMHttpServer listening")
 
 
-def current_step(log="results/pilot_1p7b.log"):
+def current_step(log=os.environ.get("HEX_TRAIN_LOG", "results/pilot_1p7b.log")):
     try:
         out = subprocess.run(["grep", "-ao", r"step:[0-9]* - global", log],
                              capture_output=True, text=True).stdout
