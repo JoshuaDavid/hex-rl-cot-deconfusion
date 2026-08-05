@@ -36,16 +36,29 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         tok = self.tokenizer
         self.think_close_id = tok.convert_tokens_to_ids("</think>")
         assert isinstance(self.think_close_id, int) and self.think_close_id >= 0
-        # scaffold after a model-generated </think>: "\n\nMove:"
-        self.scaffold_ids = tok.encode("\n\nMove:", add_special_tokens=False)
-        # scaffold when we force-close: "\n</think>\n\nMove:"
-        self.force_ids = tok.encode("\n", add_special_tokens=False) + [self.think_close_id] + self.scaffold_ids
+        self._nl_ids = tok.encode("\n", add_special_tokens=False)
+        # task-dependent answer scaffolds (see _scaffolds)
+        self._scaffold_cache = {}
+
+    def _scaffolds(self, answer_word: str):
+        if answer_word not in self._scaffold_cache:
+            tok = self.tokenizer
+            scaffold = tok.encode(f"\n\n{answer_word}:", add_special_tokens=False)
+            force = self._nl_ids + [self.think_close_id] + scaffold
+            self._scaffold_cache[answer_word] = (scaffold, force)
+        return self._scaffold_cache[answer_word]
 
     @rollout_trace_op
     async def run(self, sampling_params: dict[str, Any], priority: int = 0, **kwargs) -> AgentLoopOutput:
         priority = int(priority)
         messages = list(kwargs["raw_prompt"])
         prompt_ids = await self.apply_chat_template(messages)
+
+        # task-aware answer scaffold: judgment prompts ask for "Answer: ...",
+        # move prompts for "Move: ..."
+        user_text = messages[-1].get("content", "") if messages else ""
+        answer_word = "Answer" if "Answer: Black|White|Neither" in user_text else "Move"
+        scaffold_ids, force_ids = self._scaffolds(answer_word)
 
         metrics = {}
         # phase 1: think
@@ -76,13 +89,13 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
             response_ids += [self.think_close_id]
             response_mask += [1]
             response_lps += [close_lp]
-            response_ids += self.scaffold_ids
-            response_mask += [0] * len(self.scaffold_ids)
-            response_lps += [0.0] * len(self.scaffold_ids)
+            response_ids += scaffold_ids
+            response_mask += [0] * len(scaffold_ids)
+            response_lps += [0.0] * len(scaffold_ids)
         else:
-            response_ids += self.force_ids
-            response_mask += [0] * len(self.force_ids)
-            response_lps += [0.0] * len(self.force_ids)
+            response_ids += force_ids
+            response_mask += [0] * len(force_ids)
+            response_lps += [0.0] * len(force_ids)
 
         # phase 2: answer
         sp2 = dict(sampling_params)
