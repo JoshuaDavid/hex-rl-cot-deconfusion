@@ -137,7 +137,11 @@ things:
         categories:
           judge:    {importance: 0.6, floor: 0.05}
           edge_m1:  {importance: 1.5, floor: 0.10}
-          mate2:    {importance: 0.7, floor: 0.05, enabled: true}
+          mate2:    {importance: 0.7, floor: 0.05}
+
+   `enabled` defaults to true and may be omitted. A category absent from the
+   config gets importance 1.0 and floor 0.05. Only `enabled: false` changes
+   behavior.
 
 2. Read the last few thousand training samples from the rollout log. Compute,
    for each category, the success rate p and the mean token cost k. Smooth
@@ -165,15 +169,22 @@ estimate its gradient with the least variance satisfy:
 
     n_c  proportional to  importance_c × sigma_c / sqrt(cost_c)
 
-For a binary reward, the gradient signal of one prompt is proportional to
-sqrt(p(1 − p)). A category the model always fails (p near 0) or always solves
+With length shaping active, rewards are not binary: correct answers span
+0.75 to 1.0. The controller therefore estimates each category's signal
+empirically — the mean within-prompt standard deviation of shaped scores from
+the training log — with sqrt(p(1 − p)) as the fallback prior when a category
+has too few samples. The empirical estimate matters most at saturation: when
+a category's success rate reaches 1, the binary formula reports zero signal,
+but the length-compression gradient is still alive, and the empirical std
+sees it. A category the model always fails (p near 0) or always solves
 (p near 1) carries almost no gradient. GRPO makes this literal: a group with
 all equal rewards has zero advantage.
 
 Two consequences fall out with no extra machinery:
 
-- Saturated categories starve themselves. When the model masters judge, p goes
-  to 1, sigma goes to 0, and judge's share collapses to its floor.
+- Saturated categories starve themselves — but only fully. A mastered
+  category keeps a share while its answers still compress (the length signal),
+  and collapses to its floor only when nothing measurable is left to learn.
 - Importance and counts stay separate. Importance says what we want. Counts
   say how to estimate it well. A mixture that expresses importance only
   through counts silently changes the objective.

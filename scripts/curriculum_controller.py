@@ -35,6 +35,7 @@ EMA = 0.5
 def read_side_channel(path, ema_state):
     from collections import defaultdict
     stats = defaultdict(lambda: {"n": 0, "win": 0, "chars": 0})
+    by_prompt = defaultdict(list)
     try:
         with open(path, "rb") as f:
             f.seek(0, 2)
@@ -55,16 +56,30 @@ def read_side_channel(path, ema_state):
         s["n"] += 1
         s["win"] += r["score"] > 0
         s["chars"] += len(r.get("response", ""))
+        pk = (cat, str(r["gt"].get("moves"))[:200], r["gt"].get("to_move", ""))
+        by_prompt[pk].append(float(r.get("shaped", r["score"])))
+    # empirical per-prompt reward std (captures length-shaping variance that
+    # the binary sqrt(p(1-p)) formula misses, esp. near saturation)
+    import statistics
+    sig_acc = defaultdict(list)
+    for (cat, _, _), scores in by_prompt.items():
+        if len(scores) >= 3:
+            sig_acc[cat].append(statistics.pstdev(scores))
     for cat, s in stats.items():
         if s["n"] < 20:
             continue
         p = s["win"] / s["n"]
         k = s["chars"] / s["n"] / 3.0  # rough tokens
+        sig = (sum(sig_acc[cat]) / len(sig_acc[cat])) if sig_acc.get(cat) else None
         prev = ema_state.get(cat)
         if prev:
             p = EMA * p + (1 - EMA) * prev["p"]
             k = EMA * k + (1 - EMA) * prev["k"]
-        ema_state[cat] = {"p": p, "k": max(k, 64.0)}
+            if sig is not None and prev.get("sig") is not None:
+                sig = EMA * sig + (1 - EMA) * prev["sig"]
+            elif sig is None:
+                sig = prev.get("sig")
+        ema_state[cat] = {"p": p, "k": max(k, 64.0), "sig": sig}
     return ema_state
 
 
@@ -92,7 +107,13 @@ def main():
             st = ema_state.get(cat)
             p = st["p"] if st else 0.5  # optimistic prior for unseen cats
             k = st["k"] if st else 1100.0
-            sigma = math.sqrt(max(p * (1 - p), 1e-4))
+            # empirical sigma preferred (sees length-shaping variance at
+            # saturation); analytic binary formula as fallback/prior
+            sigma = None
+            if st and st.get("sig") is not None:
+                sigma = max(st["sig"] / 2.0, 1e-2)  # /2: reward span is ~2
+            if sigma is None:
+                sigma = math.sqrt(max(p * (1 - p), 1e-4))
             shares[cat] = max(w * sigma / math.sqrt(k), floor * w)
         tot = sum(shares.values()) or 1.0
         weights = {c: round(v / tot, 5) for c, v in shares.items()}
