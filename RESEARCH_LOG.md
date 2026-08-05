@@ -327,3 +327,10 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - Wording-fixed T2/T5/T6 rerun queued. Prediction: T2 >0.95 @70%; T6 >=0.85 @50%.
 - Termination note: atomic rungs close naturally 0.74-1.00 (resolution => close, again); T6 still 0.22.
 - RECAP (abstract fetched): dynamic OBJECTIVE reweighting via short-horizon convergence/instability signals; counts-adaptation not claimed. Smooth mid-run task introduction design sketched (floor weight + rate-limited controller; GRPO group-normalization makes it low-jank; mixed-variance fraction = gradient-availability signal). Logged for arm-B/C consideration.
+
+## 2026-08-06 04:15 — [fork] Sample allocation theory (Joshua's question): Neyman + frontier floors
+
+- Given objective L = sum_c w_c L_c and per-category per-sample gradient sd sigma_c, variance-optimal counts: n_c ∝ w_c·sigma_c/sqrt(k_c) (Neyman allocation, cost-corrected). Weights = what you want; counts = how to estimate it. Resampling-as-importance changes the objective silently — keep them separate.
+- GRPO mapping: group signal ∝ sqrt(p(1-p)) per prompt (mixed-variance groups carry all gradient); sigma_c, k_c measurable from the side channel. Saturation self-starves (RECAP's shift-from-saturated as a theorem).
+- Frontier caveat: Neyman is myopic — p≈0 categories (edge-mate1 at 0.03: sigma 0.17, lowest share) get starved exactly when curriculum needs them. Patch: exploration floors + slow learning-progress controller on w_c (two timescales), EMA'd sigma, rate-limited w.
+- This is the quantitative skeleton for the arm-B mixture controller; inputs all logged already.
