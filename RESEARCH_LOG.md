@@ -318,3 +318,12 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - T1 occupancy / T2 edge-touch / T3 adjacency / T4 same-color-adjacent-pair / T5 edge-pair membership / T6 full judge, all on 2x2, worked examples + explicit adjacency & edge facts in-prompt.
 - Registered P(>=0.9): T1 80%, T2 65%, T3 55%, T4 50%, T5 45%. Cliff at first two-fact rung (T4/T5): 60%.
 - Purpose: locate the compositional cliff; the highest imperfect rung becomes the bottom of the arm-B curriculum.
+
+## 2026-08-06 03:50 — [fork] Atomic ladder: "cliff" was partly my prompt's ambiguity
+
+- Results (2x2): T1 occupancy 0.981 / T2 edge-touch 0.694 / T3 adjacency 1.000 / T4 color-pair 0.991 / T5 edge-pair 0.704 / T6 judge 0.731. Composition is FINE (T4 0.99); deficit tracks edge-flavored rungs.
+- Failure read: model interprets "touch the TOP edge" as "adjacent to a top-edge cell" (a2 borders a1/b1 => Yes, coherently argued, fast+confident). T5/T6 inherit the wording. Registered cliff-at-composition prediction: WRONG; T2>=0.9 (65%): MISS but artifactual.
+- Grades: T1 hit, T3 hit (1.00!), T4 hit. Note T3 tests list-lookup (adjacency in prompt), not spatial computation.
+- Wording-fixed T2/T5/T6 rerun queued. Prediction: T2 >0.95 @70%; T6 >=0.85 @50%.
+- Termination note: atomic rungs close naturally 0.74-1.00 (resolution => close, again); T6 still 0.22.
+- RECAP (abstract fetched): dynamic OBJECTIVE reweighting via short-horizon convergence/instability signals; counts-adaptation not claimed. Smooth mid-run task introduction design sketched (floor weight + rate-limited controller; GRPO group-normalization makes it low-jank; mixed-variance fraction = gradient-availability signal). Logged for arm-B/C consideration.
