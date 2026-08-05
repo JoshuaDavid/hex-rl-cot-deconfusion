@@ -47,6 +47,7 @@ python3 -m verl.trainer.main_ppo \
     transfer_queue.backend.SimpleStorage.num_data_storage_units=1 \
     algorithm.adv_estimator=grpo \
     algorithm.use_kl_in_reward=False \
+    algorithm.norm_adv_by_std_in_grpo=${ADV_STD_NORM:-True} \
     data.train_files=${DATA_DIR:-data/verl_hex}/train.parquet \
     ${CURRICULUM:+data.custom_cls.path=/workspace/hex-rl-cot-deconfusion/hexenv/dynamic_dataset.py} \
     ${CURRICULUM:+data.custom_cls.name=DynamicCurriculumDataset} \

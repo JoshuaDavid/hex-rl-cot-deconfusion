@@ -22,11 +22,17 @@ _LEN_LAMBDA = float(os.environ.get("HEX_LEN_LAMBDA", "0.0"))
 _CHAR_CAP = float(os.environ.get("HEX_THINK_CHAR_CAP", "3300"))
 
 
+_LEN_BUCKET_CHARS = float(os.environ.get("HEX_LEN_BUCKET_CHARS", "96"))  # ~32 tok
+
+
 def _len_shaped(base_score, solution_str):
     if _LEN_LAMBDA <= 0 or base_score <= 0:
         return base_score
     think = solution_str.split("</think>")[0]
-    frac = min(1.0, len(think) / _CHAR_CAP)
+    # deadband: quantize to buckets so sub-bucket length noise yields exactly
+    # equal rewards (=> zero GRPO advantage, no noise-chasing at saturation)
+    chars = (len(think) // _LEN_BUCKET_CHARS) * _LEN_BUCKET_CHARS
+    frac = min(1.0, chars / _CHAR_CAP)
     return base_score - _LEN_LAMBDA * frac
 
 
