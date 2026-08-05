@@ -30,6 +30,16 @@ class DynamicCurriculumDataset(Dataset):
         self.tokenizer = tokenizer
         self.config = config
         self.processor = processor
+        # verl instantiates this class for BOTH train and val splits. The
+        # dynamic-mixture behavior is train-only; val files delegate to the
+        # stock dataset (finite length, fixed contents).
+        files = data_files if isinstance(data_files, list) else [data_files]
+        if any("val" in os.path.basename(str(f)) for f in files):
+            self._delegate = RLHFDataset(data_files, tokenizer, config, processor)
+            print(f"[curriculum] val split -> stock dataset "
+                  f"({len(self._delegate)} rows)", flush=True)
+            return
+        self._delegate = None
         self._cats: dict[str, RLHFDataset] = {}
         self._weights: dict[str, float] = {}
         self._weights_mtime = -1.0
@@ -69,15 +79,22 @@ class DynamicCurriculumDataset(Dataset):
         weights = {c: float(w.get(c, 0.0)) for c in self._cats}
         if all(v <= 0 for v in weights.values()):
             weights = {c: 1.0 for c in self._cats}  # fail-open: uniform
+        changed = weights != self._weights
         self._weights = weights
+        if not changed:
+            return
         print(f"[curriculum] active weights: "
               f"{ {c: round(v, 3) for c, v in weights.items() if v > 0} }",
               flush=True)
 
     def __len__(self):
+        if self._delegate is not None:
+            return len(self._delegate)
         return VIRTUAL_LEN
 
     def __getitem__(self, item):
+        if self._delegate is not None:
+            return self._delegate[item]
         self._refresh()
         rng = random.Random(hash(("hexC", item)))
         cats = [c for c, v in self._weights.items() if v > 0 and len(self._cats[c])]
