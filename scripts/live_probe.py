@@ -29,13 +29,16 @@ THINK_BUDGET = 2160
 ANSWER_BUDGET = 8
 
 
-def find_server():
-    out = subprocess.run(["ss", "-tlnp"], capture_output=True, text=True).stdout
-    for line in out.splitlines():
-        if "vLLMHttpSe" in line:
-            m = re.search(r"(\d+\.\d+\.\d+\.\d+):(\d+)", line)
-            if m:
-                return f"http://{m.group(1)}:{m.group(2)}"
+def find_server(retries=20, delay=30):
+    for _ in range(retries):
+        out = subprocess.run(["ss", "-tlnp"], capture_output=True,
+                             text=True).stdout
+        for line in out.splitlines():
+            if "vLLMHttpSe" in line:
+                m = re.search(r"(\d+\.\d+\.\d+\.\d+):(\d+)", line)
+                if m:
+                    return f"http://{m.group(1)}:{m.group(2)}"
+        time.sleep(delay)
     raise RuntimeError("no vLLMHttpServer listening")
 
 
