@@ -375,3 +375,10 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 
 - A/B registered (before results): T2_B (edge-cell-membership wording) >=0.95: 70%. T5_B >=0.9: 55%. T6_B (grammatical judge + explicit chain definition) >=0.85: 50%.
 - Launch mechanics: config.yaml RESET from smoke flip (mate2 re-enabled, judge importance back to 0.6 — the flip would otherwise have leaked into the launch); sliced val parquet built (data/verl_hex_C: hex_val_general 277 + hex_val_edge 60).
+
+## 2026-08-06 08:10 — [fork] Wording A/B RESOLVED; ARM C LAUNCHED (autonomous mode)
+
+- A/B: T2 0.889->1.000 (HIT), T5 0.741->1.000 (HIT), T6 0.694->0.815 (near-miss of 0.85; nat-closes 0.23->0.45). Atomic skills perfect under unambiguous wording; guided 2x2 judge 0.815 = the honest bumblebee floor; residual is composition-under-load. No tiny-board rungs needed — 5x5-7x7 judge (0.47) is the bottom rung. T6-B chain-definition parenthetical folded into the training judge prompt (last free moment to change it); parquets rebuilt.
+- **ARM C LAUNCHED**: 400 steps, batch 32x8, think 1088, ADV_STD_NORM=False, len lambda 0.25 + 96-char deadband, close-bias 512:0/768:10/960:20/1088:30, controller 10-min ticks + wandb companion run (armC-controller), ckpts/50 + janitor, probe waves + 2h backups repointed, config.yaml at launch values (smoke flip reset).
+- Registered: edge-val conversion >0.8 by 150: 60%. Judge success >0.9 by 100: 70%. Judge natural closes >20% once judge acc >0.8: 55% (resolution-gating live test). General-val win >0.55 by 400: 40%. Judge think-p50 <600 tok by 200: 60%.
+- Mid-run planned: mate1-v2 corpus (back-up-one generator) added as a NEW category around step 100 — first live demonstration of the hot-add path.

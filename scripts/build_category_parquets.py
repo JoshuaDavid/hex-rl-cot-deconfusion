@@ -18,6 +18,9 @@ from hexenv.board import Board, BLACK, WHITE
 OUT = "data/curriculum"
 JUDGE_SUFFIX = (
     "\nWhich player, if any, has ALREADY completed a winning connection on this board?"
+    " (Black needs a chain of adjacent Black stones containing both a TOP-row cell"
+    " and a BOTTOM-row cell; White needs a chain of adjacent White stones containing"
+    " both a LEFT-column cell and a RIGHT-column cell.)"
     "\nEnd your response with exactly one line of the form:"
     "\nAnswer: Black|White|Neither\n"
 )
