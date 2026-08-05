@@ -129,7 +129,8 @@ def main():
             json.dump(weights, f, indent=1)
         os.replace(WEIGHTS + ".tmp", WEIGHTS)
         audit = {"ts": time.time(), "weights": weights,
-                 "signals": {c: {k2: round(v2, 4) for k2, v2 in st.items()}
+                 "signals": {c: {k2: (round(v2, 4) if v2 is not None else None)
+                                 for k2, v2 in st.items()}
                              for c, st in ema_state.items()}}
         os.makedirs("results", exist_ok=True)
         with open(AUDIT, "a") as f:
