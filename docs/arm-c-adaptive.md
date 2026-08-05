@@ -239,8 +239,8 @@ See [the task page](the-task.md) for the base mechanisms. Arm C runs both:
   fast answer.
 - The close-token push: without it, every sample sits at the cap, all lengths
   are equal, and the length price has nothing to compare. The rising bias
-  (+10 from token 768, +20 from 960, +30 from 1024) creates early-close
-  samples. The smoke test measured the effect: about one third of samples
+  (+10 from token 512, +20 from 768, +30 from 960, up to the 1088 cap)
+  creates early-close samples. The smoke test measured the effect: about one third of samples
   close early, and their shaped rewards average 0.79 against 0.76 for
   cap-length correct answers.
 
