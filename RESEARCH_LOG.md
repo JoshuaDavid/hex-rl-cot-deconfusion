@@ -355,3 +355,10 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - First arm-C smoke hung in val_before_train: verl instantiates the custom dataset class for BOTH splits, so val became a 1,000,000-row virtual dataset and val generation ran for an hour. Fix: val files (name contains "val") delegate wholesale to stock RLHFDataset. Also: controller/dataset churn de-spammed (print only on weight change).
 - Controller upgraded per Joshua's 4.4 catch: sigma now estimated empirically (mean within-prompt std of SHAPED scores) instead of binary sqrt(p(1-p)) — sees the length-compression signal at saturation; analytic formula demoted to prior. Docs corrected (also: enabled defaults to true; mate-in-1 generator note - play-to-terminal-back-up-one adopted for next expansion, removal variant needs post-removal terminality recheck, verified on Joshua's 3x3 redundancy example).
 - Smoke v2 relaunched with the step-4 config flip (mate2 hot-removal + judge importance x3).
+
+## 2026-08-06 06:15 — [fork] Saturation length-race pathology (Joshua's question) + fix
+
+- Q: does GRPO push as hard on {4x10tok, 4x1000tok} as {4x10tok, 4x11tok} groups at saturation? A: YES under stock std-normalized advantages — any two-point reward distribution normalizes to +-1 advantages regardless of gap. Three pathologies: tiny-difference amplification, noise-chasing (which-sample-is-shorter is sampling noise -> confident +-1 gradients), and controller/trainer incoherence (Neyman controller assumes signal ∝ within-group spread; std-norm makes push independent of spread).
+- Fixes (arm C, registered divergence from arm A's stock GRPO):
+  1. ADV_STD_NORM=False (Dr.GRPO-style mean-only advantage): push ∝ actual gap; makes the Neyman premise literally true — controller and trainer agree on sample worth.
+  2. Length-bucket deadband (96 chars ≈ 32 tok): sub-bucket differences give exactly equal rewards => zero advantage => no noise-chasing. Verified: 10-vs-11-tok now equal; 10-vs-1000-tok keeps 0.225 differential.
