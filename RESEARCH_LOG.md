@@ -362,3 +362,11 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - Fixes (arm C, registered divergence from arm A's stock GRPO):
   1. ADV_STD_NORM=False (Dr.GRPO-style mean-only advantage): push ∝ actual gap; makes the Neyman premise literally true — controller and trainer agree on sample worth.
   2. Length-bucket deadband (96 chars ≈ 32 tok): sub-bucket differences give exactly equal rewards => zero advantage => no noise-chasing. Verified: 10-vs-11-tok now equal; 10-vs-1000-tok keeps 0.225 differential.
+
+## 2026-08-06 06:50 — [fork] ARM C SMOKE PASSED (with two footnotes)
+
+- Mixture pivot verified: judge share doubled after the step-4 config flip; mate2 hot-removal landed within the documented one-tick latency (final controller weights: mate2 0.0, judge 0.3125). Dataset followed weights within noise (effective n=80 prompts — rollouts quadruple-count).
+- val-split delegation fix verified (val ran at 337 rows, finite).
+- Footnote 1: exit 127 was bash lazy-reading run_pilot.sh while I edited it mid-run (mangled trailing tokens in the RUNNING instance only; file intact). Rule: never edit a script a live run is executing — copy-on-launch (run scripts now get copied to results/<exp>.sh at launch; TODO).
+- Footnote 2: mixture stats in short smokes need prompt-level (not sample-level) counting.
+- Arm C mechanics now fully validated: dynamic dataset, controller, hot add/remove, length shaping + close-bias, empirical sigma, deadband, ADV_STD_NORM flag. Ready to draft the launch proposal.
