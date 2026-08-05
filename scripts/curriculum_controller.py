@@ -135,7 +135,16 @@ def main():
         with open(AUDIT, "a") as f:
             f.write(json.dumps(audit) + "\n")
         if wb is not None:
+            import subprocess as sp
+            try:
+                out = sp.run(["grep", "-ao", r"step:[0-9]* - global",
+                              os.environ.get("HEX_TRAIN_LOG", f"results/{exp}.log")],
+                             capture_output=True, text=True).stdout
+                train_step = int(out.splitlines()[-1].split(":")[1].split()[0])
+            except Exception:
+                train_step = -1
             flat = {f"mix/weight_{c}": v for c, v in weights.items()}
+            flat["mix/train_step"] = train_step
             for c, st in ema_state.items():
                 for k2, v2 in st.items():
                     if v2 is not None:
