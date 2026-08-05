@@ -42,7 +42,7 @@ def load(path):
 
 
 JUDGE_SUFFIX = (
-    "\nHas either player ALREADY completed a winning connection on this board?"
+    "\nWhich player, if any, has ALREADY completed a winning connection on this board?"
     "\nEnd your response with exactly one line of the form:"
     "\nAnswer: Black|White|Neither\n"
 )

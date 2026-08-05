@@ -61,7 +61,7 @@ category trains the terminal percept in isolation: no move choice at all.
          5 . . B . B B  5
           6 B . . W W B  6
             a b c d e f
-    Has either player ALREADY completed a winning connection on this board?
+    Which player, if any, has ALREADY completed a winning connection on this board?
     -> correct answer: "Answer: Neither"
 
 ### edge_m1 (2240 rows)
