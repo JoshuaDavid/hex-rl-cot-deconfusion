@@ -147,6 +147,7 @@ their *exact* winning-move sets, so training needs no solver in the loop.
 
 | Path | Contents |
 |---|---|
+| [`docs/`](docs/README.md) | plain-language field guide: what each experimental arm does, with examples |
 | `hexenv/` | board/rules/render, solver oracle, reward fn, verl forced-close agent loop |
 | `scripts/` | corpus builders, training (`run_pilot.sh`), evals, analysis (pass@k, vocab mining, probes) |
 | `data/` | solver-labeled corpora (exact winning sets), verl parquet, probe positions |
