@@ -344,3 +344,8 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
   - Categories staged: judge 900 / edge_m1 2240 / gen_m1 1368 / mate2 1200 / general 5336 rows.
 - Smoke (10 steps, len-shaping + close-bias active) in flight with a live mutation test: at step 4, config flips mate2->disabled and judge importance x5; pass = side-channel category mix shifts accordingly with no restart, and mate2 samples cease.
 - Registered: smoke passes cleanly (mixture shifts, removal works, no crash): 70%. Post-smoke gate before any long run: wording-fixed T2/T5/T6 ladder rerun (still PENDING — flagged so it doesn't get lost) + final category importances + arm-C launch predictions for Joshua.
+
+## 2026-08-06 05:10 — [fork] Judge question reworded (Joshua's catch)
+
+- "Has either player..." is a yes/no question; Black/White/Neither were ungrammatical answers — a form/content mismatch of exactly the kind this model trips on (cf. "touch" ambiguity cliff, template-echo failures). Now: "Which player, if any, has ALREADY completed a winning connection on this board?" — all three answers grammatical (elliptical).
+- Propagated to builders, curriculum parquets (rebuilt), docs. Old wording preserved in atomic_ladder as the A-side of the queued wording A/B (old-vs-new judge phrasing + "touch" disambiguation), so the effect gets measured, not assumed.
