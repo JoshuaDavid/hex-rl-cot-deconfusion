@@ -87,6 +87,14 @@ def main():
     exp = sys.argv[1] if len(sys.argv) > 1 else "armC"
     side = f"results/rollouts/{exp}.jsonl"
     ema_state = {}
+    wb = None
+    if os.environ.get("WANDB_API_KEY"):
+        try:
+            import wandb
+            wb = wandb.init(project="hex-rl-cot-deconfusion",
+                            name=f"{exp}-controller", resume="allow")
+        except Exception as e:
+            print(f"wandb init failed ({e}); file logging only", flush=True)
     while True:
         cats = [f[:-8] for f in os.listdir(DIR) if f.endswith(".parquet")]
         try:
@@ -126,6 +134,13 @@ def main():
         os.makedirs("results", exist_ok=True)
         with open(AUDIT, "a") as f:
             f.write(json.dumps(audit) + "\n")
+        if wb is not None:
+            flat = {f"mix/weight_{c}": v for c, v in weights.items()}
+            for c, st in ema_state.items():
+                for k2, v2 in st.items():
+                    if v2 is not None:
+                        flat[f"mix/{k2}_{c}"] = v2
+            wb.log(flat)
         print(json.dumps(audit), flush=True)
         time.sleep(INTERVAL)
 

@@ -46,7 +46,7 @@ def move_row(r, category):
     gt = {"category": category, "size": r["size"], "moves": r["moves"],
           "to_move": r["to_move"], "winning_moves": r["winning_moves"]}
     return {
-        "data_source": "hex_solver",
+        "data_source": f"hex_{category}",
         "prompt": [{"role": "user", "content": move_prompt(board_from_gt(gt))}],
         "ability": "hex",
         "reward_model": {"style": "rule", "ground_truth": json.dumps(gt)},
@@ -62,7 +62,7 @@ def judge_row(r, category):
         b.play(cell, BLACK if c == "B" else WHITE)
     prompt = RULES.format(n=r["size"], board=render_ascii(b)) + JUDGE_SUFFIX
     return {
-        "data_source": "hex_solver",
+        "data_source": f"hex_{category}",
         "prompt": [{"role": "user", "content": prompt}],
         "ability": "hex_judge",
         "reward_model": {"style": "rule", "ground_truth": json.dumps(gt)},
