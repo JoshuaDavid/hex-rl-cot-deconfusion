@@ -1,1 +1,10 @@
 .env
+benzene-vanilla-cmake/
+checkpoints/
+results/rollouts/
+results/*.log
+wandb/
+outputs/
+default.log
+__pycache__/
+*.pyc
