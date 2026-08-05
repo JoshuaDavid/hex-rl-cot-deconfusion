@@ -1,6 +1,6 @@
 .env
 benzene-vanilla-cmake/
-checkpoints/
+/checkpoints/
 results/rollouts/
 results/*.log
 wandb/
