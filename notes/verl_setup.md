@@ -138,3 +138,13 @@ nothing special.
   (`trainer.use_v1=true`) but is only in requirements.txt, NOT in setup.py
   install_requires → `pip install -e .` alone leaves main_ppo broken
   (`ModuleNotFoundError: transfer_queue`). Install it explicitly.
+
+## Live inference against the training policy (added 2026-08-05)
+
+The rollout engine is an OpenAI-compatible HTTP server (vLLMHttpServer ray actor).
+Find it: `ss -tlnp | grep vLLMHttpSe` (dynamic port on container IP, e.g. 172.17.0.10:45629).
+- Serves the CURRENT policy (weights synced each step); model name still reads "Qwen/Qwen3-1.7B".
+- Engine sleeps during the training phase of each step (free_cache_engine=True): requests
+  queue until next wake. Use >=5 min client timeouts.
+- Light probes only; they share rollout batch capacity.
+- For policy-matched hex generation, replicate forced-close via /v1/completions two-phase.
