@@ -17,6 +17,7 @@ export WANDB_API_KEY
 export PYTHONPATH=/workspace/hex-rl-cot-deconfusion:${PYTHONPATH:-}
 
 MODEL_PATH=${MODEL_PATH:-Qwen/Qwen3-1.7B}
+DATA_DIR=${DATA_DIR:-data/verl_hex}
 RESP_LEN=${RESP_LEN:-2176}
 ROLLOUT_TEMP=${ROLLOUT_TEMP:-1.0}
 STEPS=${STEPS:-100}
@@ -43,8 +44,8 @@ python3 -m verl.trainer.main_ppo \
     transfer_queue.backend.SimpleStorage.num_data_storage_units=1 \
     algorithm.adv_estimator=grpo \
     algorithm.use_kl_in_reward=False \
-    data.train_files=data/verl_hex/train.parquet \
-    data.val_files=data/verl_hex/val.parquet \
+    data.train_files=${DATA_DIR:-data/verl_hex}/train.parquet \
+    data.val_files=${DATA_DIR:-data/verl_hex}/val.parquet \
     data.train_batch_size=$BATCH \
     data.max_prompt_length=768 \
     data.max_response_length=$RESP_LEN \
