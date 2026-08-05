@@ -8,7 +8,8 @@ from __future__ import annotations
 
 def generate_forced_close(llm, tok, user_msgs: list[str], n: int, temperature: float,
                           think_budget: int = 2160, answer_budget: int = 8,
-                          top_p: float = 0.95, seed: int = 0):
+                          top_p: float = 0.95, seed: int = 0,
+                          answer_prefix: str = "Move:"):
     """Returns list (per prompt) of lists (n) of dicts:
     {text, natural_close, think_tokens}."""
     from vllm import SamplingParams
@@ -33,10 +34,10 @@ def generate_forced_close(llm, tok, user_msgs: list[str], n: int, temperature: f
             natural = text.rstrip().endswith("</think>") or o.token_ids[-1:] == [close_id]
             if natural:
                 think = text[: text.rfind("</think>")] if "</think>" in text else text
-                cont = bp + think + "</think>\n\nMove:"
+                cont = bp + think + "</think>\n\n" + answer_prefix
             else:
                 think = text
-                cont = bp + text + "\n</think>\n\nMove:"
+                cont = bp + text + "\n</think>\n\n" + answer_prefix
             phase2.append(cont)
             meta.append({"natural_close": natural, "think_tokens": len(o.token_ids),
                          "think_text": think})
@@ -52,7 +53,7 @@ def generate_forced_close(llm, tok, user_msgs: list[str], n: int, temperature: f
             ans = outs2[idx].outputs[0].text
             m = meta[idx]
             row.append({
-                "text": m["think_text"] + "\n</think>\n\nMove:" + ans,
+                "text": m["think_text"] + "\n</think>\n\n" + answer_prefix + ans,
                 "natural_close": m["natural_close"],
                 "think_tokens": m["think_tokens"],
             })

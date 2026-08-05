@@ -51,7 +51,7 @@ def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kw
             try:
                 with open(log_path, "a") as f:
                     f.write(json.dumps({"gt": gt, "move": ans, "kind": kind,
-                                        "score": score, "response": solution_str}) + "\n")
+                                        "score": score, "shaped": _len_shaped(score, solution_str), "response": solution_str}) + "\n")
             except OSError:
                 pass
         return {"score": _len_shaped(score, solution_str), "kind_win": float(kind == "win"),
@@ -75,6 +75,7 @@ def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kw
             with open(log_path, "a") as f:
                 f.write(json.dumps({
                     "gt": gt, "move": move, "kind": kind, "score": score,
+                    "shaped": _len_shaped(score, solution_str),
                     "response": solution_str,
                 }) + "\n")
         except OSError:

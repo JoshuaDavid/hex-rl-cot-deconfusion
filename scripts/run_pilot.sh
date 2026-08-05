@@ -53,6 +53,7 @@ python3 -m verl.trainer.main_ppo \
     data.max_prompt_length=768 \
     data.max_response_length=$RESP_LEN \
     data.filter_overlong_prompts=True \
+    data.val_batch_size=64 \
     data.truncation='error' \
     actor_rollout_ref.model.path="$MODEL_PATH" \
     actor_rollout_ref.model.use_remove_padding=True \
