@@ -215,3 +215,11 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - NOTE TO MAIN LINE: training job disappeared ~18:58 (no error in log — assumed deliberate stop by main session). First probe wave errored on the missing server. When training is back up, run:
   /venv/main/bin/python scripts/live_probe.py    # appends to results/live_probes.jsonl
   ~90-min cadence suggested; ~1.5% rollout-throughput overhead per wave.
+
+## 2026-08-05 19:40 — [fork] Convergence check (prompted by Joshua's skepticism)
+
+- Train win rate flat at 0.37-0.42 for ~50 steps; val 125->150 flat (0.451->0.458, within +-0.03 noise). The 0.16->0.46 rise was legality + easy-win gradient.
+- NOT signal starvation: mixed-variance groups still ~60% of batch (all-win 13%, all-lose 28%). Reads as a genuine difficulty wall — consistent with C3 (CoT not load-bearing => no scratchpad mechanism to improve mid-game analysis with).
+- Plan: run to step 250. If val <= 0.48 there: curriculum refresh (drop >80%-win positions per side-channel stats, backfill frontier-difficulty solver-labeled positions). lr/beta stay fixed (mid-run surgery would muddy the vanilla-RL question).
+- Registered: P(val win > 0.48 at step 250) = 45%.
+- Note: plateau-at-0.46 would itself be a C1-relevant result (selection exhausted, no creation), not merely failure.
