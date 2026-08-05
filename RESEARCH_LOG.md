@@ -334,3 +334,13 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - GRPO mapping: group signal ∝ sqrt(p(1-p)) per prompt (mixed-variance groups carry all gradient); sigma_c, k_c measurable from the side channel. Saturation self-starves (RECAP's shift-from-saturated as a theorem).
 - Frontier caveat: Neyman is myopic — p≈0 categories (edge-mate1 at 0.03: sigma 0.17, lowest share) get starved exactly when curriculum needs them. Patch: exploration floors + slow learning-progress controller on w_c (two timescales), EMA'd sigma, rate-limited w.
 - This is the quantitative skeleton for the arm-B mixture controller; inputs all logged already.
+
+## 2026-08-06 05:00 — [fork] ARM C: adaptive curriculum with hot add/remove (Joshua sign-off)
+
+- Naming: the dynamic-mixture design is a big enough break from arm B's static stages to be **arm C**. Arm B retired at smoke stage (its corpora, judge task, forced-close loop, and length economics all carry into C).
+- Joshua's requirements: task categories addable mid-run AND removable mid-run (buggy-category escape hatch). Both implemented and the add path verified in-run:
+  - hexenv/dynamic_dataset.py (via verl data.custom_cls): virtual-length dataset; per-sample category draw from data/curriculum/weights.json, hot-reloaded on mtime change; new <cat>.parquet files in data/curriculum/ are discovered and tokenized at refresh; weight 0 / enabled:false = instant removal, no restart.
+  - scripts/curriculum_controller.py: Neyman-with-floors (shares ∝ max(w·sigma_hat/sqrt(k_hat), floor·w), sigma from EMA'd side-channel success rates, optimistic p=0.5 prior for unseen categories), atomic weights.json writes, audit trail in results/curriculum_log.jsonl.
+  - Categories staged: judge 900 / edge_m1 2240 / gen_m1 1368 / mate2 1200 / general 5336 rows.
+- Smoke (10 steps, len-shaping + close-bias active) in flight with a live mutation test: at step 4, config flips mate2->disabled and judge importance x5; pass = side-channel category mix shifts accordingly with no restart, and mate2 samples cease.
+- Registered: smoke passes cleanly (mixture shifts, removal works, no crash): 70%. Post-smoke gate before any long run: wording-fixed T2/T5/T6 ladder rerun (still PENDING — flagged so it doesn't get lost) + final category importances + arm-C launch predictions for Joshua.
