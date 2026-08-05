@@ -61,18 +61,43 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         scaffold_ids, force_ids = self._scaffolds(answer_word)
 
         metrics = {}
-        # phase 1: think
-        sp1 = dict(sampling_params)
-        sp1["max_tokens"] = self.think_budget
-        sp1["stop_token_ids"] = [self.think_close_id]
-        out1: TokenOutput = await self.server_manager.generate(
-            request_id=uuid4().hex,
-            prompt_ids=prompt_ids,
-            sampling_params=sp1,
-            priority=priority,
-        )
-        think_ids = list(out1.token_ids)
-        think_lps = list(out1.log_probs) if out1.log_probs else [0.0] * len(think_ids)
+        # phase 1: think — segmented with a rising logit bias on </think>
+        # (HEX_CLOSE_BIAS="512:0,832:6,1088:12" => tokens 0-512 bias 0,
+        # 512-832 bias 6, 832-1088 bias 12). Empty/unset = single unbiased
+        # segment (legacy behavior). Bias-sampled closes stay mask-1; the
+        # off-policy distortion on that single token is handled by PPO clipping.
+        schedule = []
+        sched_env = os.getenv("HEX_CLOSE_BIAS", "")
+        if sched_env:
+            for part in sched_env.split(","):
+                end, bias = part.split(":")
+                schedule.append((min(int(end), self.think_budget), float(bias)))
+        else:
+            schedule = [(self.think_budget, 0.0)]
+
+        think_ids: list[int] = []
+        think_lps: list[float] = []
+        out1 = None
+        for seg_end, bias in schedule:
+            remaining = seg_end - len(think_ids)
+            if remaining <= 0:
+                continue
+            sp1 = dict(sampling_params)
+            sp1["max_tokens"] = remaining
+            sp1["stop_token_ids"] = [self.think_close_id]
+            if bias:
+                sp1["logit_bias"] = {self.think_close_id: bias}
+            out1 = await self.server_manager.generate(
+                request_id=uuid4().hex,
+                prompt_ids=prompt_ids + think_ids,
+                sampling_params=sp1,
+                priority=priority,
+            )
+            think_ids += list(out1.token_ids)
+            think_lps += (list(out1.log_probs) if out1.log_probs
+                          else [0.0] * len(out1.token_ids))
+            if think_ids and think_ids[-1] == self.think_close_id:
+                break
 
         # normalize: strip a model-generated trailing </think> (keep flag)
         natural = bool(think_ids) and think_ids[-1] == self.think_close_id

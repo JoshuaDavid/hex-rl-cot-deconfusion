@@ -13,6 +13,22 @@ sys.path.insert(0, "/workspace/hex-rl-cot-deconfusion")
 
 _MOVE_RE = re.compile(r"[Mm]ove:\s*\*{0,2}([a-zA-Z]\d{1,2})\*{0,2}")
 
+# Kimi-style correctness-gated length shaping: correct samples get
+# 1 - LAMBDA * (think_len / cap); wrong samples stay -1. GRPO's group
+# normalization makes this effectively group-relative among correct samples.
+# Inert unless rollouts can vary think length (see close-bias schedule in
+# hex_agent_loop). Configure via env; 0 disables.
+_LEN_LAMBDA = float(os.environ.get("HEX_LEN_LAMBDA", "0.0"))
+_CHAR_CAP = float(os.environ.get("HEX_THINK_CHAR_CAP", "3300"))
+
+
+def _len_shaped(base_score, solution_str):
+    if _LEN_LAMBDA <= 0 or base_score <= 0:
+        return base_score
+    think = solution_str.split("</think>")[0]
+    frac = min(1.0, len(think) / _CHAR_CAP)
+    return base_score - _LEN_LAMBDA * frac
+
 
 def _legal_moves(gt):
     n = gt["size"]
@@ -38,7 +54,7 @@ def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kw
                                         "score": score, "response": solution_str}) + "\n")
             except OSError:
                 pass
-        return {"score": score, "kind_win": float(kind == "win"),
+        return {"score": _len_shaped(score, solution_str), "kind_win": float(kind == "win"),
                 "kind_lose": float(kind == "lose"), "kind_illegal": 0.0,
                 "kind_unparsed": float(kind == "unparsed")}
     m = _MOVE_RE.findall(solution_str)
@@ -63,7 +79,7 @@ def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kw
                 }) + "\n")
         except OSError:
             pass
-    return {"score": score, "kind_win": float(kind == "win"),
+    return {"score": _len_shaped(score, solution_str), "kind_win": float(kind == "win"),
             "kind_lose": float(kind == "lose"),
             "kind_illegal": float(kind == "illegal"),
             "kind_unparsed": float(kind == "unparsed")}

@@ -30,6 +30,9 @@ SAVE_FREQ=${SAVE_FREQ:-25}
 CKPT_DIR=${CKPT_DIR:-/workspace/hex-rl-cot-deconfusion/checkpoints/$EXP_NAME}
 
 export HEX_ROLLOUT_LOG=/workspace/hex-rl-cot-deconfusion/results/rollouts/${EXP_NAME}.jsonl
+export HEX_LEN_LAMBDA=${LEN_LAMBDA:-0}
+export HEX_CLOSE_BIAS=${CLOSE_BIAS:-}
+export HEX_THINK_CHAR_CAP=${THINK_CHAR_CAP:-3300}
 mkdir -p "$(dirname "$HEX_ROLLOUT_LOG")" "$CKPT_DIR"
 
 cd /workspace/hex-rl-cot-deconfusion
