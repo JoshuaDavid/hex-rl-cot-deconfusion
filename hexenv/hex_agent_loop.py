@@ -59,7 +59,8 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         user_text = messages[-1].get("content", "") if messages else ""
         if "Answer: Black|White|Neither" in user_text:
             answer_word, answer_budget = "Answer", 8
-        elif "Answer: <comma-separated list of cells>" in user_text:
+        elif ("Answer: <comma-separated list of cells>" in user_text
+              or 'a JSON array' in user_text):
             answer_word, answer_budget = "Answer", 48
         else:
             answer_word, answer_budget = "Move", ANSWER_BUDGET

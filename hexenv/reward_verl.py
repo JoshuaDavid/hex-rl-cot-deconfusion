@@ -51,7 +51,17 @@ def _score_listing(gt, solution_str):
     Cells parsed from the final Answer: line."""
     post = solution_str.split("</think>")[-1]
     m = re.search(r"[Aa]nswer:\s*(.*)", post, re.DOTALL)
-    claimed = set(_CELLS_RE.findall(m.group(1))) if m else set()
+    claimed = set()
+    if m:
+        blob = m.group(1).strip().splitlines()[0] if m.group(1).strip() else ""
+        try:
+            arr = json.loads(blob)
+            if isinstance(arr, list):
+                claimed = {str(c).lower() for c in arr if _CELLS_RE.fullmatch(str(c))}
+        except (json.JSONDecodeError, TypeError):
+            pass
+        if not claimed:
+            claimed = set(_CELLS_RE.findall(m.group(1)))
     truth = set(gt["list_target"])
     if not claimed:
         return -1.0, "unparsed", claimed
