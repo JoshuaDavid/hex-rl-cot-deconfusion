@@ -393,3 +393,9 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - occupancy: n=8, win 1.000, natural-close 1.00, think p50 697. Arrives saturated — sigma 0.031 misses the >0.065 prediction via saturation (not judge-style failure-determinism). Controller will floor it; diagnostic value: full-board occupancy was never missing.
 - **chain: n=24, win 0.417, sigma 0.782 (12x judge)** — prediction HIT. Same-board rollout disagreement = sampling-driven errors = teachable. Judge-vs-chain contrast: generic existence questions collapse to deterministic guesses; specific-pair questions force variable tracing. Specificity manufactures gradient.
 - Full arm-C loop (diagnose -> hot-add -> sigma-detect -> reallocate) closed in production within ~40 min of the suggestion. Next live question: does chain-tracing gradient transfer to judge/edge conversion.
+
+## 2026-08-06 10:50 — [fork] CONTROLLER BUG: mixture was floor-driven since launch (found via Joshua's timing question)
+
+- The Neyman term w·sigma/sqrt(k) (~0.004-0.01) never exceeded any floor (0.02-0.15): weights equaled normalized floor_c x importance_c exactly, for every tick since launch. My earlier "controller demoted judge and it's right" was right-conclusion-wrong-mechanism: it was the floor RATIO, not the sigma signal.
+- Fix: normalize Neyman shares first, then apply floors as minimum fractions, renormalize. Deployed mid-run (controller restart; training untouched).
+- Silver lining: the launch mixture floors were hand-set to sensible ratios, so ~30 steps of training weren't misallocated badly — but the "controller reallocates by signal" claim only becomes true from this tick forward.
