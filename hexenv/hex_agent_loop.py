@@ -67,6 +67,8 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         else:
             answer_word, answer_budget = "Move", ANSWER_BUDGET
         scaffold_ids, force_ids = self._scaffolds(answer_word)
+        # think cap must leave room for THIS task's answer within response_length
+        think_budget = self.response_length - answer_budget - 8
 
         metrics = {}
         # phase 1: think — segmented with a rising logit bias on </think>
@@ -79,9 +81,9 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         if sched_env:
             for part in sched_env.split(","):
                 end, bias = part.split(":")
-                schedule.append((min(int(end), self.think_budget), float(bias)))
+                schedule.append((min(int(end), think_budget), float(bias)))
         else:
-            schedule = [(self.think_budget, 0.0)]
+            schedule = [(think_budget, 0.0)]
 
         think_ids: list[int] = []
         think_lps: list[float] = []
