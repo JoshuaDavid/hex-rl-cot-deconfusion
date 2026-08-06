@@ -411,3 +411,9 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 
 - k_occupancy flat (659->646 p50) at p~1: weak-by-design pressure (proportional mean-only advantages post-deadband) x floor allocation (~1.5 groups/step). Trajectory reads: think = board-narration ritual (full row-by-row re-derivation for a 1-cell lookup; late sample dithers on answer format at cap until force-closed). Massive slack, negligible force.
 - Decision: don't tune for it — compressing a solved diagnostic task inverts Neyman logic. Designated observable instead: chain (4x allocation, approaching saturation) — if k_chain falls as p_chain saturates, length economics works; if pinned, lambda under-tuned and worth revisiting.
+
+## 2026-08-06 12:55 — [fork] Step-75: controller demotion works; judge negative-transfer candidate
+
+- General val climbing (-0.532); edge val flat at baseline after 75 edge-heavy steps — transfer absent so far; edge>0.8-by-150 prediction (60%) in danger.
+- Controller: first live signal-driven demotion (chain 0.126->0.087 as p->0.71, sig->0.44). Working as designed.
+- **Judge degrading: p 0.49->0.36, sig 0.023 (confidently wrong)** while chain rose — negative-transfer candidate: pair-tracing training may interfere with whole-board judgment. Step-100 battery: judge accuracy on fixed boards + CoT reads for misapplied tracing procedure.
