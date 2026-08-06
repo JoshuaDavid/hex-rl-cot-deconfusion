@@ -561,3 +561,35 @@ not reward-hacking pressure. Registered predictions:
 - P(think re-grows >300 chars median on ≥1 move task by step 40) = 0.5
 - P(witness think stays <150 chars median through step 40) = 0.7
 - P(witness p ≥ 0.85 by step 40) = 0.6
+
+## 2026-08-06 ~12:00 — ROOT CAUSE: v1 SFT was accidental think-ablation
+
+Decoded the actual loss-masked target of the v1 certificate SFT:
+`Answer: {"winner": ...}<|im_end|>` — NO think. MultiTurnSFTDataset renders
+each turn through the chat template, and Qwen3's template strips
+<think>...</think> from assistant messages; the sanity check we bypassed with
+ignore_input_ids_mismatch was warning about exactly this. So v1 trained 2
+epochs of board→answer with the reasoning deleted. Reframes everything:
+
+- "Post-SFT CoT collapse" is an artifact of the pipeline, not a property of
+  certificate SFT. The armC_sftrl leg is really "RL on a think-ablated
+  policy" — a different, still-useful experiment. Verdict through step 20:
+  RL does NOT re-grow ablated think (lengths pinned ~25 chars all categories),
+  witness climbs 0.74→0.83 (the one skill the ablated mapping supports),
+  everything else decays (judge 0.66→0.49, occupancy →0.27, chainset →0.08,
+  degenerate `White|White|...` echo loops appearing). Exploration in
+  think-space is dead: P(long think) ≈ 0, nothing to reinforce.
+- Accidental C3 gem: 1.7B does path-tracing with ZERO CoT at 0.83 accuracy
+  after 2 epochs of answer-only SFT — the procedure internalized into the
+  forward pass. Verbalization is not necessary for the certificate skill.
+
+Fix: hexenv/sft_cert_dataset.py (CertSFTDataset) tokenizes assistant turns
+raw so the narration survives; acceptance test = decode input_ids[loss_mask]
+and see the think block (verified). New meta-rule, added to yolo recipe:
+NEVER launch an SFT without decoding the loss-masked tokens first — the
+token-ledger audit rule, extended from RL formats to SFT targets.
+
+Plan: checkpoint armC_sftrl at step 25, kill, rerun SFT as armC_sft_cert_v2
+(think in loss), relaunch RL as armC_sftrl2. The v1 leg becomes the
+think-ablation arm of the comparison — three-way now:
+pure RL (armC 250→298) vs ablated-SFT+RL (sftrl) vs narrated-SFT+RL (sftrl2).
