@@ -782,3 +782,43 @@ The synthesis:
 
 Artifacts: checkpoints/armC_sftrl3/global_step_50 (best overall policy),
 side channels for all four legs, wandb runs + controller mirrors.
+
+## 2026-08-06 ~19:50 — Arm D launched: witness 2x2-5x5, LoRA SFT, no thinking
+
+Motivation (user): RL teaches new skills too slowly. Arm D isolates the
+witness task on tiny boards and asks (1) can Qwen3-1.7B learn it AT ALL,
+(2) does CoT then buy anything. Test 1: teacher-forced SFT on a rank-32
+LoRA from BASE instruct Qwen3-1.7B (not an RL ckpt), thinking disabled
+(chat-template empty think block), pass bar mean score > 0.90 on held-out
+boards via the real grader.
+
+Design deltas vs arm C certificates:
+- Boards 2x2-5x5, dedup by position, and only boards whose winner has a
+  UNIQUE minimal winning path (BFS path counting) — unambiguous target.
+  Pool sizes: 2x2 has only 9 such boards in existence (6B/3W), 3x3 841,
+  4x4/5x5 capped at 1150. Split 2697 train / 151 val / 302 test.
+- Token-importance loss weights: every completion token weight 2.0
+  (structure/winner errors gate score to -1 = 2.0 achievable-score loss),
+  except path-cell tokens which get 1 - grader_score(gold with that cell
+  deleted) ~ 0.22-0.67. Flows through verl no_padding sft_loss as weighted
+  CE (sum(w*ce)/sum(w)). Uniform-weight control trains alongside
+  (ARMD_UNIFORM=1 binarizes the mask).
+- Precomputed input_ids/loss_mask in parquet (hexenv/armd_sft_dataset.py);
+  acceptance: decoded tokens+weights eyeballed, 20/20 gold rows score 1.0,
+  prompt reconstruction byte-identical to curriculum witness rows.
+
+Baseline (base model, no think, temp 0, 302 test rows): mean -0.877,
+perfect 0.000, 114/302 unparsed; hallucinates off-board cells. Zero point.
+
+Predictions (registered before training):
+- P1: weighted run reaches mean > 0.90 on test at temp 0 within 3 epochs @60%
+- P2: per-size monotone: 5x5 is the weakest size @70%
+- P3: score decreases monotonically in gold path_len (3..6, n>=20 bins) @70%
+- P4: weighted vs uniform final |delta mean| < 0.05 (weighting doesn't
+  matter at convergence on this budget) @60%
+- P5: >=1 of the two runs still emits an off-board cell on some test row
+  after 3 epochs @55%
+
+Hypers: lr 1e-4 cosine, bs 64, 3 epochs, lora r32 alpha 64, max_len 2048.
+wandb: verl loss curves + per-epoch generation evals (train-sample/val/test
+score, per-size + per-path_len) logged by scripts/eval_armD_witness.py.
