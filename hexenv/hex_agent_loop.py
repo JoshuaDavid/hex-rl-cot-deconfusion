@@ -57,7 +57,12 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         # task-aware answer scaffold: judgment prompts ask for "Answer: ...",
         # move prompts for "Move: ..."
         user_text = messages[-1].get("content", "") if messages else ""
-        answer_word = "Answer" if "Answer: Black|White|Neither" in user_text else "Move"
+        if "Answer: Black|White|Neither" in user_text:
+            answer_word, answer_budget = "Answer", 8
+        elif "Answer: <comma-separated list of cells>" in user_text:
+            answer_word, answer_budget = "Answer", 48
+        else:
+            answer_word, answer_budget = "Move", ANSWER_BUDGET
         scaffold_ids, force_ids = self._scaffolds(answer_word)
 
         metrics = {}
@@ -124,7 +129,7 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
 
         # phase 2: answer
         sp2 = dict(sampling_params)
-        sp2["max_tokens"] = ANSWER_BUDGET
+        sp2["max_tokens"] = answer_budget
         out2: TokenOutput = await self.server_manager.generate(
             request_id=uuid4().hex,
             prompt_ids=prompt_ids + response_ids,
