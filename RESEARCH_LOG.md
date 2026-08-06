@@ -593,3 +593,32 @@ Plan: checkpoint armC_sftrl at step 25, kill, rerun SFT as armC_sft_cert_v2
 (think in loss), relaunch RL as armC_sftrl2. The v1 leg becomes the
 think-ablation arm of the comparison — three-way now:
 pure RL (armC 250→298) vs ablated-SFT+RL (sftrl) vs narrated-SFT+RL (sftrl2).
+
+## 2026-08-06 ~12:40 — narration is a commitment device: branch-SD collapses to ~0
+
+armC_sftrl2 (narrated SFT + RL) vs armC_sftrl (ablated SFT + RL), mean
+within-think branch-score SD (8 answers per think, same-prompt):
+
+  category   ablated  narrated      category   ablated  narrated
+  witness     0.276     0.000       judge       0.238     0.000
+  chain       0.244     0.012       occupancy   0.144     0.017
+  edge_m1     0.104     0.000       general     0.088     0.020
+
+10-100x collapse. When the think ends with a stated conclusion, the answer
+phase is a deterministic transcription; when think is absent/vestigial, the
+answer is sampled and noisy. C3 shape: the narrated CoT is a *commitment
+device* — verbalization pins the answer. Corollary: answer-branching
+(Rao-Blackwell) only buys signal when the think→answer channel is lossy;
+for narrated policies it's inert. YOLO implication: branching is cheap
+insurance early in training and after policy changes, useless once the
+policy narrates conclusions.
+
+Costs of narrated SFT, step-5 snapshot: think style contaminated ALL
+categories (~180-230 char witness-style narration everywhere; pre-SFT ~950);
+occupancy crashed 1.0→0.12 (wrong procedure narrated confidently), witness
+0.66 (below ablated 0.83 and v1-spot 0.96), judge 0.58, but general move
+p=0.15 vs 0.07 pre-branch and entropy healthier (0.24 vs 0.12). BOTH SFTs
+damaged non-target categories, by different mechanisms: ablation kills the
+compute, narration overwrites the procedure. A 2850-example single-task SFT
+is a blunt instrument at 1.7B either way — YOLO recipe should mix SFT tasks
+or interleave SFT with RL, not run task-pure SFT blocks.
