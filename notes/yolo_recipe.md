@@ -54,6 +54,14 @@ finding that earned it (see RESEARCH_LOG.md dates).
   certificates (the certificate IS the reasoning artifact); RL for decisions
   without demonstrations; RL-after-SFT to consolidate. (Branch experiment
   results pending.)
+- BRANCH VERDICT (08-06, three-way: pure RL vs ablated-SFT+RL vs
+  narrated-SFT+RL): certificate SFT wins its own task in 6 minutes (0.84-0.96
+  vs 0.61 after ~50 RL steps) but task-pure SFT DESTROYS the rest of the
+  policy (general move val 0.43→0.14, chainset 0.90→0.13, think collapses
+  globally) and RL at lr 1e-6 repairs ~nothing in 50 steps (ppo_kl ~1e-5).
+  If SFT at all: replay-mix with on-policy samples of every other category,
+  or interleave SFT/RL. Gold certificates also trained only the verification
+  half — winner DISCRIMINATION stayed untaught (decisions need RL).
 - SFT TRAP: Qwen3's chat template strips <think> from assistant turns, so
   per-turn SFT datasets (verl MultiTurnSFTDataset) silently train answer-only
   targets — accidental think-ablation that RL cannot undo (exploration in
