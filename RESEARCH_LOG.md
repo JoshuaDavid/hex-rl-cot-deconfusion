@@ -484,3 +484,39 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - At </think>, sample n=8 answers in ONE vllm request (shared KV; +10-15% compute): think tokens get mean-over-answers reward (E[r|think] estimate — kills the 8-44% transcription-noise term in think advantages); optional level 2: answers judged against within-think siblings (transcription-targeted gradient). Vine/tree-GRPO at the branch point forced-close created for free. Subsumes & beats the two-temperature idea.
 - Implementation ladder: (i) loop-computed mean reward via AgentLoopOutput.reward_score (verify verl precedence), random single answer emitted for tokens; (ii) hierarchical advantages (trainer surgery, later).
 - Queued behind branch experiment. Registered: faster winset/witness convergence vs pure-RL slope: 60%. Per-think answer agreement rises: 65%.
+
+## 2026-08-06 ~10:50 — SFT branch complete; RL-from-SFT (armC_sftrl) launching
+
+Disk crisis killed armC at step 298/400 (user cleaned; branch-a window 250→298
+complete in side channel, 82k records). Pivoted to the queued branch experiment.
+
+**SFT leg**: certificate SFT from checkpoints/armC/global_step_250/hf on 2850
+gold witness pairs, 2 epochs (88 steps, ~6 min), final val/loss 0.045. Needed
+`data.enable_thinking_default=true data.ignore_input_ids_mismatch=true`
+(Qwen3 think-tag chat-template mismatch trips MultiTurnSFTDataset's per-turn
+sanity check; documented escape hatch in verl source). Merged rank-0 fp32 .pt
+→ bf16 safetensors at checkpoints/armC_sft_cert/global_step_88/huggingface.
+
+**Spot check (6 witness prompts, temp 0.6)**: mean score **0.96**, 5/6 perfect
+paths. Pure-RL branch was at link_frac ≈ 0.44 after ~50 steps of RL on this
+task. **Prediction "SFT link_frac>0.9 within 20 RL steps @75%" resolves YES at
+RL step 0** — the SFT alone did it. Also notable: the SFT'd model emits the
+JSON answer *immediately, with no think narration at all* (len ~70 chars) —
+2 epochs on short-think gold pairs collapsed the think phase. The RL leg's
+forced-close scaffold reopens a think phase regardless; watch whether think
+re-grows or stays vestigial on witness (and whether no-think transfer holds).
+
+**Answer-branching hardened before launch** (verl source verified):
+- AgentLoopOutput.reward_score, when set, bypasses the async reward path
+  entirely (agent_loop.py: _compute_score skips; rm_scores built from it) —
+  so the reward-fn side channel would go silent. Loop now scores each branch
+  itself (logging suppressed via env pop in a sync block) and writes ONE
+  side-channel record: score = picked branch's shaped score, shaped = branch
+  mean (what GRPO trains on), + branch_scores/n_branch fields.
+- Val gating: run() never sees verl's validate flag; gate on temperature<1.0
+  (val_kwargs.temperature=0.6) so val stays unbranched/comparable.
+- Graceful fallback if server ignores n>1 (flat token_ids): single-answer
+  score, n_branch field in side channel reveals it → smoke check.
+
+Launching: armC_sftrl from the SFT ckpt, STEPS=50, same curriculum/config as
+armC (λ=0.4, bias 192:0,1088:30, mean-only adv), ANSWER_BRANCH=8.

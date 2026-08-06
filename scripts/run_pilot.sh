@@ -33,6 +33,7 @@ export HEX_ROLLOUT_LOG=/workspace/hex-rl-cot-deconfusion/results/rollouts/${EXP_
 export HEX_LEN_LAMBDA=${LEN_LAMBDA:-0}
 export HEX_CLOSE_BIAS=${CLOSE_BIAS:-}
 export HEX_THINK_CHAR_CAP=${THINK_CHAR_CAP:-3300}
+export HEX_ANSWER_BRANCH=${ANSWER_BRANCH:-1}
 mkdir -p "$(dirname "$HEX_ROLLOUT_LOG")" "$CKPT_DIR"
 
 cd /workspace/hex-rl-cot-deconfusion

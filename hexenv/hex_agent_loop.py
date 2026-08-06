@@ -11,8 +11,10 @@ Qwen3-1.7B base ~never terminates thinking on open-ended move choice
 (see RESEARCH_LOG 2026-08-05).
 """
 
+import json as _json
 import logging
 import os
+import random as _random
 from typing import Any
 from uuid import uuid4
 
@@ -132,19 +134,81 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
             response_mask += [0] * len(force_ids)
             response_lps += [0.0] * len(force_ids)
 
-        # phase 2: answer
+        # phase 2: answer — branch n=A answers per think (one request, shared
+        # KV). Think reward = mean over answers (Rao-Blackwellized credit; see
+        # RESEARCH_LOG 2026-08-06). One randomly chosen answer is emitted as
+        # the trained tokens; reward_score carries the mean.
+        n_branch = int(os.getenv("HEX_ANSWER_BRANCH", "1"))
+        # run() never sees verl's validate flag; val is distinguishable by
+        # val_kwargs.temperature (0.6) vs training (1.0). Keep val unbranched
+        # so val metrics stay comparable across branches/arms.
+        if float(sampling_params.get("temperature", 1.0)) < 1.0:
+            n_branch = 1
         sp2 = dict(sampling_params)
         sp2["max_tokens"] = answer_budget
+        if n_branch > 1:
+            sp2["n"] = n_branch
         out2: TokenOutput = await self.server_manager.generate(
             request_id=uuid4().hex,
             prompt_ids=prompt_ids + response_ids,
             sampling_params=sp2,
             priority=priority,
         )
-        response_ids += list(out2.token_ids)
-        response_mask += [1] * len(out2.token_ids)
-        response_lps += (list(out2.log_probs) if out2.log_probs
-                         else [0.0] * len(out2.token_ids))
+        branch_reward = None
+        gt_str = kwargs.get("reward_model", {}).get("ground_truth") \
+            if isinstance(kwargs.get("reward_model"), dict) else None
+        if n_branch > 1 and gt_str is not None:
+            # Setting reward_score below bypasses verl's async reward path, so
+            # the reward-fn side channel would go silent for these samples. The
+            # loop scores each branch with logging suppressed (sync block — no
+            # awaits, so no coroutine can interleave the env mutation) and
+            # writes ONE side-channel record itself (controller depends on it).
+            nested = (isinstance(out2.token_ids, list) and out2.token_ids
+                      and isinstance(out2.token_ids[0], list))
+            all_ids = out2.token_ids if nested else [out2.token_ids]
+            all_lps = (out2.log_probs if (nested and out2.log_probs)
+                       else [out2.log_probs] if not nested
+                       else [None] * len(all_ids))
+            log_path = os.environ.pop("HEX_ROLLOUT_LOG", None)
+            try:
+                from hexenv import reward_verl
+                prefix = self.tokenizer.decode(response_ids)
+                scores = []
+                for ids in all_ids:
+                    r = reward_verl.compute_score(
+                        "hex", prefix + self.tokenizer.decode(ids), gt_str)
+                    scores.append(r["score"] if isinstance(r, dict) else r)
+                branch_reward = sum(scores) / len(scores)
+            except Exception:
+                logger.exception("answer-branch scoring failed")
+                branch_reward = None
+            finally:
+                if log_path is not None:
+                    os.environ["HEX_ROLLOUT_LOG"] = log_path
+            pick = _random.randrange(len(all_ids))
+            picked_ids = list(all_ids[pick])
+            picked_lps = (list(all_lps[pick]) if all_lps[pick]
+                          else [0.0] * len(picked_ids))
+            if branch_reward is not None and log_path:
+                try:
+                    gt = _json.loads(gt_str) if isinstance(gt_str, str) else gt_str
+                    with open(log_path, "a") as f:
+                        f.write(_json.dumps({
+                            "gt": gt, "move": None,
+                            "kind": "win" if scores[pick] > 0 else "lose",
+                            "score": scores[pick], "shaped": branch_reward,
+                            "branch_scores": scores, "n_branch": len(all_ids),
+                            "response": prefix + self.tokenizer.decode(picked_ids),
+                        }) + "\n")
+                except OSError:
+                    pass
+        else:
+            picked_ids = list(out2.token_ids)
+            picked_lps = (list(out2.log_probs) if out2.log_probs
+                          else [0.0] * len(picked_ids))
+        response_ids += picked_ids
+        response_mask += [1] * len(picked_ids)
+        response_lps += picked_lps
 
         # merge server-stamped weight-version fields across both phases
         extra_fields = dict(out1.extra_fields)
@@ -165,6 +229,7 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
             response_ids=response_ids[: self.response_length],
             response_mask=response_mask[: self.response_length],
             response_logprobs=response_lps[: self.response_length],
+            reward_score=branch_reward,
             num_turns=2,
             metrics=metrics,
             extra_fields=extra_fields,

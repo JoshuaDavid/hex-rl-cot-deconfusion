@@ -1,9 +1,13 @@
 {
- "edge_m1": 0.2795,
- "gen_m1": 0.20723,
- "mate2": 0.13223,
- "general": 0.20332,
- "judge": 0.04648,
- "occupancy": 0.04648,
- "chain": 0.08476
+ "edge_m1": 0.11078,
+ "gen_m1": 0.1301,
+ "mate2": 0.07929,
+ "general": 0.17833,
+ "judge": 0.0784,
+ "occupancy": 0.04803,
+ "chain": 0.04803,
+ "mate1_v2": 0.11092,
+ "winset": 0.07685,
+ "chainset": 0.08164,
+ "witness": 0.05764
 }
