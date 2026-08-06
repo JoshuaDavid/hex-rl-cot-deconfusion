@@ -382,3 +382,8 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - **ARM C LAUNCHED**: 400 steps, batch 32x8, think 1088, ADV_STD_NORM=False, len lambda 0.25 + 96-char deadband, close-bias 512:0/768:10/960:20/1088:30, controller 10-min ticks + wandb companion run (armC-controller), ckpts/50 + janitor, probe waves + 2h backups repointed, config.yaml at launch values (smoke flip reset).
 - Registered: edge-val conversion >0.8 by 150: 60%. Judge success >0.9 by 100: 70%. Judge natural closes >20% once judge acc >0.8: 55% (resolution-gating live test). General-val win >0.55 by 400: 40%. Judge think-p50 <600 tok by 200: 60%.
 - Mid-run planned: mate1-v2 corpus (back-up-one generator) added as a NEW category around step 100 — first live demonstration of the hot-add path.
+
+## 2026-08-06 09:30 — [fork] FIRST LIVE HOT-ADD: atomic categories (Joshua's push)
+
+- Dropped-rung decision reversed: judge's near-zero within-group sigma (deterministic per board => no gradient despite 0.49 accuracy) reopens the case for atomic full-board rungs. occupancy + chain categories built in the Black|White|Neither format (reuses judge reward branch + live scaffold detection — no trainer/loop changes), label-balanced (chain v1 was 97% Neither — caught by label count pre-training, rebuilt 270/270/260), dropped into data/curriculum/ mid-run at ~step 22. importance 0.4, floor 0.05 each.
+- Registered: atomic within-group sigma > judge's 0.065: 70%. Atomic p>0.9 within 100 steps of add: 55%. Also implicitly tests the hot-add machinery in production.
