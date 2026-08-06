@@ -14,6 +14,9 @@ categories:
   judge:
     floor: 0.05
     importance: 0.6
+  mate1_v2:
+    floor: 0.05
+    importance: 0.8
   mate2:
     floor: 0.05
     importance: 0.7

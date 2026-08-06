@@ -417,3 +417,10 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - General val climbing (-0.532); edge val flat at baseline after 75 edge-heavy steps — transfer absent so far; edge>0.8-by-150 prediction (60%) in danger.
 - Controller: first live signal-driven demotion (chain 0.126->0.087 as p->0.71, sig->0.44). Working as designed.
 - **Judge degrading: p 0.49->0.36, sig 0.023 (confidently wrong)** while chain rose — negative-transfer candidate: pair-tracing training may interfere with whole-board judgment. Step-100 battery: judge accuracy on fixed boards + CoT reads for misapplied tracing procedure.
+
+## 2026-08-06 13:40 — [fork] Anti-useless-thinking package (Joshua's ask) + step-100 restart bundle
+
+- Decision-point measurement (12 winning traces, live server, greedy force-close at 10/25/50/75%): move-task answers NOT stable early — most settle only after 75% of think; useless-suffix lower bound 0.08. Split finding: resolvable tasks (occupancy) = ritual + dead suffix; move tasks = late CoT keeps FLIPPING the chosen move without improving average quality (slow re-sampler, not value-adder). Counterfactual-truncation PENALTY would bite little on move tasks; bias-extension is the right lever — reward adjudicates whether answer-flipping suffixes earn their tokens.
+- Step-100 val: general -0.433 (monotone climb continues), edge -0.704 (STILL flat; transfer absent at 100 steps).
+- RESTART BUNDLE from ckpt 100: CLOSE_BIAS 192:0,1088:30 (closes possible from token 192, +30 throughout), LEN_LAMBDA 0.4, mate1_v2 hot-added (1200 game-natural endgames via back-up-one generator, importance 0.8).
+- Registered: mean response length < 700 by step 200: 55%. Win-rate drop >0.05 from length pressure (t1.0 train): 30%. Edge conversion benefits from mate1_v2's natural distribution (val_edge reward > -0.5 by step 200): 35%.
