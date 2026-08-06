@@ -695,3 +695,20 @@ Round 2 running: armC_sft_replay2 = 3000 certs + replay x4 (5588 rows, 2 ep)
 — tests volume-for-skill + ratio-for-preservation simultaneously.
 Predictions: witness ≥ 0.7 @60%; chain/occupancy/general within 0.05 of
 baseline @70%.
+
+## 2026-08-06 ~15:10 — replay round 2: volume doesn't fix it; interference does it
+
+armC_sft_replay2 (3000 certs + replay x4, 2ep, val 0.043): breadth even
+better preserved (chain 0.90, occupancy 1.00, chainset 0.90, general 0.37,
+edge 0.23) — breadth prediction (70%) YES. But witness 0.25, same 56-token
+stereotyped template — witness≥0.7 (60%) NO. Same cert volume/epochs as the
+task-pure v1 (0.96 solo), so the collapse is INTERFERENCE from co-trained
+long-CoT data, not insufficient volume. Skill-through-verbalization degrades
+monotonically with data diversity: ablated-pure 0.96 → narrated-pure 0.58 →
+narrated-mixed 0.25.
+
+Round 3 (armC_sft_replay3, running): ABLATED certs (answer-only targets, the
+0.96-solo variant) + same replay x4. If witness stays high AND breadth holds,
+the C3 statement is sharp: this procedure is best installed weight-level,
+bypassing the CoT channel; the verbalized version is fragile to mixing.
+Predictions: witness ≥ 0.7 @55%; breadth within 0.05 @75%.
