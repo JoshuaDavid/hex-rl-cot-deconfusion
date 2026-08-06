@@ -541,3 +541,23 @@ Disk: pilot_1p7b + smoke ckpts deleted after B2 verify (17G); armC/250 actor
 deleted without upload (Adam moments of a 6-min-reproducible SFT).
 support_loops.sh (janitor+backup) replaces the ad-hoc loops; <25G disk monitor
 armed.
+
+## 2026-08-06 ~11:45 — post-SFT CoT collapse: think phase is now a draft answer
+
+Eyes-on-data at armC_sftrl step ~10: witness think = `Answer: {...}<|im_end|>`
+(108 chars — a draft answer, then eos inside think); chain think = a literal
+echo of the format spec line. The certificate SFT (gold pairs with short
+narration) collapsed the think channel entirely, and that carried into RL
+rollouts: the model drafts an answer, hits eos, scaffold closes think, and it
+answers again — branch answers then scatter AROUND the draft (e.g.
+[0.61,-1,0.99,0.61,...]). Entropy also down (0.12-0.14 vs 0.15-0.22 pre-SFT).
+
+Natural experiment now running: with think ~100 chars the length price is ~0
+(max bonus), so nothing pushes thinking back EXCEPT accuracy. If thinking
+re-grows on tasks where a draft answer is insufficient (edge_m1, mate2,
+winset) but stays vestigial on procedure tasks (witness), that's the
+resolution-gating story with a causal arrow: think length tracks task demand,
+not reward-hacking pressure. Registered predictions:
+- P(think re-grows >300 chars median on ≥1 move task by step 40) = 0.5
+- P(witness think stays <150 chars median through step 40) = 0.7
+- P(witness p ≥ 0.85 by step 40) = 0.6
