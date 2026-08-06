@@ -2,6 +2,9 @@ categories:
   chain:
     floor: 0.05
     importance: 0.4
+  chainset:
+    floor: 0.05
+    importance: 0.8
   edge_m1:
     floor: 0.1
     importance: 1.5
@@ -23,3 +26,6 @@ categories:
   occupancy:
     floor: 0.05
     importance: 0.4
+  winset:
+    floor: 0.08
+    importance: 1.2
