@@ -1,8 +1,22 @@
-# Arm C curriculum: human-editable. Controller reads every ~10 min.
-# enabled defaults to true; set enabled: false for hot removal.
 categories:
-  judge:    {importance: 0.6, floor: 0.05}
-  edge_m1:  {importance: 1.5, floor: 0.10}
-  gen_m1:   {importance: 1.0, floor: 0.08}
-  mate2:    {importance: 0.7, floor: 0.05}
-  general:  {importance: 1.0, floor: 0.10}
+  chain:
+    floor: 0.05
+    importance: 0.4
+  edge_m1:
+    floor: 0.1
+    importance: 1.5
+  gen_m1:
+    floor: 0.08
+    importance: 1.0
+  general:
+    floor: 0.1
+    importance: 1.0
+  judge:
+    floor: 0.05
+    importance: 0.6
+  mate2:
+    floor: 0.05
+    importance: 0.7
+  occupancy:
+    floor: 0.05
+    importance: 0.4
