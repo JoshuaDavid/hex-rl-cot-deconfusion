@@ -71,7 +71,11 @@ def main():
                 if score < MIN_SCORE:
                     continue
                 think, post = c["text"].split("</think>", 1)
-                content = f"<think>\n{think.strip()}\n</think>\n\n{post.strip()}"
+                think = think.strip()
+                # model may emit its own opening tag; don't double-wrap
+                if think.startswith("<think>"):
+                    think = think[len("<think>"):].strip()
+                content = f"<think>\n{think}\n</think>\n\n{post.strip()}"
                 content = content.replace("<|im_end|>", "").rstrip()
                 ntok = len(tok(msg + content)["input_ids"])
                 if ntok > MAX_TOTAL_TOK:
