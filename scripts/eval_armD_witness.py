@@ -71,7 +71,8 @@ def summarize(name, results):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
-    ap.add_argument("--lora", default=None)
+    ap.add_argument("--lora", nargs="*", default=[],
+                    help="step=path pairs of LoRA adapters (evaluated in turn)")
     ap.add_argument("--data", nargs="+", required=True,
                     help="name=path pairs of parquet datasets")
     ap.add_argument("--out", required=True, help="output prefix (jsonl per set)")
@@ -95,45 +96,57 @@ def main():
     tok = AutoTokenizer.from_pretrained(args.model)
     llm_kwargs = dict(model=args.model, max_model_len=1024,
                       gpu_memory_utilization=0.55, dtype="bfloat16")
-    lora_request = None
+    adapters = [(0, None)]
     if args.lora:
-        from vllm.lora.request import LoRARequest
         llm_kwargs.update(enable_lora=True, max_lora_rank=64)
-        lora_request = LoRARequest("armd", 1, args.lora)
+        adapters = []
+        for spec in args.lora:
+            step, path = spec.split("=", 1)
+            adapters.append((int(step), path))
     llm = LLM(**llm_kwargs)
     sp = SamplingParams(temperature=args.temperature, max_tokens=args.max_tokens)
 
-    all_metrics = {}
-    os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
-    for name, rows in datasets:
-        prompts = [
-            TokensPrompt(prompt_token_ids=tok.apply_chat_template(
-                [{"role": "user", "content": r["content"]}],
-                add_generation_prompt=True, enable_thinking=False,
-                tokenize=True)["input_ids"])
-            for r in rows
-        ]
-        outs = llm.generate(prompts, sp, lora_request=lora_request)
-        results = []
-        for r, o in zip(rows, outs):
-            text = o.outputs[0].text
-            d = compute_score("hex_witness_armD", text, r["gt"])
-            results.append({"size": r["size"], "path_len": r["path_len"],
-                            "score": d["score"], "perfect": d["kind_win"],
-                            "unparsed": d["kind_unparsed"], "response": text,
-                            "gt": r["gt"]})
-        with open(f"{args.out}_{name}.jsonl", "w") as f:
-            for x in results:
-                f.write(json.dumps(x) + "\n")
-        all_metrics[name] = summarize(name, results)
+    prompt_cache = {
+        name: [TokensPrompt(prompt_token_ids=tok.apply_chat_template(
+                   [{"role": "user", "content": r["content"]}],
+                   add_generation_prompt=True, enable_thinking=False,
+                   tokenize=True)["input_ids"]) for r in rows]
+        for name, rows in datasets
+    }
 
+    run = None
     if args.wandb_run:
         import wandb
         run = wandb.init(project="hex-rl-cot-deconfusion",
                          name=args.wandb_run + "_scores",
                          id="armD_scores_" + args.wandb_run, resume="allow")
-        run.log({f"{name}/{k}": v for name, m in all_metrics.items()
-                 for k, v in m.items()}, step=args.wandb_step)
+
+    os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
+    for step, path in adapters:
+        lora_request = None
+        if path:
+            from vllm.lora.request import LoRARequest
+            lora_request = LoRARequest(f"armd{step}", step + 1, path)
+        step_metrics = {}
+        for name, rows in datasets:
+            outs = llm.generate(prompt_cache[name], sp,
+                                lora_request=lora_request)
+            results = []
+            for r, o in zip(rows, outs):
+                text = o.outputs[0].text
+                d = compute_score("hex_witness_armD", text, r["gt"])
+                results.append({"size": r["size"], "path_len": r["path_len"],
+                                "score": d["score"], "perfect": d["kind_win"],
+                                "unparsed": d["kind_unparsed"],
+                                "response": text, "gt": r["gt"]})
+            with open(f"{args.out}_ep{step}_{name}.jsonl", "w") as f:
+                for x in results:
+                    f.write(json.dumps(x) + "\n")
+            step_metrics[name] = summarize(f"ep{step} {name}", results)
+        if run:
+            run.log({f"{name}/{k}": v for name, m in step_metrics.items()
+                     for k, v in m.items()}, step=step)
+    if run:
         run.finish()
 
 

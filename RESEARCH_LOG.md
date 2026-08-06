@@ -822,3 +822,24 @@ Predictions (registered before training):
 Hypers: lr 1e-4 cosine, bs 64, 3 epochs, lora r32 alpha 64, max_len 2048.
 wandb: verl loss curves + per-epoch generation evals (train-sample/val/test
 score, per-size + per-path_len) logged by scripts/eval_armD_witness.py.
+
+## 2026-08-06 ~20:30 — Arm D interim: 3 epochs miss the 0.90 bar; undertrained, not capacity-capped
+
+LoRA r32, 3 epochs, temp-0 test (302 rows): weighted 0.852, uniform 0.836
+(baseline -0.877). Trajectory ep1->2->3: weighted 0.558->0.786->0.852, still
+climbing steeply; TRAIN-split score is only 0.896 with NO train/val/test gap
+(0.896/0.883/0.852) => optimization-limited, not data- or capacity-limited.
+Failure anatomy (weighted ep3): 75/302 imperfect, only 14 wrong-winner,
+0 unparsed — errors are near-miss paths with one broken link; monotone in
+size (3x3 0.983 / 4x4 0.866 / 5x5 0.706) and path length (plen3 0.985 ->
+plen6 0.643). Winner-ID + format are learned; chain-tracing at length is the
+residual skill.
+
+Weighting effect so far: weighted beats uniform on MEAN score (+0.016) but
+loses on %PERFECT (0.752 vs 0.808) — the exact signature of the importance
+weights (protect winner/structure, discount individual links).
+
+Decision: minimal adjustment = same recipe, 8 epochs (fresh runs, both arms).
+Fat FSDP checkpoints (8GB/epoch) exceeded disk; rolling export-to-peft-adapter
+(67MB) + delete keeps it flat. Prediction: weighted_e8 test mean > 0.90 by
+epoch 8 @70%; train-split mean > 0.97 by epoch 8 @70%.
