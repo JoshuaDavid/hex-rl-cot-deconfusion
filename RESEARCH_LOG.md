@@ -751,3 +751,34 @@ unit content. Lesson forming for the recipe: replay data should be
 length-filtered or entropy-preserved (sample at temp 1.0, or mix multiple
 temps) — self-distilled SFT at temp 0.6 bakes in both verbosity and
 overconfidence.
+
+## 2026-08-06 ~18:30 — sftrl3 final: same accuracy as pure RL at 30x cheaper witness; discrimination is the shared bottleneck
+
+Final window (steps ~40-50): witness 0.61/t84, chain 0.78 (recovered from
+0.38 dip), judge 0.61, general 0.44, occupancy 0.99, chainset 0.57,
+mate1_v2 0.38, mate2 0.29, edge 0.23; val_edge kind_win 0.217 (ties armC
+best), val_edge reward -0.62 (best of any leg).
+
+Prediction grades:
+- witness ≥0.75 by 50 (65%) → NO (0.61; +0.04 over the leg).
+- chain ≥0.80 held (70%) → NO by a hair (0.78, after a transient 0.38 dip
+  that RL corrected — the inflation-truncation was self-healing).
+- witness think <100 tok (70%) → YES (84 chars ≈ 28 tok, stable).
+
+The synthesis:
+1. armC_sftrl3 ≈ pure-RL armC@298 across the curriculum, sometimes better
+   (general 0.44 vs 0.42, mate1_v2 0.38, judge 0.61), with witness at the
+   SAME 0.61 pure RL reached — but at ~28 think tokens vs ~900. The
+   SFT-installed procedure delivers equal accuracy at ~30x less think
+   compute. "Cheap skill installation" is real; acceleration beyond the
+   RL asymptote is not (on this budget).
+2. Witness ceilings at ~0.6 in EVERY leg, and judge sits at the same ~0.5-0.6
+   — winner discrimination is the shared bottleneck no teaching channel
+   cracked (ablated SFT, narrated SFT, replay mixes, RL, RL-after-SFT).
+   The verification half is nearly free; the decision half is the hard
+   kernel. This is the project's cleanest statement of the SFT/RL division.
+3. Entropy 0.05 did NOT kill RL: chain recovered, judge/general improved.
+   Post-self-distillation RL grinds slowly but is not dead at 1.7B scale.
+
+Artifacts: checkpoints/armC_sftrl3/global_step_50 (best overall policy),
+side channels for all four legs, wandb runs + controller mirrors.
