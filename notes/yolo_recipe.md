@@ -54,6 +54,15 @@ finding that earned it (see RESEARCH_LOG.md dates).
   certificates (the certificate IS the reasoning artifact); RL for decisions
   without demonstrations; RL-after-SFT to consolidate. (Branch experiment
   results pending.)
+- SFT TRAP: Qwen3's chat template strips <think> from assistant turns, so
+  per-turn SFT datasets (verl MultiTurnSFTDataset) silently train answer-only
+  targets — accidental think-ablation that RL cannot undo (exploration in
+  think-space dies; other skills decay while the SFT'd mapping climbs; 08-06).
+  Rule: before ANY SFT launch, decode input_ids[loss_mask] and eyeball the
+  think block. Use a raw-assistant-turn dataset (hexenv/sft_cert_dataset.py).
+- Ablation datum from the accident: 2 epochs of answer-only SFT → 1.7B does
+  path-tracing certificates with ZERO CoT at 0.83 (procedure internalizes
+  into the forward pass). Verbalization unnecessary for this skill class.
 
 ## Known-good config (1.7B / A100-40GB reference)
 - GRPO, batch 32 prompts x 8 rollouts, lr 1e-6, kl_loss beta 1e-3 low_var_kl,
