@@ -712,3 +712,26 @@ Round 3 (armC_sft_replay3, running): ABLATED certs (answer-only targets, the
 the C3 statement is sharp: this procedure is best installed weight-level,
 bypassing the CoT channel; the verbalized version is fragile to mixing.
 Predictions: witness ≥ 0.7 @55%; breadth within 0.05 @75%.
+
+## 2026-08-06 ~16:00 — the SFT 2x2: verbalization and mixing each tax the skill ~40%
+
+armC_sft_replay3 (ablated answer-only certs + replay x4, val 0.048):
+witness 0.57 / think 36 tok; breadth intact (chain 0.90, occupancy 1.00,
+chainset 0.73, general 0.33, edge 0.23, judge 0.53). Completed 2x2 (witness
+spot-check accuracy):
+
+                   pure     + replay
+  ablated certs    0.96       0.57
+  narrated certs   0.58       0.25
+
+Two ~independent multiplicative taxes: teaching through the CoT channel
+(~0.6x) and co-training on diverse data (~0.6x). Best joint cell = ablated
+certs + replay: cert skill at 0.57 with zero collateral damage, and per-task
+routing emerges (instant answers on witness, full-length thinks elsewhere).
+0.57 is plausibly winner-ID-capped (judge ~0.5; winner-gated scoring) — the
+decision half that gold certificates structurally can't teach.
+
+Predictions for the consolidation RL leg (armC_sftrl3 from replay3):
+- witness ≥ 0.75 by step 50 (RL supplies winner discrimination) @65%
+- chain ≥ 0.80 at step 50 (breadth maintained under RL) @70%
+- witness think stays < 100 tok median @70%
