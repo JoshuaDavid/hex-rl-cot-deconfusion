@@ -473,3 +473,8 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 
 - Post-fix: witness unparsed 0.96 -> 0.02, baseline link_frac 0.44. Same-checkpoint double-val across the restart calibrated the val noise floor: ~±0.04 general (n=277), ~±0.09 edge (n=60) at k=1 — retroactive caution on past edge-swing readings.
 - At ckpt 250: branch (a) pure-RL continue vs (b) certificate-SFT (3k gold pairs) then RL. Metrics: witness link_frac curve, judge transfer, move-task transfer, load-bearing checks. The teaching-channels comparison is the culmination of the day's task-design arc.
+
+## 2026-08-06 22:30 — [fork] Answer-variance decomposition (Joshua's fixed-think question)
+
+- Modal-agreement, fixed-think resample vs across-group: judge 0.917/0.802, general 0.750/0.616, winset 0.556/0.277. Think causally conditions answers everywhere (fixed > across), but answer-phase residual noise is large (0.08/0.25/0.44): the model re-transcribes its own completed reasoning differently per sample, worst on structured answers.
+- Implications: (1) GRPO credit contamination — think tokens are punished for transcription slips; two-temperature rollouts (hot think, cool ~0.3-0.5 answer) queued POST-branch-experiment with prediction to register. (2) C3 refinement: CoT is a causal-but-lossy channel; tracking fixed-think agreement per checkpoint as the channel-fidelity curve.
