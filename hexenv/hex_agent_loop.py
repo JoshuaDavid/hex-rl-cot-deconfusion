@@ -146,29 +146,31 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
             n_branch = 1
         sp2 = dict(sampling_params)
         sp2["max_tokens"] = answer_budget
-        if n_branch > 1:
-            sp2["n"] = n_branch
-        out2: TokenOutput = await self.server_manager.generate(
-            request_id=uuid4().hex,
-            prompt_ids=prompt_ids + response_ids,
-            sampling_params=sp2,
-            priority=priority,
-        )
         branch_reward = None
         gt_str = kwargs.get("reward_model", {}).get("ground_truth") \
             if isinstance(kwargs.get("reward_model"), dict) else None
+        # verl's vllm server passes n into SamplingParams but returns only
+        # outputs[0] (and TokenOutput.token_ids is a flat list[int]), so n>1
+        # in one request silently wastes n-1 answers. Fire n parallel requests
+        # instead; prefix cache shares the think KV, answers are 8-64 tokens.
+        import asyncio as _asyncio
+        outs = await _asyncio.gather(*[
+            self.server_manager.generate(
+                request_id=uuid4().hex,
+                prompt_ids=prompt_ids + response_ids,
+                sampling_params=dict(sp2),
+                priority=priority,
+            ) for _ in range(max(1, n_branch))
+        ])
+        out2: TokenOutput = outs[0]
         if n_branch > 1 and gt_str is not None:
             # Setting reward_score below bypasses verl's async reward path, so
             # the reward-fn side channel would go silent for these samples. The
             # loop scores each branch with logging suppressed (sync block — no
             # awaits, so no coroutine can interleave the env mutation) and
             # writes ONE side-channel record itself (controller depends on it).
-            nested = (isinstance(out2.token_ids, list) and out2.token_ids
-                      and isinstance(out2.token_ids[0], list))
-            all_ids = out2.token_ids if nested else [out2.token_ids]
-            all_lps = (out2.log_probs if (nested and out2.log_probs)
-                       else [out2.log_probs] if not nested
-                       else [None] * len(all_ids))
+            all_ids = [list(o.token_ids) for o in outs]
+            all_lps = [list(o.log_probs) if o.log_probs else None for o in outs]
             log_path = os.environ.pop("HEX_ROLLOUT_LOG", None)
             try:
                 from hexenv import reward_verl

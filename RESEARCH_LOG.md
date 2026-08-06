@@ -520,3 +520,24 @@ re-grows or stays vestigial on witness (and whether no-think transfer holds).
 
 Launching: armC_sftrl from the SFT ckpt, STEPS=50, same curriculum/config as
 armC (λ=0.4, bias 192:0,1088:30, mean-only adv), ANSWER_BRANCH=8.
+
+## 2026-08-06 ~11:20 — answer-branching live (parallel-request fix)
+
+Smoke on first launch: side channel showed n_branch=1 — verl's vllm server
+passes n into SamplingParams but returns only outputs[0] (TokenOutput.token_ids
+is flat list[int]); 7 of 8 answers were generated and discarded server-side.
+Fix: n parallel answer requests (prefix cache shares think KV; answers 8-64
+tok). Restarted armC_sftrl from SFT ckpt (lost 7 steps). Verified at step 1:
+300/300 train records n_branch=8. Branch spreads confirm the premise — e.g.
+witness think with branch=[0.86,0.99,-1,-1,-1,-1,-1,-1] → shaped=-0.52 instead
+of a ±1 coin flip. Controller live (armC_sftrl-controller); first tick:
+witness p=0.74/reward +0.40 (SFT transfer holds under RL rollouts), but SFT
+forgetting elsewhere: chain 0.88→0.39, occupancy ~1.0→0.39, judge →0.55.
+Watch: does RL re-recover forgotten cats faster than it learned them (relearn
+speed = selection evidence), and does witness stay high.
+
+Disk: pilot_1p7b + smoke ckpts deleted after B2 verify (17G); armC/250 actor
+(21G) + SFT fp32 master uploading, then local delete; SFT optim state (13G)
+deleted without upload (Adam moments of a 6-min-reproducible SFT).
+support_loops.sh (janitor+backup) replaces the ad-hoc loops; <25G disk monitor
+armed.
