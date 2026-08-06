@@ -111,10 +111,12 @@ def main():
         ema_state = read_side_channel(side, ema_state)
 
         shares = {}
+        floors = {}
         for cat in cats:
             c = ccfg.get(cat, {})
             if not c.get("enabled", True):
                 shares[cat] = 0.0
+                floors[cat] = 0.0
                 continue
             w = float(c.get("importance", 1.0))
             floor = float(c.get("floor", 0.05))
@@ -128,9 +130,22 @@ def main():
                 sigma = max(st["sig"] / 2.0, 1e-2)  # /2: reward span is ~2
             if sigma is None:
                 sigma = math.sqrt(max(p * (1 - p), 1e-4))
-            shares[cat] = max(w * sigma / math.sqrt(k), floor * w)
+            shares[cat] = w * sigma / math.sqrt(k)
+            floors[cat] = floor
+        # normalize the Neyman shares FIRST, then apply floors as minimum
+        # fractions and renormalize (floors and Neyman terms are not on
+        # comparable scales; the old max() was 100% floor-dominated)
         tot = sum(shares.values()) or 1.0
-        weights = {c: round(v / tot, 5) for c, v in shares.items()}
+        norm = {c: v / tot for c, v in shares.items()}
+        floored = {c: (0.0 if norm[c] == 0 and floors.get(c, 0) == 0
+                       else max(norm[c], floors.get(c, 0.0)))
+                   for c in norm}
+        # disabled categories must stay at exactly 0
+        for c in norm:
+            if shares[c] == 0.0 and floors.get(c, 1) == 0.0:
+                floored[c] = 0.0
+        tot2 = sum(floored.values()) or 1.0
+        weights = {c: round(v / tot2, 5) for c, v in floored.items()}
         with open(WEIGHTS + ".tmp", "w") as f:
             json.dump(weights, f, indent=1)
         os.replace(WEIGHTS + ".tmp", WEIGHTS)
