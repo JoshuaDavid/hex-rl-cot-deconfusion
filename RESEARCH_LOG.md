@@ -430,3 +430,7 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - No-think ablation vs with-CoT val (same positions, t0.6): general 0.334 vs 0.300 (CoT still decorative, replicating arm A); **edge 0.008 vs 0.133 — 16x collapse without CoT.** First load-bearing CoT in the project, localized to the curriculum-targeted skill. Edge ability is CoT-mediated (chain-tracing procedure executing in-context), NOT absorbed into the policy head.
 - Reframes "no transfer": transfer exists but flows through the CoT channel; shaped-reward val was too blunt to show it. C3's "does RL create load-bearing reasoning where none existed" has a positive instance.
 - Follow-ups queued: CoT reads on edge successes (is the tracing verbalized explicitly?), probe activations at ckpt-100 vs 50 (does the concept show in the residual stream, and did it arrive with or before the verbalization?), and tracking whether continued training distills the CoT-borne skill into the head (no-think edge curve per checkpoint).
+
+## 2026-08-06 15:20 — [fork] Step-125: compression and edge skill rising TOGETHER
+
+- Edge kind_win 0.133 -> 0.217 (best yet; mate1_v2 online). General 0.347. Length mean 954 (off the cap), min 236 — bias-from-192 + lambda-0.4 working. The length-price-vs-CoT-borne-skill tension resolving favorably so far: suffix being trimmed, tracing preserved.
