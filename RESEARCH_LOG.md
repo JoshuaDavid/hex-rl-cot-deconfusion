@@ -455,3 +455,10 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - 1000 terminal boards staged (536B/464W), JSON-object format (per ladder), 64-tok answer budget. Family noted for later: mate-in-1 move+resulting-chain, disjoint-double-path (bridge certificates), blocker sets.
 - Step-150 restart bundle now: winset + chainset + witness + JSON formats + task-aware budgets + listing/path reward branches.
 - Registered: witness link_frac mean > 0.7 within 100 steps: 55%. Witness training moves JUDGE p above 0.6 (transfer through composition): 45%.
+
+## 2026-08-06 18:00 — [fork] Certificate inventory + "is RL the right teacher?" (Joshua)
+
+- New certificate candidates (board-logic verifiable): mate1+chain, cut-set (breaker witness), disjoint double-path (bridge/robustness certificate), mate-in-2 strategy tree, completion-set.
+- Structural answer on RL-vs-SFT: certificates uniquely close the demonstration gap — the label IS the reasoning artifact (BFS/solver writes gold certificates; nothing can write gold move-CoTs). Division of labor: SFT injects procedures where certificates exist; RL for decisions where they don't; RL-after-SFT to pressure-test on-policy.
+- Planned step-250 branch experiment: pure-RL-on-witness vs certificate-SFT-then-RL; compare witness curves, judge transfer, and whether SFT-injected tracing becomes load-bearing on move tasks (C3 from the reverse direction: does RL adopt a taught procedure as a tool?).
+- Registered: SFT branch link_frac>0.9 within 20 steps: 75%. SFT branch beats pure-RL on judge transfer within 50 steps: 55%.
