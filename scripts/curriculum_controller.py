@@ -56,6 +56,7 @@ def read_side_channel(path, ema_state):
         s["n"] += 1
         s["win"] += r["score"] > 0
         s["chars"] += len(r.get("response", ""))
+        s["shaped_sum"] = s.get("shaped_sum", 0.0) + float(r.get("shaped", r["score"]))
         pk = (cat, str(r["gt"].get("moves"))[:200], r["gt"].get("to_move", ""))
         by_prompt[pk].append(float(r.get("shaped", r["score"])))
     # empirical per-prompt reward std (captures length-shaping variance that
@@ -79,7 +80,11 @@ def read_side_channel(path, ema_state):
                 sig = EMA * sig + (1 - EMA) * prev["sig"]
             elif sig is None:
                 sig = prev.get("sig")
-        ema_state[cat] = {"p": p, "k": max(k, 64.0), "sig": sig}
+        mean_shaped = s["shaped_sum"] / s["n"]
+        if prev and prev.get("reward") is not None:
+            mean_shaped = EMA * mean_shaped + (1 - EMA) * prev["reward"]
+        ema_state[cat] = {"p": p, "k": max(k, 64.0), "sig": sig,
+                          "reward": mean_shaped}
     return ema_state
 
 
