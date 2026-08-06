@@ -885,3 +885,74 @@ Next (arm D phase 2, per plan): does CoT buy anything? No-think saturates
 2x2-5x5, so the phase-2 frontier must be where no-think fails: path_len>=7
 and/or 6x6-7x7 boards. Design: same pipeline, long-path-biased sampling,
 compare no-think LoRA vs think-target LoRA at matched compute.
+
+## 2026-08-07 ~00:15 — Arm D v2: constructive boards 2x2-9x9, filter corrected to induced paths
+
+User's cross-check exposed that v1's uniqueness filter counted unique
+SHORTEST paths (BFS), but "minimal winning path" = unique INDUCED path
+(chord-free vertex set; hex = triangular lattice). Enumerator reproduces the
+user's count sequence exactly through n=8 (1,3,11,54,365,3848,68914,2195830;
+n=9 = 126,004,636 pending, pure-python DFS). v1 leak quantified: 359/2697
+train boards (13%) had a second longer induced path — 0% at 2x2, 22% at 5x5,
+growing with size.
+
+v2 pipeline (scripts/witness_constructive.py + build_armD_witness_v2.py):
+PLANT a random induced path (self-avoiding walk, p_forward controls length;
+25% long-path bucket), add winner distractors kept only if induced-path
+count stays 1, add loser stones at game-consistent counts (half adjacent to
+the path as blocking attempts), reject if loser connects. 100% acceptance at
+~1ms/board at 9x9 (rejection sampling was already ~50% at 5x5). Every board
+reachable by legal alternating play (unique path => winner connects exactly
+on the final stone). Solver self-play considered and rejected as overkill
+(cost + density fights the uniqueness filter).
+
+Dataset: 6636 train / 351 val / 702 test, sizes 2-9 (2x2 pool is exactly
+9 boards — matches the closed-form enumeration), winner-balanced, path_len
+2-29, mean plen 11.4 at 9x9. Same no-think targets + token-importance
+weights as v1.
+
+Predictions for armD2_sft_weighted (r32 LoRA, lr 1e-4, 8 epochs):
+- P-v2-1: overall v2-test mean > 0.90 by ep8 @55%
+- P-v2-2: per-size monotone decreasing, 9x9 lowest @80%
+- P-v2-3: 9x9 mean > 0.75 by ep8 @55%
+- P-v2-4: transfer to v1 playout test (2-5) mean >= 0.93 @60%
+- P-v2-5: path_len>=10 bin mean < 0.70 at ep8 (long paths stay hard =>
+  the CoT-phase frontier) @60%
+
+## 2026-08-07 ~00:20 — Arm D v2 PASSES at 9x9: 0.975 overall; the CoT frontier is exact-path perfection at plen>=14
+
+armD2_sft_weighted (r32 LoRA, 8ep on 6636 constructive boards 2x2-9x9),
+temp-0 ep8: v2 test 0.975 mean / 93.2% perfect (n=500), crossed 0.90 at ep2.
+Per-size: 3x3 1.00, 4x4 0.991, 5x5 0.970, 6x6 0.968, 7x7 0.982, 8x8 0.941,
+9x9 0.970. 34/500 imperfect: 3 wrong winner, 0 unparsed. n=9 minimal-path
+count independently confirmed = 126,004,636 (user's closed-form vs my DFS).
+
+Prediction grades:
+- P-v2-1 overall >0.90 (55%) -> YES (0.975).
+- P-v2-2 monotone in size, 9x9 lowest (80%) -> NO: 8x8 is the trough
+  (0.941), 9x9 ties 5x5. Difficulty tracks PATH LENGTH, not board area;
+  size ordering was a proxy that broke.
+- P-v2-3 9x9 >0.75 (55%) -> YES (0.970, huge margin).
+- P-v2-4 v1 playout-test transfer >=0.93 (60%) -> YES by a hair (0.932;
+  by size 2/3/4 near-ceiling, 5x5 0.840). Constructive-trained skill
+  mostly transfers to real-game boards; residual ~0.14 gap at 5x5 says
+  playout boards (dense, tangled stone sets) are genuinely harder than
+  equal-size constructive ones.
+- P-v2-5 plen>=10 mean <0.70 (60%) -> NO (0.927) — but for an
+  instructive reason: MEAN saturates on long paths because one broken
+  link costs only ~2/(2L+1); %PERFECT is the honest metric and it
+  collapses: plen>=10 71.9%, plen>=14 36.0%, plen>=17 ~15%. Failure
+  reading: long-path errors include LOOPS (model re-enters visited
+  cells — a plen-23 sample repeats a 6-cell cycle verbatim), the
+  classic no-scratchpad signature.
+
+Arm D question 1 is now fully answered: Qwen3-1.7B + r32 LoRA learns the
+witness task to 0.94-1.00 mean at EVERY size 2x2-9x9 with no thinking,
+~80 min SFT total. Question 2 (does CoT buy anything?) now has a sharp
+target: exact-path perfection on plen>=14, where no-think sits at 36% and
+shows visited-cell loops that a scratchpad should fix. Metric for phase 2:
+frac_perfect on a long-path-enriched test set, not mean score.
+
+Artifacts: data/armD2/, checkpoints/armD2_sft_weighted/adapter_ep{1..8},
+results/armD/armD2_weighted_ep*_{test,val,train,v1test}.jsonl, wandb
+armD2_sft_weighted(+_scores).

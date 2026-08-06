@@ -1,0 +1,996 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+INFO 08-06 23:36:42 [api_utils.py:273] non-default args: {'dtype': 'bfloat16', 'max_model_len': 1024, 'gpu_memory_utilization': 0.55, 'disable_log_stats': True, 'enable_lora': True, 'max_lora_rank': 64, 'model': 'Qwen/Qwen3-1.7B'}
+INFO 08-06 23:36:45 [model.py:598] Resolved architecture: Qwen3ForCausalLM
+INFO 08-06 23:36:45 [model.py:1725] Using max model len 1024
+INFO 08-06 23:36:45 [scheduler.py:252] Chunked prefill is enabled with max_num_batched_tokens=8192.
+INFO 08-06 23:36:45 [vllm.py:1006] Asynchronous scheduling is enabled.
+INFO 08-06 23:36:45 [kernel.py:276] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(EngineCore pid=1093303) INFO 08-06 23:36:52 [core.py:114] Initializing a V1 LLM engine (v0.24.0) with config: model='Qwen/Qwen3-1.7B', speculative_config=None, tokenizer='Qwen/Qwen3-1.7B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=1024, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_verbose=False), seed=0, served_model_name=Qwen/Qwen3-1.7B, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::plamo2_mamba_mixer', 'vllm::qwen_gdn_attention_core', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::kda_attention', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=1093303) INFO 08-06 23:36:53 [parallel_state.py:1588] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://172.17.0.10:55309 backend=nccl
+(EngineCore pid=1093303) INFO 08-06 23:36:53 [parallel_state.py:1923] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+(EngineCore pid=1093303) INFO 08-06 23:36:53 [gpu_worker.py:331] Using V2 Model Runner
+(EngineCore pid=1093303) INFO 08-06 23:36:54 [model_runner.py:281] Loading model from scratch...
+(EngineCore pid=1093303) INFO 08-06 23:36:54 [cuda.py:480] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(EngineCore pid=1093303) INFO 08-06 23:36:54 [flash_attn.py:670] Using FlashAttention version 2
+(EngineCore pid=1093303) INFO 08-06 23:36:57 [weight_utils.py:849] Filesystem type for checkpoints: OVERLAY. Checkpoint size: 3.78 GiB. Available RAM: 697.29 GiB.
+(EngineCore pid=1093303) INFO 08-06 23:36:57 [weight_utils.py:872] Auto-prefetch is disabled because the filesystem (OVERLAY) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(EngineCore pid=1093303) Loading safetensors checkpoint shards:   0% Completed | 0/2 [00:00<?, ?it/s]
+(EngineCore pid=1093303) Loading safetensors checkpoint shards:  50% Completed | 1/2 [00:01<00:01,  1.05s/it]
+(EngineCore pid=1093303) Loading safetensors checkpoint shards: 100% Completed | 2/2 [00:01<00:00,  1.90it/s]
+(EngineCore pid=1093303) 
+(EngineCore pid=1093303) INFO 08-06 23:36:58 [default_loader.py:430] Loading weights took 1.15 seconds
+(EngineCore pid=1093303) INFO 08-06 23:36:58 [punica_selector.py:20] Using PunicaWrapperGPU.
+(EngineCore pid=1093303) INFO 08-06 23:36:59 [model_runner.py:302] Model loading took 3.4 GiB and 5.919083 seconds
+(EngineCore pid=1093303) INFO 08-06 23:36:59 [topk_topp_sampler.py:55] Using FlashInfer for top-p & top-k sampling.
+(EngineCore pid=1093303) INFO 08-06 23:37:04 [backends.py:1089] Using cache directory: /root/.cache/vllm/torch_compile_cache/519ef69c4d/rank_0_0/backbone for vLLM's torch.compile
+(EngineCore pid=1093303) INFO 08-06 23:37:04 [backends.py:1148] Dynamo bytecode transform time: 4.52 s
+(EngineCore pid=1093303) INFO 08-06 23:37:07 [backends.py:292] Directly load the compiled graph(s) for compile range (1, 8192) from the cache, took 2.321 s
+(EngineCore pid=1093303) INFO 08-06 23:37:07 [decorators.py:311] Directly load AOT compilation from path /root/.cache/vllm/torch_compile_cache/torch_aot_compile/0182ae70d96af3fbf3809f0ca683d88a06244fc8f5b71789f6f4a79527d8fafd/rank_0_0/model
+(EngineCore pid=1093303) INFO 08-06 23:37:07 [monitor.py:53] torch.compile took 7.29 s in total
+(EngineCore pid=1093303) WARNING 08-06 23:37:07 [utils.py:279] Using default LoRA kernel configs
+(EngineCore pid=1093303) INFO 08-06 23:37:07 [monitor.py:81] Initial profiling/warmup run took 0.25 s
+(EngineCore pid=1093303) INFO 08-06 23:37:08 [gpu_worker.py:508] Available KV cache memory: 17.82 GiB
+(EngineCore pid=1093303) INFO 08-06 23:37:08 [kv_cache_utils.py:2146] GPU KV cache size: 166,832 tokens
+(EngineCore pid=1093303) INFO 08-06 23:37:08 [kv_cache_utils.py:2147] Maximum concurrency for 1,024 tokens per request: 162.92x
+(EngineCore pid=1093303) Capturing CUDA graphs (PIECEWISE):   0%|          | 0/102 [00:00<?, ?it/s]Capturing CUDA graphs (PIECEWISE):   2%|▏         | 2/102 [00:00<00:07, 13.25it/s]Capturing CUDA graphs (PIECEWISE):   4%|▍         | 4/102 [00:00<00:06, 14.55it/s]Capturing CUDA graphs (PIECEWISE):   6%|▌         | 6/102 [00:00<00:06, 15.01it/s]Capturing CUDA graphs (PIECEWISE):   8%|▊         | 8/102 [00:00<00:06, 15.32it/s]Capturing CUDA graphs (PIECEWISE):  10%|▉         | 10/102 [00:00<00:05, 15.52it/s]Capturing CUDA graphs (PIECEWISE):  12%|█▏        | 12/102 [00:00<00:05, 15.64it/s]Capturing CUDA graphs (PIECEWISE):  14%|█▎        | 14/102 [00:00<00:05, 15.67it/s]Capturing CUDA graphs (PIECEWISE):  16%|█▌        | 16/102 [00:01<00:05, 15.75it/s]Capturing CUDA graphs (PIECEWISE):  18%|█▊        | 18/102 [00:01<00:05, 15.73it/s]Capturing CUDA graphs (PIECEWISE):  20%|█▉        | 20/102 [00:01<00:05, 15.69it/s]Capturing CUDA graphs (PIECEWISE):  22%|██▏       | 22/102 [00:01<00:05, 15.62it/s]Capturing CUDA graphs (PIECEWISE):  24%|██▎       | 24/102 [00:01<00:04, 15.65it/s]Capturing CUDA graphs (PIECEWISE):  25%|██▌       | 26/102 [00:01<00:04, 15.63it/s]Capturing CUDA graphs (PIECEWISE):  27%|██▋       | 28/102 [00:01<00:04, 15.60it/s]Capturing CUDA graphs (PIECEWISE):  29%|██▉       | 30/102 [00:01<00:04, 15.57it/s]Capturing CUDA graphs (PIECEWISE):  31%|███▏      | 32/102 [00:02<00:04, 15.56it/s]Capturing CUDA graphs (PIECEWISE):  33%|███▎      | 34/102 [00:02<00:04, 15.05it/s]Capturing CUDA graphs (PIECEWISE):  35%|███▌      | 36/102 [00:02<00:04, 14.69it/s]Capturing CUDA graphs (PIECEWISE):  37%|███▋      | 38/102 [00:02<00:04, 14.89it/s]Capturing CUDA graphs (PIECEWISE):  39%|███▉      | 40/102 [00:02<00:04, 15.04it/s]Capturing CUDA graphs (PIECEWISE):  41%|████      | 42/102 [00:02<00:03, 15.15it/s]Capturing CUDA graphs (PIECEWISE):  43%|████▎     | 44/102 [00:02<00:03, 15.24it/s]Capturing CUDA graphs (PIECEWISE):  45%|████▌     | 46/102 [00:03<00:03, 15.31it/s]Capturing CUDA graphs (PIECEWISE):  47%|████▋     | 48/102 [00:03<00:03, 15.24it/s]Capturing CUDA graphs (PIECEWISE):  49%|████▉     | 50/102 [00:03<00:03, 15.21it/s]Capturing CUDA graphs (PIECEWISE):  51%|█████     | 52/102 [00:03<00:03, 15.26it/s]Capturing CUDA graphs (PIECEWISE):  53%|█████▎    | 54/102 [00:03<00:03, 15.18it/s]Capturing CUDA graphs (PIECEWISE):  55%|█████▍    | 56/102 [00:03<00:03, 15.18it/s]Capturing CUDA graphs (PIECEWISE):  57%|█████▋    | 58/102 [00:03<00:02, 15.17it/s]Capturing CUDA graphs (PIECEWISE):  59%|█████▉    | 60/102 [00:03<00:02, 15.22it/s]Capturing CUDA graphs (PIECEWISE):  61%|██████    | 62/102 [00:04<00:02, 15.08it/s]Capturing CUDA graphs (PIECEWISE):  63%|██████▎   | 64/102 [00:04<00:02, 15.13it/s]Capturing CUDA graphs (PIECEWISE):  65%|██████▍   | 66/102 [00:04<00:02, 15.12it/s]Capturing CUDA graphs (PIECEWISE):  67%|██████▋   | 68/102 [00:04<00:02, 14.85it/s]Capturing CUDA graphs (PIECEWISE):  69%|██████▊   | 70/102 [00:04<00:02, 14.78it/s]Capturing CUDA graphs (PIECEWISE):  71%|███████   | 72/102 [00:04<00:02, 14.96it/s]Capturing CUDA graphs (PIECEWISE):  73%|███████▎  | 74/102 [00:04<00:01, 15.05it/s]Capturing CUDA graphs (PIECEWISE):  75%|███████▍  | 76/102 [00:04<00:01, 15.18it/s]Capturing CUDA graphs (PIECEWISE):  76%|███████▋  | 78/102 [00:05<00:01, 15.13it/s]Capturing CUDA graphs (PIECEWISE):  78%|███████▊  | 80/102 [00:05<00:01, 15.25it/s]Capturing CUDA graphs (PIECEWISE):  80%|████████  | 82/102 [00:05<00:01, 14.95it/s]Capturing CUDA graphs (PIECEWISE):  82%|████████▏ | 84/102 [00:05<00:01, 15.10it/s]Capturing CUDA graphs (PIECEWISE):  84%|████████▍ | 86/102 [00:05<00:01, 15.21it/s]Capturing CUDA graphs (PIECEWISE):  86%|████████▋ | 88/102 [00:05<00:00, 15.13it/s]Capturing CUDA graphs (PIECEWISE):  88%|████████▊ | 90/102 [00:05<00:00, 15.19it/s]Capturing CUDA graphs (PIECEWISE):  90%|█████████ | 92/102 [00:06<00:00, 15.24it/s]Capturing CUDA graphs (PIECEWISE):  92%|█████████▏| 94/102 [00:06<00:00, 15.26it/s]Capturing CUDA graphs (PIECEWISE):  94%|█████████▍| 96/102 [00:06<00:00, 14.71it/s]Capturing CUDA graphs (PIECEWISE):  96%|█████████▌| 98/102 [00:06<00:00, 14.76it/s]Capturing CUDA graphs (PIECEWISE):  98%|█████████▊| 100/102 [00:06<00:00, 14.91it/s]Capturing CUDA graphs (PIECEWISE): 100%|██████████| 102/102 [00:06<00:00, 14.34it/s]Capturing CUDA graphs (PIECEWISE): 100%|██████████| 102/102 [00:06<00:00, 15.14it/s]
+(EngineCore pid=1093303) Capturing CUDA graphs (FULL):   0%|          | 0/70 [00:00<?, ?it/s]Capturing CUDA graphs (FULL):   3%|▎         | 2/70 [00:00<00:04, 14.61it/s]Capturing CUDA graphs (FULL):   6%|▌         | 4/70 [00:00<00:04, 15.06it/s]Capturing CUDA graphs (FULL):   9%|▊         | 6/70 [00:00<00:04, 15.24it/s]Capturing CUDA graphs (FULL):  11%|█▏        | 8/70 [00:00<00:04, 15.33it/s]Capturing CUDA graphs (FULL):  14%|█▍        | 10/70 [00:00<00:03, 15.28it/s]Capturing CUDA graphs (FULL):  17%|█▋        | 12/70 [00:00<00:03, 15.34it/s]Capturing CUDA graphs (FULL):  20%|██        | 14/70 [00:00<00:03, 15.41it/s]Capturing CUDA graphs (FULL):  23%|██▎       | 16/70 [00:01<00:03, 15.40it/s]Capturing CUDA graphs (FULL):  26%|██▌       | 18/70 [00:01<00:03, 15.36it/s]Capturing CUDA graphs (FULL):  29%|██▊       | 20/70 [00:01<00:03, 15.35it/s]Capturing CUDA graphs (FULL):  31%|███▏      | 22/70 [00:01<00:03, 15.24it/s]Capturing CUDA graphs (FULL):  34%|███▍      | 24/70 [00:01<00:02, 15.35it/s]Capturing CUDA graphs (FULL):  37%|███▋      | 26/70 [00:01<00:02, 15.42it/s]Capturing CUDA graphs (FULL):  40%|████      | 28/70 [00:01<00:02, 15.49it/s]Capturing CUDA graphs (FULL):  43%|████▎     | 30/70 [00:01<00:02, 15.56it/s]Capturing CUDA graphs (FULL):  46%|████▌     | 32/70 [00:02<00:02, 15.63it/s]Capturing CUDA graphs (FULL):  49%|████▊     | 34/70 [00:02<00:02, 15.66it/s]Capturing CUDA graphs (FULL):  51%|█████▏    | 36/70 [00:02<00:02, 15.45it/s]Capturing CUDA graphs (FULL):  54%|█████▍    | 38/70 [00:02<00:02, 15.53it/s]Capturing CUDA graphs (FULL):  57%|█████▋    | 40/70 [00:02<00:01, 15.63it/s]Capturing CUDA graphs (FULL):  60%|██████    | 42/70 [00:02<00:01, 15.55it/s]Capturing CUDA graphs (FULL):  63%|██████▎   | 44/70 [00:02<00:01, 15.63it/s]Capturing CUDA graphs (FULL):  66%|██████▌   | 46/70 [00:02<00:01, 15.74it/s]Capturing CUDA graphs (FULL):  69%|██████▊   | 48/70 [00:03<00:01, 15.75it/s]Capturing CUDA graphs (FULL):  71%|███████▏  | 50/70 [00:03<00:01, 15.71it/s]Capturing CUDA graphs (FULL):  74%|███████▍  | 52/70 [00:03<00:01, 15.83it/s]Capturing CUDA graphs (FULL):  77%|███████▋  | 54/70 [00:03<00:01, 15.89it/s]Capturing CUDA graphs (FULL):  80%|████████  | 56/70 [00:03<00:00, 15.95it/s]Capturing CUDA graphs (FULL):  83%|████████▎ | 58/70 [00:03<00:00, 15.81it/s]Capturing CUDA graphs (FULL):  86%|████████▌ | 60/70 [00:03<00:00, 15.84it/s]Capturing CUDA graphs (FULL):  89%|████████▊ | 62/70 [00:03<00:00, 15.77it/s]Capturing CUDA graphs (FULL):  91%|█████████▏| 64/70 [00:04<00:00, 15.84it/s]Capturing CUDA graphs (FULL):  94%|█████████▍| 66/70 [00:04<00:00, 15.71it/s]Capturing CUDA graphs (FULL):  97%|█████████▋| 68/70 [00:04<00:00, 15.79it/s]Capturing CUDA graphs (FULL): 100%|██████████| 70/70 [00:04<00:00, 16.04it/s]Capturing CUDA graphs (FULL): 100%|██████████| 70/70 [00:04<00:00, 15.61it/s]
+(EngineCore pid=1093303) INFO 08-06 23:37:20 [model_runner.py:726] Graph capturing finished in 12 secs, took 1.05 GiB
+(EngineCore pid=1093303) INFO 08-06 23:37:20 [jit_monitor.py:60] Kernel JIT monitor activated — Triton JIT compilations during inference will be logged as warnings.
+(EngineCore pid=1093303) INFO 08-06 23:37:21 [core.py:337] init engine (profile, create kv cache, warmup model) took 21.49 s (compilation: 7.29 s)
+(EngineCore pid=1093303) INFO 08-06 23:37:21 [kernel.py:276] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: joshuadavid to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run armD_scores_armD2_sft_weighted
+wandb: Tracking run with wandb version 0.28.1
+wandb: Run data is saved locally in /workspace/hex-rl-cot-deconfusion/wandb/run-20260806_233724-armD_scores_armD2_sft_weighted
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run armD2_sft_weighted_scores
+wandb: ⭐️ View project at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: 🚀 View run at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/armD_scores_armD2_sft_weighted
+wandb: Detected [openai] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]WARNING 08-06 23:37:26 [input_processor.py:157] vLLM has deprecated support for supporting different tokenizers for different LoRAs. By default, vLLM uses base model's tokenizer. If you are using a LoRA with its own tokenizer, consider specifying `--tokenizer [lora_path]` to use the LoRA tokenizer.
+Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 5014.23it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<16:36,  2.00s/it, est. speed input: 199.25 toks/s, output: 10.01 toks/s]Processed prompts:   1%|▏         | 7/500 [00:02<01:52,  4.38it/s, est. speed input: 1348.22 toks/s, output: 77.04 toks/s]Processed prompts:   4%|▍         | 21/500 [00:02<00:30, 15.94it/s, est. speed input: 3872.21 toks/s, output: 224.14 toks/s]Processed prompts:   7%|▋         | 34/500 [00:02<00:16, 27.75it/s, est. speed input: 5982.69 toks/s, output: 352.37 toks/s]Processed prompts:  10%|█         | 50/500 [00:02<00:10, 42.83it/s, est. speed input: 8345.15 toks/s, output: 500.85 toks/s]Processed prompts:  12%|█▏        | 60/500 [00:02<00:08, 50.27it/s, est. speed input: 9642.75 toks/s, output: 592.08 toks/s]Processed prompts:  14%|█▍        | 70/500 [00:02<00:07, 55.98it/s, est. speed input: 10779.39 toks/s, output: 674.90 toks/s]Processed prompts:  19%|█▉        | 95/500 [00:02<00:05, 78.73it/s, est. speed input: 13911.82 toks/s, output: 917.63 toks/s]Processed prompts:  22%|██▏       | 109/500 [00:03<00:04, 85.29it/s, est. speed input: 15388.56 toks/s, output: 1039.00 toks/s]Processed prompts:  26%|██▌       | 130/500 [00:03<00:03, 104.92it/s, est. speed input: 17875.32 toks/s, output: 1247.30 toks/s]Processed prompts:  29%|██▊       | 143/500 [00:03<00:03, 100.92it/s, est. speed input: 18985.33 toks/s, output: 1350.87 toks/s]Processed prompts:  33%|███▎      | 164/500 [00:03<00:02, 115.81it/s, est. speed input: 21162.29 toks/s, output: 1551.69 toks/s]Processed prompts:  36%|███▌      | 181/500 [00:03<00:02, 111.24it/s, est. speed input: 22456.10 toks/s, output: 1676.24 toks/s]Processed prompts:  39%|███▉      | 195/500 [00:03<00:02, 112.41it/s, est. speed input: 23631.61 toks/s, output: 1792.67 toks/s]Processed prompts:  42%|████▏     | 211/500 [00:03<00:02, 113.41it/s, est. speed input: 24866.08 toks/s, output: 1906.73 toks/s]Processed prompts:  45%|████▌     | 226/500 [00:04<00:02, 114.81it/s, est. speed input: 25945.59 toks/s, output: 2018.76 toks/s]Processed prompts:  48%|████▊     | 238/500 [00:04<00:02, 107.87it/s, est. speed input: 26499.93 toks/s, output: 2083.70 toks/s]Processed prompts:  50%|████▉     | 249/500 [00:04<00:02, 107.92it/s, est. speed input: 27056.40 toks/s, output: 2133.49 toks/s]Processed prompts:  55%|█████▍    | 274/500 [00:04<00:01, 141.19it/s, est. speed input: 29033.64 toks/s, output: 2297.90 toks/s]Processed prompts:  60%|██████    | 301/500 [00:04<00:01, 170.61it/s, est. speed input: 31061.51 toks/s, output: 2473.04 toks/s]Processed prompts:  68%|██████▊   | 338/500 [00:04<00:00, 215.28it/s, est. speed input: 33936.40 toks/s, output: 2696.88 toks/s]Processed prompts:  78%|███████▊  | 389/500 [00:04<00:00, 291.46it/s, est. speed input: 38317.12 toks/s, output: 3058.24 toks/s]Processed prompts:  86%|████████▋ | 432/500 [00:04<00:00, 322.92it/s, est. speed input: 41850.05 toks/s, output: 3383.86 toks/s]Processed prompts:  94%|█████████▍| 471/500 [00:04<00:00, 334.78it/s, est. speed input: 44963.38 toks/s, output: 3705.17 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 334.78it/s, est. speed input: 41035.67 toks/s, output: 3546.27 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 87.05it/s, est. speed input: 41035.67 toks/s, output: 3546.27 toks/s] 
+
+[ep1 test] OVERALL mean score 0.853  perfect 0.688  n=500
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.983  perfect 0.955  n=66
+  size 4: mean 0.975  perfect 0.926  n=68
+  size 5: mean 0.842  perfect 0.821  n=67
+  size 6: mean 0.901  perfect 0.689  n=74
+  size 7: mean 0.834  perfect 0.620  n=79
+  size 8: mean 0.723  perfect 0.464  n=69
+  size 9: mean 0.729  perfect 0.387  n=75
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.982  perfect 0.954  n=65
+  path_len 4: mean 0.991  perfect 0.980  n=50
+  path_len 5: mean 0.977  perfect 0.940  n=50
+  path_len 6: mean 0.891  perfect 0.847  n=59
+  path_len 7: mean 0.948  perfect 0.727  n=55
+  path_len 8: mean 0.852  perfect 0.638  n=69
+  path_len 9: mean 0.929  perfect 0.667  n=54
+  path_len 10: mean 0.624  perfect 0.333  n=36
+  path_len 11: mean 0.633  perfect 0.182  n=11
+  path_len 12: mean 0.672  perfect 0.000  n=16
+  path_len 13: mean 0.269  perfect 0.000  n=8
+  path_len 14: mean 0.495  perfect 0.000  n=8
+  path_len 15: mean 0.608  perfect 0.000  n=4
+  path_len 16: mean 0.195  perfect 0.000  n=3
+  path_len 17: mean -0.368  perfect 0.000  n=3
+  path_len 18: mean 0.319  perfect 0.000  n=1
+  path_len 19: mean 0.481  perfect 0.000  n=1
+  path_len 21: mean -1.000  perfect 0.000  n=1
+  path_len 22: mean 0.619  perfect 0.000  n=1
+  path_len 23: mean -0.191  perfect 0.000  n=2
+  path_len 26: mean 0.478  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/351 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 351/351 [00:00<00:00, 5969.87it/s]
+Processed prompts:   0%|          | 0/351 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/351 [00:01<08:04,  1.38s/it, est. speed input: 287.55 toks/s, output: 14.45 toks/s]Processed prompts:   1%|          | 2/351 [00:01<03:40,  1.58it/s, est. speed input: 543.06 toks/s, output: 29.50 toks/s]Processed prompts:  15%|█▍        | 51/351 [00:01<00:06, 45.04it/s, est. speed input: 11334.85 toks/s, output: 660.72 toks/s]Processed prompts:  26%|██▌       | 90/351 [00:02<00:03, 65.45it/s, est. speed input: 17092.12 toks/s, output: 1052.10 toks/s]Processed prompts:  30%|██▉       | 104/351 [00:02<00:03, 73.21it/s, est. speed input: 18937.48 toks/s, output: 1197.05 toks/s]Processed prompts:  48%|████▊     | 168/351 [00:02<00:01, 146.69it/s, est. speed input: 29897.33 toks/s, output: 2043.57 toks/s]Processed prompts:  62%|██████▏   | 217/351 [00:02<00:00, 198.34it/s, est. speed input: 37798.63 toks/s, output: 2735.11 toks/s]Processed prompts:  71%|███████   | 249/351 [00:02<00:00, 183.50it/s, est. speed input: 40539.73 toks/s, output: 3094.13 toks/s]Processed prompts:  79%|███████▊  | 276/351 [00:02<00:00, 189.36it/s, est. speed input: 43458.57 toks/s, output: 3403.23 toks/s]Processed prompts:  92%|█████████▏| 324/351 [00:02<00:00, 245.00it/s, est. speed input: 50460.63 toks/s, output: 4086.38 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 245.00it/s, est. speed input: 42031.72 toks/s, output: 3642.95 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 89.46it/s, est. speed input: 42031.72 toks/s, output: 3642.95 toks/s] 
+
+[ep1 val] OVERALL mean score 0.853  perfect 0.692  n=351
+  size 2: mean 1.000  perfect 1.000  n=1
+  size 3: mean 0.931  perfect 0.900  n=50
+  size 4: mean 0.877  perfect 0.920  n=50
+  size 5: mean 0.921  perfect 0.880  n=50
+  size 6: mean 0.827  perfect 0.700  n=50
+  size 7: mean 0.842  perfect 0.520  n=50
+  size 8: mean 0.792  perfect 0.540  n=50
+  size 9: mean 0.779  perfect 0.380  n=50
+  path_len 2: mean 1.000  perfect 1.000  n=1
+  path_len 3: mean 0.930  perfect 0.898  n=49
+  path_len 4: mean 0.950  perfect 0.975  n=40
+  path_len 5: mean 0.951  perfect 0.976  n=41
+  path_len 6: mean 0.913  perfect 0.886  n=35
+  path_len 7: mean 0.895  perfect 0.771  n=35
+  path_len 8: mean 0.853  perfect 0.651  n=43
+  path_len 9: mean 0.865  perfect 0.500  n=36
+  path_len 10: mean 0.855  perfect 0.444  n=27
+  path_len 11: mean 0.736  perfect 0.231  n=13
+  path_len 12: mean 0.592  perfect 0.000  n=12
+  path_len 13: mean 0.585  perfect 0.000  n=4
+  path_len 14: mean -0.111  perfect 0.000  n=2
+  path_len 15: mean 0.096  perfect 0.000  n=3
+  path_len 16: mean -0.158  perfect 0.000  n=2
+  path_len 17: mean 0.693  perfect 0.000  n=2
+  path_len 19: mean -0.032  perfect 0.000  n=3
+  path_len 20: mean 0.419  perfect 0.000  n=1
+  path_len 24: mean 0.655  perfect 0.000  n=1
+  path_len 27: mean 0.527  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 6017.84it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:35,  1.63s/it, est. speed input: 252.21 toks/s, output: 14.69 toks/s]Processed prompts:   2%|▏         | 9/500 [00:01<01:10,  6.94it/s, est. speed input: 2127.30 toks/s, output: 123.92 toks/s]Processed prompts:   5%|▍         | 23/500 [00:01<00:24, 19.50it/s, est. speed input: 5014.43 toks/s, output: 295.34 toks/s]Processed prompts:   6%|▋         | 32/500 [00:02<00:17, 27.35it/s, est. speed input: 6587.69 toks/s, output: 394.39 toks/s]Processed prompts:  11%|█         | 55/500 [00:02<00:08, 51.77it/s, est. speed input: 10644.90 toks/s, output: 675.78 toks/s]Processed prompts:  13%|█▎        | 67/500 [00:02<00:07, 59.65it/s, est. speed input: 12353.62 toks/s, output: 803.30 toks/s]Processed prompts:  18%|█▊        | 92/500 [00:02<00:04, 84.10it/s, est. speed input: 16106.67 toks/s, output: 1091.10 toks/s]Processed prompts:  21%|██        | 104/500 [00:02<00:04, 82.68it/s, est. speed input: 17269.97 toks/s, output: 1193.49 toks/s]Processed prompts:  25%|██▍       | 123/500 [00:02<00:03, 97.39it/s, est. speed input: 19649.11 toks/s, output: 1395.28 toks/s]Processed prompts:  27%|██▋       | 135/500 [00:02<00:03, 94.06it/s, est. speed input: 20711.88 toks/s, output: 1494.12 toks/s]Processed prompts:  31%|███       | 155/500 [00:03<00:02, 115.44it/s, est. speed input: 23241.69 toks/s, output: 1723.52 toks/s]Processed prompts:  34%|███▍      | 171/500 [00:03<00:03, 107.21it/s, est. speed input: 24470.29 toks/s, output: 1847.59 toks/s]Processed prompts:  39%|███▊      | 193/500 [00:03<00:02, 119.43it/s, est. speed input: 26704.63 toks/s, output: 2067.95 toks/s]Processed prompts:  42%|████▏     | 209/500 [00:03<00:02, 115.23it/s, est. speed input: 27853.78 toks/s, output: 2191.47 toks/s]Processed prompts:  44%|████▍     | 222/500 [00:03<00:02, 115.42it/s, est. speed input: 28857.19 toks/s, output: 2295.58 toks/s]Processed prompts:  47%|████▋     | 234/500 [00:03<00:02, 113.03it/s, est. speed input: 29614.11 toks/s, output: 2384.14 toks/s]Processed prompts:  49%|████▉     | 246/500 [00:03<00:03, 80.91it/s, est. speed input: 29009.84 toks/s, output: 2346.03 toks/s] Processed prompts:  55%|█████▌    | 277/500 [00:04<00:01, 121.96it/s, est. speed input: 31694.25 toks/s, output: 2593.56 toks/s]Processed prompts:  63%|██████▎   | 316/500 [00:04<00:01, 177.99it/s, est. speed input: 35134.44 toks/s, output: 2870.08 toks/s]Processed prompts:  75%|███████▍  | 373/500 [00:04<00:00, 266.19it/s, est. speed input: 40289.92 toks/s, output: 3258.70 toks/s]Processed prompts:  84%|████████▍ | 419/500 [00:04<00:00, 307.55it/s, est. speed input: 44399.88 toks/s, output: 3643.15 toks/s]Processed prompts:  95%|█████████▍| 473/500 [00:04<00:00, 360.65it/s, est. speed input: 49389.57 toks/s, output: 4127.18 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 360.65it/s, est. speed input: 45471.61 toks/s, output: 3964.21 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 95.84it/s, est. speed input: 45471.61 toks/s, output: 3964.21 toks/s] 
+
+[ep1 train] OVERALL mean score 0.883  perfect 0.672  n=500
+  size 3: mean 0.976  perfect 0.938  n=48
+  size 4: mean 0.941  perfect 0.881  n=67
+  size 5: mean 0.928  perfect 0.792  n=77
+  size 6: mean 0.878  perfect 0.681  n=72
+  size 7: mean 0.890  perfect 0.654  n=81
+  size 8: mean 0.838  perfect 0.557  n=79
+  size 9: mean 0.770  perfect 0.329  n=76
+  path_len 3: mean 0.976  perfect 0.936  n=47
+  path_len 4: mean 0.980  perfect 0.936  n=47
+  path_len 5: mean 0.983  perfect 0.922  n=64
+  path_len 6: mean 0.950  perfect 0.818  n=55
+  path_len 7: mean 0.943  perfect 0.758  n=62
+  path_len 8: mean 0.878  perfect 0.677  n=62
+  path_len 9: mean 0.885  perfect 0.612  n=67
+  path_len 10: mean 0.859  perfect 0.355  n=31
+  path_len 11: mean 0.617  perfect 0.111  n=18
+  path_len 12: mean 0.353  perfect 0.000  n=9
+  path_len 13: mean 0.759  perfect 0.000  n=7
+  path_len 14: mean 0.727  perfect 0.111  n=9
+  path_len 15: mean 0.729  perfect 0.000  n=7
+  path_len 16: mean 0.242  perfect 0.000  n=4
+  path_len 17: mean 0.554  perfect 0.000  n=2
+  path_len 19: mean 0.397  perfect 0.000  n=1
+  path_len 20: mean 0.680  perfect 0.000  n=1
+  path_len 21: mean -0.160  perfect 0.000  n=2
+  path_len 22: mean 0.647  perfect 0.000  n=2
+  path_len 25: mean -0.231  perfect 0.000  n=2
+  path_len 27: mean 0.660  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/302 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 302/302 [00:00<00:00, 6131.96it/s]
+Processed prompts:   0%|          | 0/302 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/302 [00:01<06:10,  1.23s/it, est. speed input: 323.33 toks/s, output: 16.25 toks/s]Processed prompts:   1%|          | 3/302 [00:01<01:48,  2.75it/s, est. speed input: 895.15 toks/s, output: 47.42 toks/s]Processed prompts:  33%|███▎      | 99/302 [00:01<00:01, 104.77it/s, est. speed input: 25512.42 toks/s, output: 1484.67 toks/s]Processed prompts:  63%|██████▎   | 190/302 [00:01<00:00, 210.95it/s, est. speed input: 46862.72 toks/s, output: 2943.76 toks/s]Processed prompts:  80%|███████▉  | 241/302 [00:01<00:00, 255.01it/s, est. speed input: 56519.14 toks/s, output: 3744.78 toks/s]Processed prompts:  95%|█████████▌| 288/302 [00:01<00:00, 254.48it/s, est. speed input: 61760.90 toks/s, output: 4308.89 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 254.48it/s, est. speed input: 60769.19 toks/s, output: 4360.10 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 141.81it/s, est. speed input: 60769.19 toks/s, output: 4360.10 toks/s]
+
+[ep1 v1test] OVERALL mean score 0.659  perfect 0.649  n=302
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.983  perfect 0.950  n=100
+  size 4: mean 0.605  perfect 0.600  n=100
+  size 5: mean 0.383  perfect 0.390  n=100
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.985  perfect 0.959  n=97
+  path_len 4: mean 0.642  perfect 0.655  n=84
+  path_len 5: mean 0.489  perfect 0.453  n=86
+  path_len 6: mean 0.086  perfect 0.185  n=27
+  path_len 7: mean 0.441  perfect 0.500  n=4
+  path_len 8: mean 0.710  perfect 0.000  n=2
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 6304.25it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:02<16:40,  2.01s/it, est. speed input: 198.43 toks/s, output: 9.97 toks/s]Processed prompts:   1%|▏         | 7/500 [00:02<01:52,  4.37it/s, est. speed input: 1343.88 toks/s, output: 76.79 toks/s]Processed prompts:   4%|▍         | 21/500 [00:02<00:30, 15.90it/s, est. speed input: 3860.37 toks/s, output: 223.45 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:17, 26.65it/s, est. speed input: 5792.28 toks/s, output: 341.27 toks/s]Processed prompts:  10%|▉         | 49/500 [00:02<00:10, 41.85it/s, est. speed input: 8156.55 toks/s, output: 489.82 toks/s]Processed prompts:  12%|█▏        | 59/500 [00:02<00:08, 49.12it/s, est. speed input: 9435.78 toks/s, output: 578.76 toks/s]Processed prompts:  14%|█▍        | 69/500 [00:02<00:07, 55.58it/s, est. speed input: 10600.70 toks/s, output: 663.32 toks/s]Processed prompts:  17%|█▋        | 85/500 [00:02<00:05, 75.52it/s, est. speed input: 12769.43 toks/s, output: 828.28 toks/s]Processed prompts:  20%|██        | 101/500 [00:03<00:04, 82.92it/s, est. speed input: 14484.18 toks/s, output: 967.78 toks/s]Processed prompts:  23%|██▎       | 117/500 [00:03<00:04, 93.24it/s, est. speed input: 16228.61 toks/s, output: 1116.18 toks/s]Processed prompts:  26%|██▌       | 131/500 [00:03<00:03, 94.68it/s, est. speed input: 17535.06 toks/s, output: 1229.93 toks/s]Processed prompts:  30%|██▉       | 148/500 [00:03<00:03, 109.90it/s, est. speed input: 19434.20 toks/s, output: 1400.18 toks/s]Processed prompts:  34%|███▎      | 168/500 [00:03<00:03, 110.02it/s, est. speed input: 21128.22 toks/s, output: 1564.47 toks/s]Processed prompts:  36%|███▌      | 181/500 [00:03<00:02, 110.74it/s, est. speed input: 22220.45 toks/s, output: 1669.82 toks/s]Processed prompts:  40%|████      | 201/500 [00:03<00:02, 120.42it/s, est. speed input: 24032.74 toks/s, output: 1845.17 toks/s]Processed prompts:  43%|████▎     | 214/500 [00:03<00:02, 108.00it/s, est. speed input: 24692.81 toks/s, output: 1918.77 toks/s]Processed prompts:  45%|████▌     | 227/500 [00:04<00:02, 109.41it/s, est. speed input: 25586.27 toks/s, output: 2013.64 toks/s]Processed prompts:  48%|████▊     | 239/500 [00:04<00:02, 104.48it/s, est. speed input: 26152.82 toks/s, output: 2075.82 toks/s]Processed prompts:  50%|█████     | 250/500 [00:04<00:02, 105.33it/s, est. speed input: 26655.05 toks/s, output: 2107.36 toks/s]Processed prompts:  55%|█████▌    | 276/500 [00:04<00:01, 144.12it/s, est. speed input: 28774.41 toks/s, output: 2297.14 toks/s]Processed prompts:  61%|██████    | 303/500 [00:04<00:01, 174.62it/s, est. speed input: 30774.78 toks/s, output: 2456.58 toks/s]Processed prompts:  68%|██████▊   | 342/500 [00:04<00:00, 225.31it/s, est. speed input: 33892.64 toks/s, output: 2721.29 toks/s]Processed prompts:  78%|███████▊  | 388/500 [00:04<00:00, 288.80it/s, est. speed input: 37756.05 toks/s, output: 3066.17 toks/s]Processed prompts:  87%|████████▋ | 436/500 [00:04<00:00, 338.99it/s, est. speed input: 41798.16 toks/s, output: 3440.10 toks/s]Processed prompts:  95%|█████████▍| 473/500 [00:04<00:00, 347.32it/s, est. speed input: 44742.44 toks/s, output: 3746.67 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 347.32it/s, est. speed input: 42558.79 toks/s, output: 3688.19 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 90.28it/s, est. speed input: 42558.79 toks/s, output: 3688.19 toks/s] 
+
+[ep2 test] OVERALL mean score 0.911  perfect 0.820  n=500
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.957  perfect 0.955  n=66
+  size 4: mean 0.893  perfect 0.912  n=68
+  size 5: mean 0.963  perfect 0.940  n=67
+  size 6: mean 0.912  perfect 0.838  n=74
+  size 7: mean 0.952  perfect 0.797  n=79
+  size 8: mean 0.858  perfect 0.667  n=69
+  size 9: mean 0.842  perfect 0.653  n=75
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.956  perfect 0.954  n=65
+  path_len 4: mean 0.938  perfect 0.940  n=50
+  path_len 5: mean 0.920  perfect 0.960  n=50
+  path_len 6: mean 0.960  perfect 0.949  n=59
+  path_len 7: mean 0.985  perfect 0.909  n=55
+  path_len 8: mean 0.898  perfect 0.812  n=69
+  path_len 9: mean 0.965  perfect 0.870  n=54
+  path_len 10: mean 0.842  perfect 0.639  n=36
+  path_len 11: mean 0.827  perfect 0.273  n=11
+  path_len 12: mean 0.863  perfect 0.562  n=16
+  path_len 13: mean 0.834  perfect 0.375  n=8
+  path_len 14: mean 0.743  perfect 0.375  n=8
+  path_len 15: mean 0.768  perfect 0.000  n=4
+  path_len 16: mean 0.826  perfect 0.333  n=3
+  path_len 17: mean 0.193  perfect 0.000  n=3
+  path_len 18: mean 0.744  perfect 0.000  n=1
+  path_len 19: mean 0.619  perfect 0.000  n=1
+  path_len 21: mean 0.793  perfect 0.000  n=1
+  path_len 22: mean -1.000  perfect 0.000  n=1
+  path_len 23: mean 0.711  perfect 0.000  n=2
+  path_len 26: mean -1.000  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/351 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 351/351 [00:00<00:00, 6215.52it/s]
+Processed prompts:   0%|          | 0/351 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/351 [00:01<08:07,  1.39s/it, est. speed input: 285.66 toks/s, output: 14.35 toks/s]Processed prompts:   1%|          | 2/351 [00:01<03:42,  1.57it/s, est. speed input: 538.91 toks/s, output: 29.27 toks/s]Processed prompts:  15%|█▍        | 51/351 [00:01<00:06, 44.72it/s, est. speed input: 11254.05 toks/s, output: 656.01 toks/s]Processed prompts:  26%|██▌       | 92/351 [00:02<00:03, 66.27it/s, est. speed input: 17292.50 toks/s, output: 1065.91 toks/s]Processed prompts:  38%|███▊      | 132/351 [00:02<00:02, 99.21it/s, est. speed input: 23793.69 toks/s, output: 1547.40 toks/s]Processed prompts:  51%|█████     | 178/351 [00:02<00:01, 145.98it/s, est. speed input: 31310.65 toks/s, output: 2170.52 toks/s]Processed prompts:  66%|██████▌   | 231/351 [00:02<00:00, 202.01it/s, est. speed input: 39818.43 toks/s, output: 2935.23 toks/s]Processed prompts:  75%|███████▌  | 264/351 [00:02<00:00, 177.18it/s, est. speed input: 42031.38 toks/s, output: 3267.93 toks/s]Processed prompts:  85%|████████▍ | 298/351 [00:02<00:00, 202.20it/s, est. speed input: 46446.88 toks/s, output: 3715.96 toks/s]Processed prompts:  97%|█████████▋| 339/351 [00:03<00:00, 241.83it/s, est. speed input: 52117.81 toks/s, output: 4295.14 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 241.83it/s, est. speed input: 41483.26 toks/s, output: 3552.14 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 88.29it/s, est. speed input: 41483.26 toks/s, output: 3552.14 toks/s] 
+
+[ep2 val] OVERALL mean score 0.952  perfect 0.852  n=351
+  size 2: mean 1.000  perfect 1.000  n=1
+  size 3: mean 0.994  perfect 0.980  n=50
+  size 4: mean 0.960  perfect 0.980  n=50
+  size 5: mean 0.989  perfect 0.940  n=50
+  size 6: mean 0.954  perfect 0.820  n=50
+  size 7: mean 0.959  perfect 0.820  n=50
+  size 8: mean 0.915  perfect 0.740  n=50
+  size 9: mean 0.893  perfect 0.680  n=50
+  path_len 2: mean 1.000  perfect 1.000  n=1
+  path_len 3: mean 0.994  perfect 0.980  n=49
+  path_len 4: mean 1.000  perfect 1.000  n=40
+  path_len 5: mean 0.951  perfect 0.976  n=41
+  path_len 6: mean 1.000  perfect 1.000  n=35
+  path_len 7: mean 0.975  perfect 0.886  n=35
+  path_len 8: mean 0.976  perfect 0.860  n=43
+  path_len 9: mean 0.957  perfect 0.861  n=36
+  path_len 10: mean 0.874  perfect 0.704  n=27
+  path_len 11: mean 0.949  perfect 0.692  n=13
+  path_len 12: mean 0.816  perfect 0.417  n=12
+  path_len 13: mean 0.943  perfect 0.500  n=4
+  path_len 14: mean 0.696  perfect 0.000  n=2
+  path_len 15: mean 0.720  perfect 0.333  n=3
+  path_len 16: mean 0.651  perfect 0.000  n=2
+  path_len 17: mean 0.652  perfect 0.000  n=2
+  path_len 19: mean 0.638  perfect 0.000  n=3
+  path_len 20: mean 0.778  perfect 0.000  n=1
+  path_len 24: mean 0.676  perfect 0.000  n=1
+  path_len 27: mean 0.895  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts:  74%|███████▍  | 371/500 [00:00<00:00, 3707.01it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 3815.66it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:40,  1.64s/it, est. speed input: 250.62 toks/s, output: 14.60 toks/s]Processed prompts:   2%|▏         | 9/500 [00:01<01:11,  6.91it/s, est. speed input: 2116.13 toks/s, output: 123.27 toks/s]Processed prompts:   5%|▍         | 23/500 [00:01<00:24, 19.41it/s, est. speed input: 4988.88 toks/s, output: 293.83 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:16, 28.14it/s, est. speed input: 6738.56 toks/s, output: 404.59 toks/s]Processed prompts:  11%|█         | 53/500 [00:02<00:09, 48.99it/s, est. speed input: 10208.76 toks/s, output: 642.90 toks/s]Processed prompts:  13%|█▎        | 64/500 [00:02<00:07, 56.47it/s, est. speed input: 11777.59 toks/s, output: 760.23 toks/s]Processed prompts:  19%|█▉        | 95/500 [00:02<00:04, 89.79it/s, est. speed input: 16569.52 toks/s, output: 1128.82 toks/s]Processed prompts:  21%|██▏       | 107/500 [00:02<00:04, 86.38it/s, est. speed input: 17667.93 toks/s, output: 1226.81 toks/s]Processed prompts:  25%|██▍       | 123/500 [00:02<00:03, 95.52it/s, est. speed input: 19599.21 toks/s, output: 1391.03 toks/s]Processed prompts:  27%|██▋       | 135/500 [00:02<00:03, 94.08it/s, est. speed input: 20715.73 toks/s, output: 1496.39 toks/s]Processed prompts:  30%|███       | 150/500 [00:03<00:03, 101.86it/s, est. speed input: 22278.16 toks/s, output: 1643.33 toks/s]Processed prompts:  33%|███▎      | 167/500 [00:03<00:03, 104.01it/s, est. speed input: 23817.56 toks/s, output: 1794.96 toks/s]Processed prompts:  37%|███▋      | 187/500 [00:03<00:02, 116.62it/s, est. speed input: 25891.83 toks/s, output: 2000.81 toks/s]Processed prompts:  41%|████      | 203/500 [00:03<00:02, 110.94it/s, est. speed input: 27011.82 toks/s, output: 2119.52 toks/s]Processed prompts:  43%|████▎     | 217/500 [00:03<00:02, 112.43it/s, est. speed input: 28095.99 toks/s, output: 2234.47 toks/s]Processed prompts:  46%|████▌     | 229/500 [00:03<00:02, 108.98it/s, est. speed input: 28784.38 toks/s, output: 2310.49 toks/s]Processed prompts:  48%|████▊     | 241/500 [00:03<00:02, 100.57it/s, est. speed input: 29215.33 toks/s, output: 2362.14 toks/s]Processed prompts:  50%|█████     | 252/500 [00:03<00:02, 101.79it/s, est. speed input: 29769.29 toks/s, output: 2418.01 toks/s]Processed prompts:  54%|█████▍    | 271/500 [00:04<00:01, 120.21it/s, est. speed input: 31096.43 toks/s, output: 2536.62 toks/s]Processed prompts:  61%|██████    | 304/500 [00:04<00:01, 170.91it/s, est. speed input: 33870.11 toks/s, output: 2754.81 toks/s]Processed prompts:  71%|███████   | 356/500 [00:04<00:00, 257.09it/s, est. speed input: 38568.57 toks/s, output: 3146.02 toks/s]Processed prompts:  82%|████████▏ | 412/500 [00:04<00:00, 328.92it/s, est. speed input: 43702.67 toks/s, output: 3607.12 toks/s]Processed prompts:  91%|█████████▏| 457/500 [00:04<00:00, 359.35it/s, est. speed input: 47681.42 toks/s, output: 3993.90 toks/s]Processed prompts:  99%|█████████▉| 494/500 [00:04<00:00, 317.35it/s, est. speed input: 50192.63 toks/s, output: 4326.10 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 317.35it/s, est. speed input: 49090.19 toks/s, output: 4271.41 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 103.47it/s, est. speed input: 49090.19 toks/s, output: 4271.41 toks/s]
+
+[ep2 train] OVERALL mean score 0.965  perfect 0.856  n=500
+  size 3: mean 0.994  perfect 0.979  n=48
+  size 4: mean 0.967  perfect 0.970  n=67
+  size 5: mean 0.989  perfect 0.922  n=77
+  size 6: mean 0.992  perfect 0.931  n=72
+  size 7: mean 0.967  perfect 0.852  n=81
+  size 8: mean 0.927  perfect 0.747  n=79
+  size 9: mean 0.933  perfect 0.658  n=76
+  path_len 3: mean 0.994  perfect 0.979  n=47
+  path_len 4: mean 1.000  perfect 1.000  n=47
+  path_len 5: mean 0.969  perfect 0.984  n=64
+  path_len 6: mean 0.997  perfect 0.982  n=55
+  path_len 7: mean 0.991  perfect 0.935  n=62
+  path_len 8: mean 0.986  perfect 0.935  n=62
+  path_len 9: mean 0.972  perfect 0.851  n=67
+  path_len 10: mean 0.952  perfect 0.677  n=31
+  path_len 11: mean 0.925  perfect 0.611  n=18
+  path_len 12: mean 0.915  perfect 0.556  n=9
+  path_len 13: mean 0.787  perfect 0.286  n=7
+  path_len 14: mean 0.881  perfect 0.222  n=9
+  path_len 15: mean 0.879  perfect 0.429  n=7
+  path_len 16: mean 0.844  perfect 0.250  n=4
+  path_len 17: mean 0.884  perfect 0.000  n=2
+  path_len 19: mean 0.733  perfect 0.000  n=1
+  path_len 20: mean 0.778  perfect 0.000  n=1
+  path_len 21: mean -0.043  perfect 0.000  n=2
+  path_len 22: mean 0.925  perfect 0.000  n=2
+  path_len 25: mean 0.583  perfect 0.000  n=2
+  path_len 27: mean 0.787  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/302 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 302/302 [00:00<00:00, 3696.55it/s]
+Processed prompts:   0%|          | 0/302 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/302 [00:01<06:12,  1.24s/it, est. speed input: 321.86 toks/s, output: 16.17 toks/s]Processed prompts:   1%|          | 3/302 [00:01<01:49,  2.74it/s, est. speed input: 891.30 toks/s, output: 47.22 toks/s]Processed prompts:  33%|███▎      | 100/302 [00:01<00:01, 105.29it/s, est. speed input: 25645.07 toks/s, output: 1492.40 toks/s]Processed prompts:  64%|██████▍   | 193/302 [00:01<00:00, 213.40it/s, est. speed input: 47385.05 toks/s, output: 2985.55 toks/s]Processed prompts:  81%|████████  | 244/302 [00:01<00:00, 259.08it/s, est. speed input: 57158.96 toks/s, output: 3785.25 toks/s]Processed prompts:  97%|█████████▋| 292/302 [00:01<00:00, 264.25it/s, est. speed input: 62965.98 toks/s, output: 4362.49 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 264.25it/s, est. speed input: 60854.06 toks/s, output: 4302.23 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 142.01it/s, est. speed input: 60854.06 toks/s, output: 4302.23 toks/s]
+
+[ep2 v1test] OVERALL mean score 0.774  perfect 0.745  n=302
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.991  perfect 0.970  n=100
+  size 4: mean 0.821  perfect 0.760  n=100
+  size 5: mean 0.504  perfect 0.500  n=100
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.991  perfect 0.969  n=97
+  path_len 4: mean 0.824  perfect 0.786  n=84
+  path_len 5: mean 0.583  perfect 0.570  n=86
+  path_len 6: mean 0.482  perfect 0.444  n=27
+  path_len 7: mean 0.455  perfect 0.500  n=4
+  path_len 8: mean 0.696  perfect 0.000  n=2
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 5655.93it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<15:13,  1.83s/it, est. speed input: 217.45 toks/s, output: 10.93 toks/s]Processed prompts:   1%|▏         | 7/500 [00:01<01:44,  4.74it/s, est. speed input: 1461.42 toks/s, output: 83.51 toks/s]Processed prompts:   4%|▍         | 21/500 [00:02<00:28, 17.10it/s, est. speed input: 4180.54 toks/s, output: 241.98 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:16, 28.27it/s, est. speed input: 6227.72 toks/s, output: 365.53 toks/s]Processed prompts:  10%|▉         | 49/500 [00:02<00:10, 44.24it/s, est. speed input: 8755.46 toks/s, output: 524.48 toks/s]Processed prompts:  12%|█▏        | 59/500 [00:02<00:08, 51.72it/s, est. speed input: 10112.19 toks/s, output: 620.65 toks/s]Processed prompts:  14%|█▍        | 69/500 [00:02<00:07, 57.37it/s, est. speed input: 11301.27 toks/s, output: 707.54 toks/s]Processed prompts:  17%|█▋        | 86/500 [00:02<00:05, 78.41it/s, est. speed input: 13708.68 toks/s, output: 891.17 toks/s]Processed prompts:  21%|██        | 103/500 [00:02<00:04, 85.73it/s, est. speed input: 15587.89 toks/s, output: 1043.87 toks/s]Processed prompts:  23%|██▎       | 117/500 [00:02<00:04, 91.54it/s, est. speed input: 17082.05 toks/s, output: 1171.81 toks/s]Processed prompts:  26%|██▌       | 130/500 [00:03<00:03, 92.53it/s, est. speed input: 18307.15 toks/s, output: 1278.37 toks/s]Processed prompts:  30%|██▉       | 148/500 [00:03<00:03, 110.29it/s, est. speed input: 20420.86 toks/s, output: 1468.78 toks/s]Processed prompts:  33%|███▎      | 167/500 [00:03<00:03, 108.35it/s, est. speed input: 22003.79 toks/s, output: 1626.94 toks/s]Processed prompts:  36%|███▌      | 180/500 [00:03<00:02, 109.68it/s, est. speed input: 23116.61 toks/s, output: 1734.41 toks/s]Processed prompts:  40%|███▉      | 198/500 [00:03<00:02, 117.70it/s, est. speed input: 24764.46 toks/s, output: 1894.75 toks/s]Processed prompts:  42%|████▏     | 211/500 [00:03<00:02, 110.43it/s, est. speed input: 25566.30 toks/s, output: 1979.60 toks/s]Processed prompts:  45%|████▍     | 224/500 [00:03<00:02, 108.79it/s, est. speed input: 26373.92 toks/s, output: 2073.17 toks/s]Processed prompts:  47%|████▋     | 236/500 [00:04<00:02, 105.60it/s, est. speed input: 26979.49 toks/s, output: 2127.94 toks/s]Processed prompts:  49%|████▉     | 247/500 [00:04<00:02, 104.82it/s, est. speed input: 27479.35 toks/s, output: 2174.28 toks/s]Processed prompts:  53%|█████▎    | 263/500 [00:04<00:02, 117.96it/s, est. speed input: 28537.39 toks/s, output: 2264.44 toks/s]Processed prompts:  58%|█████▊    | 288/500 [00:04<00:01, 148.92it/s, est. speed input: 30484.13 toks/s, output: 2447.36 toks/s]Processed prompts:  65%|██████▌   | 327/500 [00:04<00:00, 213.01it/s, est. speed input: 33808.38 toks/s, output: 2736.79 toks/s]Processed prompts:  75%|███████▌  | 375/500 [00:04<00:00, 282.66it/s, est. speed input: 37963.56 toks/s, output: 3101.98 toks/s]Processed prompts:  83%|████████▎ | 417/500 [00:04<00:00, 311.96it/s, est. speed input: 41403.73 toks/s, output: 3409.41 toks/s]Processed prompts:  92%|█████████▏| 458/500 [00:04<00:00, 339.34it/s, est. speed input: 44810.85 toks/s, output: 3756.82 toks/s]Processed prompts:  99%|█████████▊| 493/500 [00:04<00:00, 317.57it/s, est. speed input: 47342.29 toks/s, output: 4035.43 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 317.57it/s, est. speed input: 46125.68 toks/s, output: 3996.32 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 97.85it/s, est. speed input: 46125.68 toks/s, output: 3996.32 toks/s] 
+
+[ep3 test] OVERALL mean score 0.962  perfect 0.886  n=500
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.996  perfect 0.985  n=66
+  size 4: mean 0.990  perfect 0.985  n=68
+  size 5: mean 0.957  perfect 0.940  n=67
+  size 6: mean 0.963  perfect 0.932  n=74
+  size 7: mean 0.970  perfect 0.873  n=79
+  size 8: mean 0.913  perfect 0.739  n=69
+  size 9: mean 0.944  perfect 0.760  n=75
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.996  perfect 0.985  n=65
+  path_len 4: mean 0.987  perfect 0.980  n=50
+  path_len 5: mean 0.993  perfect 0.980  n=50
+  path_len 6: mean 0.963  perfect 0.966  n=59
+  path_len 7: mean 0.988  perfect 0.927  n=55
+  path_len 8: mean 0.946  perfect 0.884  n=69
+  path_len 9: mean 0.969  perfect 0.926  n=54
+  path_len 10: mean 0.922  perfect 0.806  n=36
+  path_len 11: mean 0.985  perfect 0.909  n=11
+  path_len 12: mean 0.927  perfect 0.625  n=16
+  path_len 13: mean 0.937  perfect 0.625  n=8
+  path_len 14: mean 0.833  perfect 0.125  n=8
+  path_len 15: mean 0.833  perfect 0.250  n=4
+  path_len 16: mean 1.000  perfect 1.000  n=3
+  path_len 17: mean 0.860  perfect 0.333  n=3
+  path_len 18: mean 0.394  perfect 0.000  n=1
+  path_len 19: mean 0.680  perfect 0.000  n=1
+  path_len 21: mean 0.951  perfect 0.000  n=1
+  path_len 22: mean 0.852  perfect 0.000  n=1
+  path_len 23: mean 0.529  perfect 0.000  n=2
+  path_len 26: mean 0.590  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/351 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 351/351 [00:00<00:00, 3581.57it/s]
+Processed prompts:   0%|          | 0/351 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/351 [00:01<08:10,  1.40s/it, est. speed input: 283.88 toks/s, output: 14.27 toks/s]Processed prompts:   1%|          | 2/351 [00:01<03:43,  1.56it/s, est. speed input: 535.92 toks/s, output: 29.11 toks/s]Processed prompts:  15%|█▍        | 51/351 [00:01<00:06, 44.52it/s, est. speed input: 11197.96 toks/s, output: 652.74 toks/s]Processed prompts:  26%|██▌       | 91/351 [00:02<00:03, 65.13it/s, est. speed input: 17020.49 toks/s, output: 1048.43 toks/s]Processed prompts:  30%|██▉       | 105/351 [00:02<00:03, 72.83it/s, est. speed input: 18860.36 toks/s, output: 1191.61 toks/s]Processed prompts:  48%|████▊     | 170/351 [00:02<00:01, 147.30it/s, est. speed input: 29905.97 toks/s, output: 2045.35 toks/s]Processed prompts:  61%|██████    | 214/351 [00:02<00:00, 190.77it/s, est. speed input: 36737.07 toks/s, output: 2655.87 toks/s]Processed prompts:  70%|██████▉   | 245/351 [00:02<00:00, 202.77it/s, est. speed input: 40625.69 toks/s, output: 3060.44 toks/s]Processed prompts:  78%|███████▊  | 274/351 [00:02<00:00, 180.39it/s, est. speed input: 42673.57 toks/s, output: 3330.88 toks/s]Processed prompts:  93%|█████████▎| 325/351 [00:03<00:00, 239.02it/s, est. speed input: 50045.57 toks/s, output: 4068.77 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 239.02it/s, est. speed input: 47040.12 toks/s, output: 3989.18 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 100.12it/s, est. speed input: 47040.12 toks/s, output: 3989.18 toks/s]
+
+[ep3 val] OVERALL mean score 0.968  perfect 0.926  n=351
+  size 2: mean 1.000  perfect 1.000  n=1
+  size 3: mean 1.000  perfect 1.000  n=50
+  size 4: mean 1.000  perfect 1.000  n=50
+  size 5: mean 0.993  perfect 0.980  n=50
+  size 6: mean 0.907  perfect 0.900  n=50
+  size 7: mean 0.963  perfect 0.900  n=50
+  size 8: mean 0.966  perfect 0.880  n=50
+  size 9: mean 0.949  perfect 0.820  n=50
+  path_len 2: mean 1.000  perfect 1.000  n=1
+  path_len 3: mean 1.000  perfect 1.000  n=49
+  path_len 4: mean 1.000  perfect 1.000  n=40
+  path_len 5: mean 1.000  perfect 1.000  n=41
+  path_len 6: mean 1.000  perfect 1.000  n=35
+  path_len 7: mean 0.967  perfect 0.943  n=35
+  path_len 8: mean 0.988  perfect 0.930  n=43
+  path_len 9: mean 0.973  perfect 0.917  n=36
+  path_len 10: mean 1.000  perfect 1.000  n=27
+  path_len 11: mean 0.958  perfect 0.846  n=13
+  path_len 12: mean 0.748  perfect 0.667  n=12
+  path_len 13: mean 1.000  perfect 1.000  n=4
+  path_len 14: mean 0.000  perfect 0.500  n=2
+  path_len 15: mean 0.922  perfect 0.667  n=3
+  path_len 16: mean 0.832  perfect 0.000  n=2
+  path_len 17: mean 0.731  perfect 0.000  n=2
+  path_len 19: mean 0.738  perfect 0.000  n=3
+  path_len 20: mean 0.951  perfect 0.000  n=1
+  path_len 24: mean 0.304  perfect 0.000  n=1
+  path_len 27: mean 0.719  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts:  72%|███████▏  | 360/500 [00:00<00:00, 3595.73it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 4024.22it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:38,  1.64s/it, est. speed input: 251.25 toks/s, output: 14.64 toks/s]Processed prompts:   2%|▏         | 9/500 [00:01<01:10,  6.92it/s, est. speed input: 2119.75 toks/s, output: 123.48 toks/s]Processed prompts:   5%|▍         | 23/500 [00:01<00:24, 19.43it/s, est. speed input: 4995.55 toks/s, output: 294.23 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:16, 28.11it/s, est. speed input: 6742.54 toks/s, output: 404.83 toks/s]Processed prompts:  11%|█         | 53/500 [00:02<00:09, 48.96it/s, est. speed input: 10215.17 toks/s, output: 643.30 toks/s]Processed prompts:  13%|█▎        | 64/500 [00:02<00:07, 56.35it/s, est. speed input: 11778.93 toks/s, output: 760.32 toks/s]Processed prompts:  19%|█▊        | 93/500 [00:02<00:04, 87.84it/s, est. speed input: 16283.66 toks/s, output: 1105.94 toks/s]Processed prompts:  21%|██        | 105/500 [00:02<00:04, 84.72it/s, est. speed input: 17410.41 toks/s, output: 1206.57 toks/s]Processed prompts:  23%|██▎       | 117/500 [00:02<00:04, 88.22it/s, est. speed input: 18715.26 toks/s, output: 1318.16 toks/s]Processed prompts:  26%|██▌       | 128/500 [00:02<00:04, 90.04it/s, est. speed input: 19832.30 toks/s, output: 1425.69 toks/s]Processed prompts:  29%|██▉       | 145/500 [00:02<00:03, 102.98it/s, est. speed input: 21721.50 toks/s, output: 1604.00 toks/s]Processed prompts:  32%|███▏      | 161/500 [00:03<00:03, 101.22it/s, est. speed input: 23085.05 toks/s, output: 1739.92 toks/s]Processed prompts:  36%|███▌      | 181/500 [00:03<00:02, 114.98it/s, est. speed input: 25188.71 toks/s, output: 1950.35 toks/s]Processed prompts:  39%|███▉      | 196/500 [00:03<00:02, 109.02it/s, est. speed input: 26243.94 toks/s, output: 2064.10 toks/s]Processed prompts:  42%|████▏     | 208/500 [00:03<00:02, 106.82it/s, est. speed input: 27066.19 toks/s, output: 2154.26 toks/s]Processed prompts:  44%|████▍     | 220/500 [00:03<00:02, 104.31it/s, est. speed input: 27809.99 toks/s, output: 2231.08 toks/s]Processed prompts:  46%|████▌     | 231/500 [00:03<00:02, 104.88it/s, est. speed input: 28504.54 toks/s, output: 2309.59 toks/s]Processed prompts:  48%|████▊     | 242/500 [00:03<00:03, 85.47it/s, est. speed input: 28425.92 toks/s, output: 2320.21 toks/s] Processed prompts:  53%|█████▎    | 263/500 [00:04<00:02, 110.80it/s, est. speed input: 29996.63 toks/s, output: 2453.00 toks/s]Processed prompts:  58%|█████▊    | 289/500 [00:04<00:01, 142.64it/s, est. speed input: 32090.01 toks/s, output: 2659.60 toks/s]Processed prompts:  70%|███████   | 350/500 [00:04<00:00, 250.48it/s, est. speed input: 37735.39 toks/s, output: 3145.81 toks/s]Processed prompts:  80%|████████  | 400/500 [00:04<00:00, 314.39it/s, est. speed input: 42250.67 toks/s, output: 3532.86 toks/s]Processed prompts:  87%|████████▋ | 437/500 [00:04<00:00, 328.08it/s, est. speed input: 45353.42 toks/s, output: 3836.32 toks/s]Processed prompts:  96%|█████████▌| 480/500 [00:04<00:00, 352.05it/s, est. speed input: 49014.59 toks/s, output: 4224.92 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 352.05it/s, est. speed input: 48343.89 toks/s, output: 4277.39 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 101.90it/s, est. speed input: 48343.89 toks/s, output: 4277.39 toks/s]
+
+[ep3 train] OVERALL mean score 0.982  perfect 0.938  n=500
+  size 3: mean 0.994  perfect 0.979  n=48
+  size 4: mean 0.970  perfect 0.985  n=67
+  size 5: mean 1.000  perfect 1.000  n=77
+  size 6: mean 0.995  perfect 0.972  n=72
+  size 7: mean 0.977  perfect 0.926  n=81
+  size 8: mean 0.982  perfect 0.899  n=79
+  size 9: mean 0.962  perfect 0.829  n=76
+  path_len 3: mean 0.994  perfect 0.979  n=47
+  path_len 4: mean 1.000  perfect 1.000  n=47
+  path_len 5: mean 1.000  perfect 1.000  n=64
+  path_len 6: mean 0.964  perfect 0.982  n=55
+  path_len 7: mean 0.998  perfect 0.984  n=62
+  path_len 8: mean 0.990  perfect 0.952  n=62
+  path_len 9: mean 0.994  perfect 0.985  n=67
+  path_len 10: mean 0.982  perfect 0.935  n=31
+  path_len 11: mean 0.939  perfect 0.833  n=18
+  path_len 12: mean 0.950  perfect 0.778  n=9
+  path_len 13: mean 0.873  perfect 0.429  n=7
+  path_len 14: mean 0.982  perfect 0.778  n=9
+  path_len 15: mean 0.976  perfect 0.857  n=7
+  path_len 16: mean 0.872  perfect 0.750  n=4
+  path_len 17: mean 0.941  perfect 0.500  n=2
+  path_len 19: mean 1.000  perfect 1.000  n=1
+  path_len 20: mean 0.846  perfect 0.000  n=1
+  path_len 21: mean 0.769  perfect 0.000  n=2
+  path_len 22: mean 0.860  perfect 0.000  n=2
+  path_len 25: mean 0.843  perfect 0.000  n=2
+  path_len 27: mean 0.702  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/302 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 302/302 [00:00<00:00, 6191.97it/s]
+Processed prompts:   0%|          | 0/302 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/302 [00:01<06:11,  1.24s/it, est. speed input: 322.22 toks/s, output: 16.19 toks/s]Processed prompts:   1%|          | 3/302 [00:01<01:48,  2.74it/s, est. speed input: 892.02 toks/s, output: 47.26 toks/s]Processed prompts:  32%|███▏      | 98/302 [00:01<00:01, 103.29it/s, est. speed input: 25158.71 toks/s, output: 1464.07 toks/s]Processed prompts:  64%|██████▍   | 193/302 [00:01<00:00, 214.30it/s, est. speed input: 47432.73 toks/s, output: 2980.87 toks/s]Processed prompts:  82%|████████▏ | 249/302 [00:01<00:00, 268.14it/s, est. speed input: 58464.21 toks/s, output: 3880.72 toks/s]Processed prompts:  99%|█████████▉| 299/302 [00:02<00:00, 239.53it/s, est. speed input: 61843.66 toks/s, output: 4301.98 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 239.53it/s, est. speed input: 60898.58 toks/s, output: 4273.37 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 142.11it/s, est. speed input: 60898.58 toks/s, output: 4273.37 toks/s]
+
+[ep3 v1test] OVERALL mean score 0.834  perfect 0.795  n=302
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.976  perfect 0.970  n=100
+  size 4: mean 0.908  perfect 0.830  n=100
+  size 5: mean 0.615  perfect 0.580  n=100
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.995  perfect 0.979  n=97
+  path_len 4: mean 0.872  perfect 0.821  n=84
+  path_len 5: mean 0.660  perfect 0.628  n=86
+  path_len 6: mean 0.666  perfect 0.630  n=27
+  path_len 7: mean 0.967  perfect 0.750  n=4
+  path_len 8: mean 0.657  perfect 0.000  n=2
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 6276.55it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:54,  1.67s/it, est. speed input: 238.07 toks/s, output: 11.96 toks/s]Processed prompts:   1%|▏         | 7/500 [00:01<01:35,  5.14it/s, est. speed input: 1590.75 toks/s, output: 90.90 toks/s]Processed prompts:   4%|▍         | 21/500 [00:01<00:25, 18.44it/s, est. speed input: 4532.22 toks/s, output: 262.34 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:15, 30.26it/s, est. speed input: 6729.89 toks/s, output: 395.00 toks/s]Processed prompts:  10%|▉         | 49/500 [00:02<00:09, 46.52it/s, est. speed input: 9400.91 toks/s, output: 563.15 toks/s]Processed prompts:  12%|█▏        | 59/500 [00:02<00:08, 53.90it/s, est. speed input: 10819.73 toks/s, output: 664.08 toks/s]Processed prompts:  14%|█▍        | 69/500 [00:02<00:07, 59.51it/s, est. speed input: 12062.79 toks/s, output: 755.22 toks/s]Processed prompts:  17%|█▋        | 86/500 [00:02<00:05, 80.65it/s, est. speed input: 14591.27 toks/s, output: 948.54 toks/s]Processed prompts:  20%|██        | 102/500 [00:02<00:04, 86.31it/s, est. speed input: 16393.88 toks/s, output: 1097.05 toks/s]Processed prompts:  23%|██▎       | 116/500 [00:02<00:04, 92.99it/s, est. speed input: 17969.91 toks/s, output: 1232.22 toks/s]Processed prompts:  26%|██▌       | 129/500 [00:02<00:03, 93.63it/s, est. speed input: 19226.83 toks/s, output: 1342.30 toks/s]Processed prompts:  32%|███▏      | 160/500 [00:03<00:02, 118.96it/s, est. speed input: 22855.68 toks/s, output: 1676.16 toks/s]Processed prompts:  35%|███▍      | 173/500 [00:03<00:02, 109.81it/s, est. speed input: 23729.81 toks/s, output: 1768.38 toks/s]Processed prompts:  37%|███▋      | 187/500 [00:03<00:02, 112.15it/s, est. speed input: 24988.03 toks/s, output: 1895.70 toks/s]Processed prompts:  41%|████      | 206/500 [00:03<00:02, 115.59it/s, est. speed input: 26560.19 toks/s, output: 2044.17 toks/s]Processed prompts:  44%|████▎     | 218/500 [00:03<00:02, 113.00it/s, est. speed input: 27337.40 toks/s, output: 2133.35 toks/s]Processed prompts:  46%|████▌     | 230/500 [00:03<00:02, 109.67it/s, est. speed input: 27998.86 toks/s, output: 2204.65 toks/s]Processed prompts:  48%|████▊     | 241/500 [00:03<00:02, 108.22it/s, est. speed input: 28612.50 toks/s, output: 2272.22 toks/s]Processed prompts:  50%|█████     | 252/500 [00:04<00:02, 102.54it/s, est. speed input: 29025.20 toks/s, output: 2322.01 toks/s]Processed prompts:  56%|█████▋    | 282/500 [00:04<00:01, 148.66it/s, est. speed input: 31520.67 toks/s, output: 2529.29 toks/s]Processed prompts:  62%|██████▏   | 309/500 [00:04<00:01, 177.67it/s, est. speed input: 33656.66 toks/s, output: 2725.76 toks/s]Processed prompts:  72%|███████▏  | 359/500 [00:04<00:00, 258.35it/s, est. speed input: 38140.53 toks/s, output: 3091.30 toks/s]Processed prompts:  81%|████████▏ | 407/500 [00:04<00:00, 307.53it/s, est. speed input: 42344.97 toks/s, output: 3483.89 toks/s]Processed prompts:  90%|█████████ | 451/500 [00:04<00:00, 338.99it/s, est. speed input: 46122.47 toks/s, output: 3854.43 toks/s]Processed prompts:  98%|█████████▊| 490/500 [00:04<00:00, 345.91it/s, est. speed input: 49375.89 toks/s, output: 4205.24 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 345.91it/s, est. speed input: 48429.31 toks/s, output: 4181.11 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 102.73it/s, est. speed input: 48429.31 toks/s, output: 4181.11 toks/s]
+
+[ep4 test] OVERALL mean score 0.969  perfect 0.904  n=500
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 1.000  perfect 1.000  n=66
+  size 4: mean 0.995  perfect 0.985  n=68
+  size 5: mean 0.961  perfect 0.955  n=67
+  size 6: mean 0.966  perfect 0.946  n=74
+  size 7: mean 0.964  perfect 0.873  n=79
+  size 8: mean 0.939  perfect 0.797  n=69
+  size 9: mean 0.962  perfect 0.787  n=75
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 1.000  perfect 1.000  n=65
+  path_len 4: mean 0.993  perfect 0.980  n=50
+  path_len 5: mean 1.000  perfect 1.000  n=50
+  path_len 6: mean 0.962  perfect 0.966  n=59
+  path_len 7: mean 0.980  perfect 0.945  n=55
+  path_len 8: mean 0.955  perfect 0.928  n=69
+  path_len 9: mean 0.981  perfect 0.926  n=54
+  path_len 10: mean 0.939  perfect 0.917  n=36
+  path_len 11: mean 0.954  perfect 0.727  n=11
+  path_len 12: mean 0.933  perfect 0.688  n=16
+  path_len 13: mean 0.971  perfect 0.750  n=8
+  path_len 14: mean 0.853  perfect 0.250  n=8
+  path_len 15: mean 0.887  perfect 0.000  n=4
+  path_len 16: mean 0.980  perfect 0.667  n=3
+  path_len 17: mean 0.840  perfect 0.333  n=3
+  path_len 18: mean 0.826  perfect 0.000  n=1
+  path_len 19: mean 0.946  perfect 0.000  n=1
+  path_len 21: mean 0.905  perfect 0.000  n=1
+  path_len 22: mean 0.600  perfect 0.000  n=1
+  path_len 23: mean 0.751  perfect 0.000  n=2
+  path_len 26: mean 0.846  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/351 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 351/351 [00:00<00:00, 5989.23it/s]
+Processed prompts:   0%|          | 0/351 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/351 [00:01<08:06,  1.39s/it, est. speed input: 286.22 toks/s, output: 14.38 toks/s]Processed prompts:   1%|          | 2/351 [00:01<03:42,  1.57it/s, est. speed input: 540.12 toks/s, output: 29.34 toks/s]Processed prompts:  14%|█▍        | 50/351 [00:01<00:06, 44.09it/s, est. speed input: 11082.36 toks/s, output: 646.01 toks/s]Processed prompts:  26%|██▌       | 91/351 [00:02<00:03, 65.68it/s, est. speed input: 17130.47 toks/s, output: 1057.00 toks/s]Processed prompts:  30%|██▉       | 105/351 [00:02<00:03, 73.31it/s, est. speed input: 18973.23 toks/s, output: 1200.45 toks/s]Processed prompts:  47%|████▋     | 166/351 [00:02<00:01, 142.76it/s, est. speed input: 29324.40 toks/s, output: 1998.83 toks/s]Processed prompts:  60%|█████▉    | 210/351 [00:02<00:00, 186.72it/s, est. speed input: 36198.33 toks/s, output: 2613.37 toks/s]Processed prompts:  69%|██████▉   | 243/351 [00:02<00:00, 203.96it/s, est. speed input: 40514.72 toks/s, output: 3060.41 toks/s]Processed prompts:  77%|███████▋  | 272/351 [00:02<00:00, 180.56it/s, est. speed input: 42539.80 toks/s, output: 3326.08 toks/s]Processed prompts:  93%|█████████▎| 328/351 [00:03<00:00, 241.53it/s, est. speed input: 50536.24 toks/s, output: 4147.40 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 241.53it/s, est. speed input: 49537.25 toks/s, output: 4209.35 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 105.43it/s, est. speed input: 49537.25 toks/s, output: 4209.35 toks/s]
+
+[ep4 val] OVERALL mean score 0.984  perfect 0.934  n=351
+  size 2: mean 1.000  perfect 1.000  n=1
+  size 3: mean 1.000  perfect 1.000  n=50
+  size 4: mean 1.000  perfect 1.000  n=50
+  size 5: mean 0.996  perfect 0.980  n=50
+  size 6: mean 0.979  perfect 0.900  n=50
+  size 7: mean 0.995  perfect 0.980  n=50
+  size 8: mean 0.969  perfect 0.900  n=50
+  size 9: mean 0.946  perfect 0.780  n=50
+  path_len 2: mean 1.000  perfect 1.000  n=1
+  path_len 3: mean 1.000  perfect 1.000  n=49
+  path_len 4: mean 1.000  perfect 1.000  n=40
+  path_len 5: mean 1.000  perfect 1.000  n=41
+  path_len 6: mean 0.992  perfect 0.971  n=35
+  path_len 7: mean 0.994  perfect 0.971  n=35
+  path_len 8: mean 1.000  perfect 1.000  n=43
+  path_len 9: mean 0.993  perfect 0.944  n=36
+  path_len 10: mean 0.988  perfect 0.926  n=27
+  path_len 11: mean 1.000  perfect 1.000  n=13
+  path_len 12: mean 0.866  perfect 0.667  n=12
+  path_len 13: mean 0.941  perfect 0.750  n=4
+  path_len 14: mean 0.857  perfect 0.500  n=2
+  path_len 15: mean 0.935  perfect 0.667  n=3
+  path_len 16: mean 0.705  perfect 0.000  n=2
+  path_len 17: mean 0.652  perfect 0.000  n=2
+  path_len 19: mean 0.719  perfect 0.000  n=3
+  path_len 20: mean 0.953  perfect 0.000  n=1
+  path_len 24: mean 0.943  perfect 0.000  n=1
+  path_len 27: mean 0.867  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 6001.86it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:39,  1.64s/it, est. speed input: 251.00 toks/s, output: 14.62 toks/s]Processed prompts:   2%|▏         | 9/500 [00:01<01:11,  6.88it/s, est. speed input: 2111.33 toks/s, output: 122.99 toks/s]Processed prompts:   3%|▎         | 17/500 [00:01<00:33, 14.24it/s, est. speed input: 3771.48 toks/s, output: 221.34 toks/s]Processed prompts:   6%|▌         | 31/500 [00:01<00:15, 29.69it/s, est. speed input: 6524.45 toks/s, output: 389.40 toks/s]Processed prompts:   8%|▊         | 40/500 [00:02<00:12, 37.58it/s, est. speed input: 8003.60 toks/s, output: 491.03 toks/s]Processed prompts:  11%|█         | 53/500 [00:02<00:08, 52.75it/s, est. speed input: 10152.04 toks/s, output: 639.32 toks/s]Processed prompts:  13%|█▎        | 65/500 [00:02<00:06, 62.45it/s, est. speed input: 11890.35 toks/s, output: 768.89 toks/s]Processed prompts:  19%|█▉        | 94/500 [00:02<00:04, 95.63it/s, est. speed input: 16320.83 toks/s, output: 1109.15 toks/s]Processed prompts:  21%|██        | 106/500 [00:02<00:04, 90.28it/s, est. speed input: 17433.38 toks/s, output: 1209.67 toks/s]Processed prompts:  24%|██▍       | 120/500 [00:02<00:03, 95.95it/s, est. speed input: 19051.89 toks/s, output: 1347.19 toks/s]Processed prompts:  26%|██▌       | 131/500 [00:02<00:03, 95.79it/s, est. speed input: 20140.63 toks/s, output: 1450.89 toks/s]Processed prompts:  29%|██▉       | 147/500 [00:03<00:03, 106.42it/s, est. speed input: 21893.48 toks/s, output: 1615.79 toks/s]Processed prompts:  33%|███▎      | 163/500 [00:03<00:03, 104.71it/s, est. speed input: 23282.36 toks/s, output: 1753.47 toks/s]Processed prompts:  37%|███▋      | 183/500 [00:03<00:02, 115.43it/s, est. speed input: 25301.26 toks/s, output: 1955.43 toks/s]Processed prompts:  40%|███▉      | 199/500 [00:03<00:02, 109.43it/s, est. speed input: 26419.27 toks/s, output: 2075.75 toks/s]Processed prompts:  42%|████▏     | 211/500 [00:03<00:02, 109.16it/s, est. speed input: 27307.91 toks/s, output: 2171.00 toks/s]Processed prompts:  45%|████▍     | 223/500 [00:03<00:02, 110.00it/s, est. speed input: 28147.62 toks/s, output: 2256.57 toks/s]Processed prompts:  47%|████▋     | 235/500 [00:03<00:02, 98.02it/s, est. speed input: 28506.68 toks/s, output: 2303.64 toks/s] Processed prompts:  49%|████▉     | 246/500 [00:04<00:02, 85.60it/s, est. speed input: 28586.93 toks/s, output: 2328.66 toks/s]Processed prompts:  54%|█████▍    | 269/500 [00:04<00:01, 117.20it/s, est. speed input: 30461.42 toks/s, output: 2502.00 toks/s]Processed prompts:  62%|██████▏   | 309/500 [00:04<00:01, 181.79it/s, est. speed input: 34011.50 toks/s, output: 2811.50 toks/s]Processed prompts:  73%|███████▎  | 365/500 [00:04<00:00, 272.31it/s, est. speed input: 39169.90 toks/s, output: 3256.22 toks/s]Processed prompts:  84%|████████▎ | 418/500 [00:04<00:00, 331.56it/s, est. speed input: 43899.42 toks/s, output: 3686.72 toks/s]Processed prompts:  91%|█████████ | 454/500 [00:04<00:00, 338.38it/s, est. speed input: 46872.68 toks/s, output: 3970.09 toks/s]Processed prompts:  98%|█████████▊| 491/500 [00:04<00:00, 326.49it/s, est. speed input: 49657.26 toks/s, output: 4295.55 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 326.49it/s, est. speed input: 48648.18 toks/s, output: 4275.60 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 102.54it/s, est. speed input: 48648.18 toks/s, output: 4275.60 toks/s]
+
+[ep4 train] OVERALL mean score 0.985  perfect 0.932  n=500
+  size 3: mean 1.000  perfect 1.000  n=48
+  size 4: mean 1.000  perfect 1.000  n=67
+  size 5: mean 0.998  perfect 0.987  n=77
+  size 6: mean 0.990  perfect 0.944  n=72
+  size 7: mean 0.989  perfect 0.914  n=81
+  size 8: mean 0.948  perfect 0.835  n=79
+  size 9: mean 0.977  perfect 0.882  n=76
+  path_len 3: mean 1.000  perfect 1.000  n=47
+  path_len 4: mean 1.000  perfect 1.000  n=47
+  path_len 5: mean 1.000  perfect 1.000  n=64
+  path_len 6: mean 1.000  perfect 1.000  n=55
+  path_len 7: mean 1.000  perfect 1.000  n=62
+  path_len 8: mean 0.995  perfect 0.968  n=62
+  path_len 9: mean 0.980  perfect 0.925  n=67
+  path_len 10: mean 0.984  perfect 0.871  n=31
+  path_len 11: mean 0.971  perfect 0.778  n=18
+  path_len 12: mean 0.975  perfect 0.778  n=9
+  path_len 13: mean 0.952  perfect 0.714  n=7
+  path_len 14: mean 0.949  perfect 0.667  n=9
+  path_len 15: mean 0.920  perfect 0.571  n=7
+  path_len 16: mean 0.972  perfect 0.500  n=4
+  path_len 17: mean 0.842  perfect 0.500  n=2
+  path_len 19: mean 1.000  perfect 1.000  n=1
+  path_len 20: mean 0.829  perfect 0.000  n=1
+  path_len 21: mean -0.077  perfect 0.000  n=2
+  path_len 22: mean 1.000  perfect 1.000  n=2
+  path_len 25: mean 0.818  perfect 0.000  n=2
+  path_len 27: mean 0.787  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/302 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 302/302 [00:00<00:00, 5344.10it/s]
+Processed prompts:   0%|          | 0/302 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/302 [00:01<06:09,  1.23s/it, est. speed input: 324.56 toks/s, output: 16.31 toks/s]Processed prompts:   1%|          | 3/302 [00:01<01:48,  2.76it/s, est. speed input: 897.46 toks/s, output: 47.55 toks/s]Processed prompts:  32%|███▏      | 98/302 [00:01<00:01, 103.78it/s, est. speed input: 25297.86 toks/s, output: 1472.17 toks/s]Processed prompts:  68%|██████▊   | 204/302 [00:01<00:00, 226.62it/s, est. speed input: 50282.25 toks/s, output: 3181.85 toks/s]Processed prompts:  83%|████████▎ | 252/302 [00:01<00:00, 242.66it/s, est. speed input: 57247.44 toks/s, output: 3842.28 toks/s]Processed prompts:  97%|█████████▋| 294/302 [00:01<00:00, 268.96it/s, est. speed input: 63580.19 toks/s, output: 4394.03 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 268.96it/s, est. speed input: 62045.89 toks/s, output: 4351.96 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 144.79it/s, est. speed input: 62045.89 toks/s, output: 4351.96 toks/s]
+
+[ep4 v1test] OVERALL mean score 0.894  perfect 0.821  n=302
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.997  perfect 0.990  n=100
+  size 4: mean 0.917  perfect 0.850  n=100
+  size 5: mean 0.766  perfect 0.620  n=100
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.997  perfect 0.990  n=97
+  path_len 4: mean 0.946  perfect 0.881  n=84
+  path_len 5: mean 0.779  perfect 0.651  n=86
+  path_len 6: mean 0.718  perfect 0.593  n=27
+  path_len 7: mean 0.955  perfect 0.750  n=4
+  path_len 8: mean 0.842  perfect 0.500  n=2
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts:  82%|████████▏ | 408/500 [00:00<00:00, 4078.50it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 4233.07it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<15:08,  1.82s/it, est. speed input: 218.62 toks/s, output: 10.99 toks/s]Processed prompts:   1%|▏         | 7/500 [00:01<01:43,  4.77it/s, est. speed input: 1470.64 toks/s, output: 84.04 toks/s]Processed prompts:   4%|▍         | 21/500 [00:02<00:27, 17.20it/s, est. speed input: 4205.02 toks/s, output: 243.40 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:16, 28.51it/s, est. speed input: 6270.87 toks/s, output: 368.06 toks/s]Processed prompts:  10%|▉         | 49/500 [00:02<00:10, 44.33it/s, est. speed input: 8798.86 toks/s, output: 527.08 toks/s]Processed prompts:  12%|█▏        | 59/500 [00:02<00:08, 51.86it/s, est. speed input: 10162.50 toks/s, output: 623.74 toks/s]Processed prompts:  14%|█▍        | 69/500 [00:02<00:07, 57.80it/s, est. speed input: 11368.43 toks/s, output: 711.75 toks/s]Processed prompts:  17%|█▋        | 85/500 [00:02<00:05, 77.95it/s, est. speed input: 13654.37 toks/s, output: 886.51 toks/s]Processed prompts:  20%|██        | 101/500 [00:02<00:04, 84.34it/s, est. speed input: 15418.36 toks/s, output: 1031.01 toks/s]Processed prompts:  23%|██▎       | 115/500 [00:02<00:04, 91.98it/s, est. speed input: 16968.95 toks/s, output: 1163.57 toks/s]Processed prompts:  26%|██▌       | 128/500 [00:03<00:04, 92.50it/s, est. speed input: 18201.25 toks/s, output: 1270.88 toks/s]Processed prompts:  29%|██▉       | 147/500 [00:03<00:03, 113.40it/s, est. speed input: 20501.50 toks/s, output: 1477.12 toks/s]Processed prompts:  33%|███▎      | 167/500 [00:03<00:02, 111.64it/s, est. speed input: 22228.28 toks/s, output: 1648.03 toks/s]Processed prompts:  36%|███▌      | 180/500 [00:03<00:02, 112.08it/s, est. speed input: 23348.70 toks/s, output: 1756.77 toks/s]Processed prompts:  39%|███▉      | 196/500 [00:03<00:02, 117.93it/s, est. speed input: 24796.09 toks/s, output: 1897.02 toks/s]Processed prompts:  42%|████▏     | 209/500 [00:03<00:02, 107.92it/s, est. speed input: 25503.54 toks/s, output: 1976.15 toks/s]Processed prompts:  45%|████▍     | 223/500 [00:03<00:02, 108.43it/s, est. speed input: 26420.49 toks/s, output: 2075.02 toks/s]Processed prompts:  47%|████▋     | 235/500 [00:04<00:02, 106.53it/s, est. speed input: 27103.22 toks/s, output: 2144.66 toks/s]Processed prompts:  49%|████▉     | 246/500 [00:04<00:02, 107.20it/s, est. speed input: 27638.37 toks/s, output: 2188.56 toks/s]Processed prompts:  53%|█████▎    | 263/500 [00:04<00:01, 123.53it/s, est. speed input: 28829.60 toks/s, output: 2295.28 toks/s]Processed prompts:  57%|█████▋    | 285/500 [00:04<00:01, 144.80it/s, est. speed input: 30453.95 toks/s, output: 2449.55 toks/s]Processed prompts:  65%|██████▍   | 323/500 [00:04<00:00, 207.19it/s, est. speed input: 33662.53 toks/s, output: 2721.90 toks/s]Processed prompts:  74%|███████▍  | 370/500 [00:04<00:00, 275.36it/s, est. speed input: 37741.85 toks/s, output: 3080.35 toks/s]Processed prompts:  83%|████████▎ | 415/500 [00:04<00:00, 315.17it/s, est. speed input: 41549.35 toks/s, output: 3427.24 toks/s]Processed prompts:  91%|█████████ | 456/500 [00:04<00:00, 341.53it/s, est. speed input: 44950.46 toks/s, output: 3774.52 toks/s]Processed prompts:  98%|█████████▊| 492/500 [00:04<00:00, 333.26it/s, est. speed input: 47743.10 toks/s, output: 4092.29 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 333.26it/s, est. speed input: 43707.76 toks/s, output: 3802.41 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 92.72it/s, est. speed input: 43707.76 toks/s, output: 3802.41 toks/s] 
+
+[ep5 test] OVERALL mean score 0.962  perfect 0.906  n=500
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 1.000  perfect 1.000  n=66
+  size 4: mean 0.990  perfect 0.971  n=68
+  size 5: mean 0.961  perfect 0.955  n=67
+  size 6: mean 0.962  perfect 0.919  n=74
+  size 7: mean 0.983  perfect 0.911  n=79
+  size 8: mean 0.940  perfect 0.797  n=69
+  size 9: mean 0.905  perfect 0.800  n=75
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 1.000  perfect 1.000  n=65
+  path_len 4: mean 0.991  perfect 0.980  n=50
+  path_len 5: mean 0.983  perfect 0.940  n=50
+  path_len 6: mean 0.966  perfect 0.983  n=59
+  path_len 7: mean 0.990  perfect 0.945  n=55
+  path_len 8: mean 0.959  perfect 0.928  n=69
+  path_len 9: mean 0.998  perfect 0.981  n=54
+  path_len 10: mean 0.974  perfect 0.861  n=36
+  path_len 11: mean 0.869  perfect 0.636  n=11
+  path_len 12: mean 0.844  perfect 0.812  n=16
+  path_len 13: mean 0.946  perfect 0.625  n=8
+  path_len 14: mean 0.897  perfect 0.375  n=8
+  path_len 15: mean 0.891  perfect 0.250  n=4
+  path_len 16: mean 1.000  perfect 1.000  n=3
+  path_len 17: mean 0.780  perfect 0.000  n=3
+  path_len 18: mean 0.892  perfect 0.000  n=1
+  path_len 19: mean 0.902  perfect 0.000  n=1
+  path_len 21: mean 0.951  perfect 0.000  n=1
+  path_len 22: mean -1.000  perfect 0.000  n=1
+  path_len 23: mean 0.730  perfect 0.000  n=2
+  path_len 26: mean -1.000  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/351 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 351/351 [00:00<00:00, 5200.40it/s]
+Processed prompts:   0%|          | 0/351 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/351 [00:01<08:04,  1.39s/it, est. speed input: 287.31 toks/s, output: 14.44 toks/s]Processed prompts:   1%|          | 2/351 [00:01<03:41,  1.57it/s, est. speed input: 541.80 toks/s, output: 29.43 toks/s]Processed prompts:  15%|█▍        | 51/351 [00:01<00:06, 44.87it/s, est. speed input: 11302.32 toks/s, output: 658.82 toks/s]Processed prompts:  26%|██▌       | 91/351 [00:02<00:03, 65.73it/s, est. speed input: 17186.02 toks/s, output: 1058.62 toks/s]Processed prompts:  30%|██▉       | 105/351 [00:02<00:03, 73.46it/s, est. speed input: 19038.66 toks/s, output: 1202.87 toks/s]Processed prompts:  48%|████▊     | 167/351 [00:02<00:01, 144.45it/s, est. speed input: 29607.70 toks/s, output: 2018.24 toks/s]Processed prompts:  60%|██████    | 212/351 [00:02<00:00, 190.01it/s, est. speed input: 36682.20 toks/s, output: 2650.10 toks/s]Processed prompts:  69%|██████▉   | 242/351 [00:02<00:00, 201.70it/s, est. speed input: 40473.68 toks/s, output: 3047.16 toks/s]Processed prompts:  77%|███████▋  | 271/351 [00:02<00:00, 189.49it/s, est. speed input: 43019.26 toks/s, output: 3355.31 toks/s]Processed prompts:  89%|████████▊ | 311/351 [00:02<00:00, 225.04it/s, est. speed input: 48379.25 toks/s, output: 3924.62 toks/s]Processed prompts:  97%|█████████▋| 339/351 [00:03<00:00, 233.03it/s, est. speed input: 51531.73 toks/s, output: 4293.06 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 233.03it/s, est. speed input: 47714.33 toks/s, output: 4091.50 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 101.55it/s, est. speed input: 47714.33 toks/s, output: 4091.50 toks/s]
+
+[ep5 val] OVERALL mean score 0.979  perfect 0.940  n=351
+  size 2: mean 1.000  perfect 1.000  n=1
+  size 3: mean 1.000  perfect 1.000  n=50
+  size 4: mean 1.000  perfect 1.000  n=50
+  size 5: mean 0.989  perfect 0.960  n=50
+  size 6: mean 0.969  perfect 0.920  n=50
+  size 7: mean 0.997  perfect 0.980  n=50
+  size 8: mean 0.969  perfect 0.880  n=50
+  size 9: mean 0.930  perfect 0.840  n=50
+  path_len 2: mean 1.000  perfect 1.000  n=1
+  path_len 3: mean 1.000  perfect 1.000  n=49
+  path_len 4: mean 1.000  perfect 1.000  n=40
+  path_len 5: mean 1.000  perfect 1.000  n=41
+  path_len 6: mean 1.000  perfect 1.000  n=35
+  path_len 7: mean 0.988  perfect 0.971  n=35
+  path_len 8: mean 0.997  perfect 0.977  n=43
+  path_len 9: mean 0.971  perfect 0.917  n=36
+  path_len 10: mean 0.915  perfect 0.889  n=27
+  path_len 11: mean 0.941  perfect 0.846  n=13
+  path_len 12: mean 0.955  perfect 0.833  n=12
+  path_len 13: mean 1.000  perfect 1.000  n=4
+  path_len 14: mean 0.968  perfect 0.500  n=2
+  path_len 15: mean 1.000  perfect 1.000  n=3
+  path_len 16: mean 0.897  perfect 0.500  n=2
+  path_len 17: mean 0.682  perfect 0.000  n=2
+  path_len 19: mean 0.742  perfect 0.000  n=3
+  path_len 20: mean 1.000  perfect 1.000  n=1
+  path_len 24: mean 0.878  perfect 0.000  n=1
+  path_len 27: mean 0.745  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 5657.75it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:35,  1.63s/it, est. speed input: 252.11 toks/s, output: 14.69 toks/s]Processed prompts:   2%|▏         | 9/500 [00:01<01:10,  6.95it/s, est. speed input: 2129.61 toks/s, output: 124.05 toks/s]Processed prompts:   5%|▍         | 23/500 [00:01<00:24, 19.51it/s, est. speed input: 5016.46 toks/s, output: 295.46 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:16, 28.23it/s, est. speed input: 6771.21 toks/s, output: 406.55 toks/s]Processed prompts:  11%|█         | 53/500 [00:02<00:09, 49.18it/s, est. speed input: 10259.12 toks/s, output: 646.07 toks/s]Processed prompts:  13%|█▎        | 64/500 [00:02<00:07, 56.77it/s, est. speed input: 11839.64 toks/s, output: 764.24 toks/s]Processed prompts:  19%|█▊        | 93/500 [00:02<00:04, 88.16it/s, est. speed input: 16354.51 toks/s, output: 1110.75 toks/s]Processed prompts:  21%|██        | 105/500 [00:02<00:04, 84.92it/s, est. speed input: 17464.61 toks/s, output: 1211.43 toks/s]Processed prompts:  24%|██▍       | 120/500 [00:02<00:04, 93.20it/s, est. speed input: 19272.91 toks/s, output: 1364.64 toks/s]Processed prompts:  26%|██▌       | 131/500 [00:02<00:03, 92.31it/s, est. speed input: 20311.68 toks/s, output: 1464.94 toks/s]Processed prompts:  29%|██▉       | 145/500 [00:02<00:03, 99.38it/s, est. speed input: 21749.61 toks/s, output: 1602.06 toks/s]Processed prompts:  32%|███▏      | 160/500 [00:03<00:03, 99.03it/s, est. speed input: 23032.23 toks/s, output: 1730.40 toks/s]Processed prompts:  36%|███▌      | 180/500 [00:03<00:02, 113.56it/s, est. speed input: 25152.86 toks/s, output: 1940.79 toks/s]Processed prompts:  39%|███▊      | 193/500 [00:03<00:02, 104.45it/s, est. speed input: 25935.81 toks/s, output: 2027.93 toks/s]Processed prompts:  41%|████      | 204/500 [00:03<00:02, 103.26it/s, est. speed input: 26703.14 toks/s, output: 2111.57 toks/s]Processed prompts:  43%|████▎     | 215/500 [00:03<00:02, 101.13it/s, est. speed input: 27353.44 toks/s, output: 2180.61 toks/s]Processed prompts:  46%|████▌     | 228/500 [00:03<00:02, 107.29it/s, est. speed input: 28340.50 toks/s, output: 2291.62 toks/s]Processed prompts:  48%|████▊     | 239/500 [00:03<00:02, 92.79it/s, est. speed input: 28518.98 toks/s, output: 2328.10 toks/s] Processed prompts:  50%|████▉     | 249/500 [00:04<00:02, 86.43it/s, est. speed input: 28706.52 toks/s, output: 2359.91 toks/s]Processed prompts:  54%|█████▍    | 271/500 [00:04<00:01, 118.47it/s, est. speed input: 30454.83 toks/s, output: 2508.66 toks/s]Processed prompts:  62%|██████▏   | 309/500 [00:04<00:01, 182.04it/s, est. speed input: 33778.27 toks/s, output: 2806.46 toks/s]Processed prompts:  75%|███████▍  | 374/500 [00:04<00:00, 300.10it/s, est. speed input: 39901.95 toks/s, output: 3336.62 toks/s]Processed prompts:  84%|████████▍ | 422/500 [00:04<00:00, 339.82it/s, est. speed input: 44081.96 toks/s, output: 3723.21 toks/s]Processed prompts:  92%|█████████▏| 458/500 [00:04<00:00, 344.43it/s, est. speed input: 47057.11 toks/s, output: 4018.88 toks/s]Processed prompts:  99%|█████████▉| 494/500 [00:04<00:00, 267.70it/s, est. speed input: 48829.90 toks/s, output: 4280.82 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 267.70it/s, est. speed input: 45866.67 toks/s, output: 4085.28 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 96.67it/s, est. speed input: 45866.67 toks/s, output: 4085.28 toks/s] 
+
+[ep5 train] OVERALL mean score 0.989  perfect 0.960  n=500
+  size 3: mean 1.000  perfect 1.000  n=48
+  size 4: mean 1.000  perfect 1.000  n=67
+  size 5: mean 1.000  perfect 1.000  n=77
+  size 6: mean 0.998  perfect 0.972  n=72
+  size 7: mean 0.991  perfect 0.963  n=81
+  size 8: mean 0.957  perfect 0.911  n=79
+  size 9: mean 0.983  perfect 0.895  n=76
+  path_len 3: mean 1.000  perfect 1.000  n=47
+  path_len 4: mean 1.000  perfect 1.000  n=47
+  path_len 5: mean 1.000  perfect 1.000  n=64
+  path_len 6: mean 1.000  perfect 1.000  n=55
+  path_len 7: mean 1.000  perfect 1.000  n=62
+  path_len 8: mean 0.991  perfect 0.968  n=62
+  path_len 9: mean 1.000  perfect 1.000  n=67
+  path_len 10: mean 0.997  perfect 0.968  n=31
+  path_len 11: mean 0.975  perfect 0.889  n=18
+  path_len 12: mean 0.935  perfect 0.667  n=9
+  path_len 13: mean 0.990  perfect 0.857  n=7
+  path_len 14: mean 0.950  perfect 0.667  n=9
+  path_len 15: mean 0.956  perfect 0.857  n=7
+  path_len 16: mean 0.971  perfect 0.750  n=4
+  path_len 17: mean 1.000  perfect 1.000  n=2
+  path_len 19: mean 1.000  perfect 1.000  n=1
+  path_len 20: mean 0.846  perfect 0.000  n=1
+  path_len 21: mean -0.023  perfect 0.000  n=2
+  path_len 22: mean 1.000  perfect 1.000  n=2
+  path_len 25: mean 0.744  perfect 0.000  n=2
+  path_len 27: mean 0.796  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/302 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 302/302 [00:00<00:00, 6116.15it/s]
+Processed prompts:   0%|          | 0/302 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/302 [00:01<06:11,  1.23s/it, est. speed input: 322.42 toks/s, output: 16.20 toks/s]Processed prompts:   1%|          | 3/302 [00:01<01:48,  2.74it/s, est. speed input: 892.13 toks/s, output: 47.26 toks/s]Processed prompts:  32%|███▏      | 98/302 [00:01<00:01, 103.24it/s, est. speed input: 25156.00 toks/s, output: 1463.91 toks/s]Processed prompts:  64%|██████▎   | 192/302 [00:01<00:00, 212.73it/s, est. speed input: 47149.44 toks/s, output: 2960.74 toks/s]Processed prompts:  81%|████████▏ | 246/302 [00:01<00:00, 264.21it/s, est. speed input: 57754.68 toks/s, output: 3811.30 toks/s]Processed prompts:  98%|█████████▊| 296/302 [00:02<00:00, 244.65it/s, est. speed input: 61871.22 toks/s, output: 4310.27 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 244.65it/s, est. speed input: 54023.02 toks/s, output: 3841.00 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 126.06it/s, est. speed input: 54023.02 toks/s, output: 3841.00 toks/s]
+
+[ep5 v1test] OVERALL mean score 0.884  perfect 0.825  n=302
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.998  perfect 0.990  n=100
+  size 4: mean 0.917  perfect 0.830  n=100
+  size 5: mean 0.733  perfect 0.650  n=100
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.998  perfect 0.990  n=97
+  path_len 4: mean 0.921  perfect 0.869  n=84
+  path_len 5: mean 0.751  perfect 0.651  n=86
+  path_len 6: mean 0.766  perfect 0.630  n=27
+  path_len 7: mean 1.000  perfect 1.000  n=4
+  path_len 8: mean 0.727  perfect 0.500  n=2
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 6255.99it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<14:28,  1.74s/it, est. speed input: 228.57 toks/s, output: 11.49 toks/s]Processed prompts:   1%|▏         | 7/500 [00:01<01:39,  4.96it/s, est. speed input: 1532.44 toks/s, output: 87.57 toks/s]Processed prompts:   4%|▍         | 21/500 [00:01<00:26, 17.87it/s, est. speed input: 4377.02 toks/s, output: 253.36 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:15, 29.43it/s, est. speed input: 6510.58 toks/s, output: 382.13 toks/s]Processed prompts:  10%|▉         | 49/500 [00:02<00:09, 45.62it/s, est. speed input: 9122.35 toks/s, output: 546.46 toks/s]Processed prompts:  12%|█▏        | 59/500 [00:02<00:08, 53.07it/s, est. speed input: 10516.19 toks/s, output: 645.45 toks/s]Processed prompts:  14%|█▍        | 69/500 [00:02<00:07, 58.81it/s, est. speed input: 11742.22 toks/s, output: 735.15 toks/s]Processed prompts:  17%|█▋        | 86/500 [00:02<00:05, 81.09it/s, est. speed input: 14260.66 toks/s, output: 927.05 toks/s]Processed prompts:  20%|██        | 102/500 [00:02<00:04, 85.69it/s, est. speed input: 16011.55 toks/s, output: 1071.47 toks/s]Processed prompts:  23%|██▎       | 116/500 [00:02<00:04, 92.84it/s, est. speed input: 17580.23 toks/s, output: 1205.50 toks/s]Processed prompts:  26%|██▌       | 129/500 [00:03<00:03, 93.76it/s, est. speed input: 18836.35 toks/s, output: 1315.04 toks/s]Processed prompts:  29%|██▉       | 147/500 [00:03<00:03, 113.02it/s, est. speed input: 21046.10 toks/s, output: 1513.78 toks/s]Processed prompts:  33%|███▎      | 167/500 [00:03<00:02, 111.29it/s, est. speed input: 22782.67 toks/s, output: 1686.70 toks/s]Processed prompts:  36%|███▌      | 180/500 [00:03<00:02, 112.12it/s, est. speed input: 23919.85 toks/s, output: 1797.40 toks/s]Processed prompts:  39%|███▉      | 197/500 [00:03<00:02, 120.05it/s, est. speed input: 25521.48 toks/s, output: 1951.61 toks/s]Processed prompts:  42%|████▏     | 210/500 [00:03<00:02, 108.63it/s, est. speed input: 26212.67 toks/s, output: 2029.79 toks/s]Processed prompts:  45%|████▍     | 223/500 [00:03<00:02, 108.55it/s, est. speed input: 27049.05 toks/s, output: 2125.81 toks/s]Processed prompts:  47%|████▋     | 235/500 [00:03<00:02, 109.42it/s, est. speed input: 27791.68 toks/s, output: 2196.56 toks/s]Processed prompts:  49%|████▉     | 247/500 [00:04<00:02, 95.39it/s, est. speed input: 27967.13 toks/s, output: 2210.68 toks/s] Processed prompts:  56%|█████▌    | 279/500 [00:04<00:01, 143.96it/s, est. speed input: 30704.93 toks/s, output: 2451.76 toks/s]Processed prompts:  62%|██████▏   | 308/500 [00:04<00:01, 176.76it/s, est. speed input: 33054.77 toks/s, output: 2680.20 toks/s]Processed prompts:  72%|███████▏  | 358/500 [00:04<00:00, 252.79it/s, est. speed input: 37482.64 toks/s, output: 3037.82 toks/s]Processed prompts:  81%|████████  | 406/500 [00:04<00:00, 302.05it/s, est. speed input: 41651.82 toks/s, output: 3427.47 toks/s]Processed prompts:  90%|█████████ | 452/500 [00:04<00:00, 339.40it/s, est. speed input: 45622.66 toks/s, output: 3816.78 toks/s]Processed prompts:  98%|█████████▊| 488/500 [00:04<00:00, 344.66it/s, est. speed input: 48597.95 toks/s, output: 4149.01 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 344.66it/s, est. speed input: 47462.50 toks/s, output: 4118.59 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 100.68it/s, est. speed input: 47462.50 toks/s, output: 4118.59 toks/s]
+
+[ep6 test] OVERALL mean score 0.975  perfect 0.920  n=500
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 1.000  perfect 1.000  n=66
+  size 4: mean 1.000  perfect 1.000  n=68
+  size 5: mean 0.967  perfect 0.970  n=67
+  size 6: mean 0.964  perfect 0.919  n=74
+  size 7: mean 0.981  perfect 0.924  n=79
+  size 8: mean 0.948  perfect 0.841  n=69
+  size 9: mean 0.964  perfect 0.800  n=75
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 1.000  perfect 1.000  n=65
+  path_len 4: mean 1.000  perfect 1.000  n=50
+  path_len 5: mean 1.000  perfect 1.000  n=50
+  path_len 6: mean 0.966  perfect 0.983  n=59
+  path_len 7: mean 0.990  perfect 0.945  n=55
+  path_len 8: mean 0.968  perfect 0.957  n=69
+  path_len 9: mean 0.996  perfect 0.981  n=54
+  path_len 10: mean 0.918  perfect 0.833  n=36
+  path_len 11: mean 0.900  perfect 0.636  n=11
+  path_len 12: mean 0.985  perfect 0.812  n=16
+  path_len 13: mean 0.971  perfect 0.750  n=8
+  path_len 14: mean 0.859  perfect 0.250  n=8
+  path_len 15: mean 0.891  perfect 0.500  n=4
+  path_len 16: mean 0.962  perfect 0.667  n=3
+  path_len 17: mean 0.932  perfect 0.333  n=3
+  path_len 18: mean 0.826  perfect 0.000  n=1
+  path_len 19: mean 0.840  perfect 0.000  n=1
+  path_len 21: mean 0.951  perfect 0.000  n=1
+  path_len 22: mean 0.535  perfect 0.000  n=1
+  path_len 23: mean 0.860  perfect 0.500  n=2
+  path_len 26: mean 0.846  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/351 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 351/351 [00:00<00:00, 6164.56it/s]
+Processed prompts:   0%|          | 0/351 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/351 [00:01<08:07,  1.39s/it, est. speed input: 285.72 toks/s, output: 14.36 toks/s]Processed prompts:   1%|          | 2/351 [00:01<03:42,  1.57it/s, est. speed input: 539.15 toks/s, output: 29.29 toks/s]Processed prompts:  15%|█▍        | 51/351 [00:01<00:06, 44.75it/s, est. speed input: 11260.43 toks/s, output: 656.38 toks/s]Processed prompts:  26%|██▌       | 91/351 [00:02<00:03, 65.58it/s, est. speed input: 17129.40 toks/s, output: 1055.13 toks/s]Processed prompts:  30%|██▉       | 105/351 [00:02<00:03, 73.14it/s, est. speed input: 18962.03 toks/s, output: 1198.03 toks/s]Processed prompts:  48%|████▊     | 168/351 [00:02<00:01, 145.49it/s, est. speed input: 29698.98 toks/s, output: 2026.18 toks/s]Processed prompts:  60%|██████    | 212/351 [00:02<00:00, 189.29it/s, est. speed input: 36550.45 toks/s, output: 2640.26 toks/s]Processed prompts:  69%|██████▉   | 243/351 [00:02<00:00, 203.15it/s, est. speed input: 40530.29 toks/s, output: 3052.38 toks/s]Processed prompts:  77%|███████▋  | 272/351 [00:02<00:00, 179.72it/s, est. speed input: 42568.25 toks/s, output: 3315.22 toks/s]Processed prompts:  92%|█████████▏| 324/351 [00:03<00:00, 240.46it/s, est. speed input: 50135.98 toks/s, output: 4088.00 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 240.46it/s, est. speed input: 48714.36 toks/s, output: 4164.25 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 103.68it/s, est. speed input: 48714.36 toks/s, output: 4164.25 toks/s]
+
+[ep6 val] OVERALL mean score 0.987  perfect 0.943  n=351
+  size 2: mean 1.000  perfect 1.000  n=1
+  size 3: mean 1.000  perfect 1.000  n=50
+  size 4: mean 1.000  perfect 1.000  n=50
+  size 5: mean 1.000  perfect 1.000  n=50
+  size 6: mean 0.979  perfect 0.920  n=50
+  size 7: mean 0.989  perfect 0.980  n=50
+  size 8: mean 0.970  perfect 0.860  n=50
+  size 9: mean 0.968  perfect 0.840  n=50
+  path_len 2: mean 1.000  perfect 1.000  n=1
+  path_len 3: mean 1.000  perfect 1.000  n=49
+  path_len 4: mean 1.000  perfect 1.000  n=40
+  path_len 5: mean 1.000  perfect 1.000  n=41
+  path_len 6: mean 1.000  perfect 1.000  n=35
+  path_len 7: mean 1.000  perfect 1.000  n=35
+  path_len 8: mean 1.000  perfect 1.000  n=43
+  path_len 9: mean 0.971  perfect 0.917  n=36
+  path_len 10: mean 1.000  perfect 1.000  n=27
+  path_len 11: mean 0.955  perfect 0.846  n=13
+  path_len 12: mean 0.916  perfect 0.750  n=12
+  path_len 13: mean 1.000  perfect 1.000  n=4
+  path_len 14: mean 0.931  perfect 0.000  n=2
+  path_len 15: mean 1.000  perfect 1.000  n=3
+  path_len 16: mean 0.839  perfect 0.000  n=2
+  path_len 17: mean 0.664  perfect 0.000  n=2
+  path_len 19: mean 0.854  perfect 0.000  n=3
+  path_len 20: mean 0.822  perfect 0.000  n=1
+  path_len 24: mean 0.918  perfect 0.000  n=1
+  path_len 27: mean 0.767  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 6202.37it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:40,  1.64s/it, est. speed input: 250.48 toks/s, output: 14.59 toks/s]Processed prompts:   2%|▏         | 9/500 [00:01<01:12,  6.74it/s, est. speed input: 2078.01 toks/s, output: 121.05 toks/s]Processed prompts:   5%|▍         | 24/500 [00:01<00:24, 19.70it/s, est. speed input: 5084.31 toks/s, output: 299.32 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:16, 27.48it/s, est. speed input: 6641.34 toks/s, output: 398.75 toks/s]Processed prompts:  11%|█         | 53/500 [00:02<00:09, 47.67it/s, est. speed input: 10027.50 toks/s, output: 631.48 toks/s]Processed prompts:  13%|█▎        | 67/500 [00:02<00:07, 60.30it/s, est. speed input: 12184.70 toks/s, output: 791.77 toks/s]Processed prompts:  19%|█▉        | 94/500 [00:02<00:04, 87.91it/s, est. speed input: 16262.30 toks/s, output: 1105.17 toks/s]Processed prompts:  21%|██        | 106/500 [00:02<00:04, 83.57it/s, est. speed input: 17322.39 toks/s, output: 1203.87 toks/s]Processed prompts:  24%|██▍       | 121/500 [00:02<00:04, 92.76it/s, est. speed input: 19125.32 toks/s, output: 1356.70 toks/s]Processed prompts:  27%|██▋       | 133/500 [00:02<00:03, 93.79it/s, est. speed input: 20314.56 toks/s, output: 1468.98 toks/s]Processed prompts:  30%|██▉       | 149/500 [00:03<00:03, 104.48it/s, est. speed input: 22042.83 toks/s, output: 1630.85 toks/s]Processed prompts:  32%|███▏      | 161/500 [00:03<00:03, 97.19it/s, est. speed input: 22888.76 toks/s, output: 1720.75 toks/s] Processed prompts:  37%|███▋      | 184/500 [00:03<00:02, 114.33it/s, est. speed input: 25306.20 toks/s, output: 1961.56 toks/s]Processed prompts:  39%|███▉      | 197/500 [00:03<00:02, 106.18it/s, est. speed input: 26103.19 toks/s, output: 2048.97 toks/s]Processed prompts:  42%|████▏     | 209/500 [00:03<00:02, 104.43it/s, est. speed input: 26895.91 toks/s, output: 2132.37 toks/s]Processed prompts:  44%|████▍     | 220/500 [00:03<00:02, 103.79it/s, est. speed input: 27612.79 toks/s, output: 2211.43 toks/s]Processed prompts:  46%|████▋     | 232/500 [00:03<00:02, 102.78it/s, est. speed input: 28319.46 toks/s, output: 2296.76 toks/s]Processed prompts:  49%|████▊     | 243/500 [00:04<00:03, 84.89it/s, est. speed input: 28258.36 toks/s, output: 2307.55 toks/s] Processed prompts:  53%|█████▎    | 265/500 [00:04<00:02, 113.02it/s, est. speed input: 29963.90 toks/s, output: 2456.13 toks/s]Processed prompts:  59%|█████▉    | 294/500 [00:04<00:01, 151.70it/s, est. speed input: 32343.89 toks/s, output: 2674.64 toks/s]Processed prompts:  70%|███████   | 350/500 [00:04<00:00, 246.63it/s, est. speed input: 37456.88 toks/s, output: 3115.02 toks/s]Processed prompts:  81%|████████  | 406/500 [00:04<00:00, 316.98it/s, est. speed input: 42459.05 toks/s, output: 3559.60 toks/s]Processed prompts:  89%|████████▉ | 447/500 [00:04<00:00, 335.92it/s, est. speed input: 45919.58 toks/s, output: 3891.09 toks/s]Processed prompts:  98%|█████████▊| 488/500 [00:04<00:00, 349.19it/s, est. speed input: 49319.30 toks/s, output: 4265.66 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 349.19it/s, est. speed input: 47843.72 toks/s, output: 4212.97 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 100.84it/s, est. speed input: 47843.72 toks/s, output: 4212.97 toks/s]
+
+[ep6 train] OVERALL mean score 0.995  perfect 0.978  n=500
+  size 3: mean 1.000  perfect 1.000  n=48
+  size 4: mean 1.000  perfect 1.000  n=67
+  size 5: mean 1.000  perfect 1.000  n=77
+  size 6: mean 0.993  perfect 0.972  n=72
+  size 7: mean 0.999  perfect 0.988  n=81
+  size 8: mean 0.994  perfect 0.975  n=79
+  size 9: mean 0.984  perfect 0.921  n=76
+  path_len 3: mean 1.000  perfect 1.000  n=47
+  path_len 4: mean 1.000  perfect 1.000  n=47
+  path_len 5: mean 1.000  perfect 1.000  n=64
+  path_len 6: mean 1.000  perfect 1.000  n=55
+  path_len 7: mean 1.000  perfect 1.000  n=62
+  path_len 8: mean 1.000  perfect 1.000  n=62
+  path_len 9: mean 1.000  perfect 1.000  n=67
+  path_len 10: mean 1.000  perfect 1.000  n=31
+  path_len 11: mean 0.995  perfect 0.944  n=18
+  path_len 12: mean 0.953  perfect 0.889  n=9
+  path_len 13: mean 0.943  perfect 0.714  n=7
+  path_len 14: mean 0.993  perfect 0.889  n=9
+  path_len 15: mean 0.951  perfect 0.857  n=7
+  path_len 16: mean 0.983  perfect 0.750  n=4
+  path_len 17: mean 1.000  perfect 1.000  n=2
+  path_len 19: mean 1.000  perfect 1.000  n=1
+  path_len 20: mean 1.000  perfect 1.000  n=1
+  path_len 21: mean 0.895  perfect 0.500  n=2
+  path_len 22: mean 1.000  perfect 1.000  n=2
+  path_len 25: mean 0.775  perfect 0.000  n=2
+  path_len 27: mean 0.796  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/302 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 302/302 [00:00<00:00, 6159.67it/s]
+Processed prompts:   0%|          | 0/302 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/302 [00:01<06:13,  1.24s/it, est. speed input: 320.91 toks/s, output: 16.13 toks/s]Processed prompts:   1%|          | 3/302 [00:01<01:49,  2.73it/s, est. speed input: 887.49 toks/s, output: 47.02 toks/s]Processed prompts:  33%|███▎      | 99/302 [00:01<00:01, 103.81it/s, est. speed input: 25289.44 toks/s, output: 1471.69 toks/s]Processed prompts:  65%|██████▍   | 195/302 [00:01<00:00, 216.24it/s, est. speed input: 47776.25 toks/s, output: 2999.07 toks/s]Processed prompts:  82%|████████▏ | 248/302 [00:01<00:00, 255.83it/s, est. speed input: 57319.54 toks/s, output: 3772.96 toks/s]Processed prompts:  98%|█████████▊| 295/302 [00:01<00:00, 269.08it/s, est. speed input: 63477.25 toks/s, output: 4331.21 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 269.08it/s, est. speed input: 62499.27 toks/s, output: 4325.81 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 145.85it/s, est. speed input: 62499.27 toks/s, output: 4325.81 toks/s]
+
+[ep6 v1test] OVERALL mean score 0.927  perfect 0.874  n=302
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.997  perfect 0.990  n=100
+  size 4: mean 0.949  perfect 0.900  n=100
+  size 5: mean 0.834  perfect 0.730  n=100
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.997  perfect 0.990  n=97
+  path_len 4: mean 0.952  perfect 0.917  n=84
+  path_len 5: mean 0.854  perfect 0.756  n=86
+  path_len 6: mean 0.812  perfect 0.667  n=27
+  path_len 7: mean 1.000  perfect 1.000  n=4
+  path_len 8: mean 1.000  perfect 1.000  n=2
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 6021.75it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<14:26,  1.74s/it, est. speed input: 229.17 toks/s, output: 11.52 toks/s]Processed prompts:   1%|▏         | 7/500 [00:01<01:39,  4.97it/s, est. speed input: 1536.31 toks/s, output: 87.79 toks/s]Processed prompts:   4%|▍         | 21/500 [00:01<00:26, 17.87it/s, est. speed input: 4382.52 toks/s, output: 253.68 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:15, 29.43it/s, est. speed input: 6517.82 toks/s, output: 382.56 toks/s]Processed prompts:  10%|▉         | 49/500 [00:02<00:09, 45.48it/s, est. speed input: 9122.88 toks/s, output: 546.49 toks/s]Processed prompts:  12%|█▏        | 59/500 [00:02<00:08, 52.97it/s, est. speed input: 10518.83 toks/s, output: 645.61 toks/s]Processed prompts:  14%|█▍        | 69/500 [00:02<00:07, 58.63it/s, est. speed input: 11740.48 toks/s, output: 735.04 toks/s]Processed prompts:  19%|█▉        | 95/500 [00:02<00:04, 83.25it/s, est. speed input: 15283.72 toks/s, output: 1011.12 toks/s]Processed prompts:  22%|██▏       | 108/500 [00:02<00:04, 86.51it/s, est. speed input: 16646.00 toks/s, output: 1126.60 toks/s]Processed prompts:  25%|██▍       | 124/500 [00:02<00:03, 98.47it/s, est. speed input: 18556.46 toks/s, output: 1287.40 toks/s]Processed prompts:  27%|██▋       | 136/500 [00:03<00:03, 97.68it/s, est. speed input: 19700.58 toks/s, output: 1395.79 toks/s]Processed prompts:  32%|███▏      | 160/500 [00:03<00:02, 118.03it/s, est. speed input: 22432.02 toks/s, output: 1647.80 toks/s]Processed prompts:  35%|███▍      | 173/500 [00:03<00:03, 105.10it/s, est. speed input: 23175.99 toks/s, output: 1728.87 toks/s]Processed prompts:  37%|███▋      | 186/500 [00:03<00:02, 107.19it/s, est. speed input: 24311.80 toks/s, output: 1843.54 toks/s]Processed prompts:  41%|████      | 205/500 [00:03<00:02, 115.29it/s, est. speed input: 25962.56 toks/s, output: 1999.16 toks/s]Processed prompts:  43%|████▎     | 217/500 [00:03<00:02, 111.58it/s, est. speed input: 26696.22 toks/s, output: 2081.50 toks/s]Processed prompts:  46%|████▌     | 229/500 [00:03<00:02, 106.11it/s, est. speed input: 27317.16 toks/s, output: 2150.68 toks/s]Processed prompts:  48%|████▊     | 240/500 [00:03<00:02, 106.67it/s, est. speed input: 27975.21 toks/s, output: 2219.76 toks/s]Processed prompts:  50%|█████     | 251/500 [00:04<00:02, 103.36it/s, est. speed input: 28430.48 toks/s, output: 2268.63 toks/s]Processed prompts:  56%|█████▌    | 278/500 [00:04<00:01, 146.98it/s, est. speed input: 30677.54 toks/s, output: 2450.79 toks/s]Processed prompts:  61%|██████    | 303/500 [00:04<00:01, 171.30it/s, est. speed input: 32526.09 toks/s, output: 2604.62 toks/s]Processed prompts:  71%|███████   | 353/500 [00:04<00:00, 252.49it/s, est. speed input: 36978.35 toks/s, output: 3000.16 toks/s]Processed prompts:  79%|███████▉  | 394/500 [00:04<00:00, 295.45it/s, est. speed input: 40531.72 toks/s, output: 3334.05 toks/s]Processed prompts:  88%|████████▊ | 439/500 [00:04<00:00, 337.23it/s, est. speed input: 44411.28 toks/s, output: 3690.47 toks/s]Processed prompts:  96%|█████████▌| 478/500 [00:04<00:00, 344.89it/s, est. speed input: 47590.39 toks/s, output: 4024.92 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 344.89it/s, est. speed input: 44124.42 toks/s, output: 3839.03 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 93.60it/s, est. speed input: 44124.42 toks/s, output: 3839.03 toks/s] 
+
+[ep7 test] OVERALL mean score 0.973  perfect 0.934  n=500
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 1.000  perfect 1.000  n=66
+  size 4: mean 1.000  perfect 1.000  n=68
+  size 5: mean 0.970  perfect 0.985  n=67
+  size 6: mean 0.967  perfect 0.959  n=74
+  size 7: mean 0.972  perfect 0.924  n=79
+  size 8: mean 0.938  perfect 0.812  n=69
+  size 9: mean 0.968  perfect 0.867  n=75
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 1.000  perfect 1.000  n=65
+  path_len 4: mean 1.000  perfect 1.000  n=50
+  path_len 5: mean 1.000  perfect 1.000  n=50
+  path_len 6: mean 0.966  perfect 0.983  n=59
+  path_len 7: mean 0.996  perfect 0.982  n=55
+  path_len 8: mean 0.961  perfect 0.957  n=69
+  path_len 9: mean 1.000  perfect 1.000  n=54
+  path_len 10: mean 0.931  perfect 0.917  n=36
+  path_len 11: mean 0.952  perfect 0.909  n=11
+  path_len 12: mean 0.965  perfect 0.750  n=16
+  path_len 13: mean 0.963  perfect 0.750  n=8
+  path_len 14: mean 0.837  perfect 0.125  n=8
+  path_len 15: mean 0.677  perfect 0.250  n=4
+  path_len 16: mean 0.935  perfect 0.667  n=3
+  path_len 17: mean 0.962  perfect 0.667  n=3
+  path_len 18: mean 0.600  perfect 0.000  n=1
+  path_len 19: mean 0.806  perfect 0.000  n=1
+  path_len 21: mean 0.951  perfect 0.000  n=1
+  path_len 22: mean 1.000  perfect 1.000  n=1
+  path_len 23: mean 0.621  perfect 0.000  n=2
+  path_len 26: mean 0.782  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/351 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 351/351 [00:00<00:00, 6040.69it/s]
+Processed prompts:   0%|          | 0/351 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/351 [00:01<08:08,  1.40s/it, est. speed input: 285.13 toks/s, output: 14.33 toks/s]Processed prompts:   1%|          | 2/351 [00:01<03:43,  1.56it/s, est. speed input: 538.08 toks/s, output: 29.23 toks/s]Processed prompts:  15%|█▍        | 51/351 [00:01<00:06, 44.67it/s, est. speed input: 11239.25 toks/s, output: 655.15 toks/s]Processed prompts:  26%|██▌       | 91/351 [00:02<00:03, 65.58it/s, est. speed input: 17112.44 toks/s, output: 1054.09 toks/s]Processed prompts:  30%|██▉       | 105/351 [00:02<00:03, 73.40it/s, est. speed input: 18970.84 toks/s, output: 1198.59 toks/s]Processed prompts:  48%|████▊     | 168/351 [00:02<00:01, 145.59it/s, est. speed input: 29691.18 toks/s, output: 2025.65 toks/s]Processed prompts:  61%|██████    | 213/351 [00:02<00:00, 190.82it/s, est. speed input: 36733.48 toks/s, output: 2654.71 toks/s]Processed prompts:  69%|██████▉   | 243/351 [00:02<00:00, 201.71it/s, est. speed input: 40483.90 toks/s, output: 3048.27 toks/s]Processed prompts:  77%|███████▋  | 272/351 [00:02<00:00, 179.33it/s, est. speed input: 42530.64 toks/s, output: 3315.70 toks/s]Processed prompts:  92%|█████████▏| 324/351 [00:03<00:00, 239.86it/s, est. speed input: 50084.69 toks/s, output: 4088.46 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 239.86it/s, est. speed input: 45789.70 toks/s, output: 3958.67 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 97.46it/s, est. speed input: 45789.70 toks/s, output: 3958.67 toks/s] 
+
+[ep7 val] OVERALL mean score 0.985  perfect 0.940  n=351
+  size 2: mean 1.000  perfect 1.000  n=1
+  size 3: mean 1.000  perfect 1.000  n=50
+  size 4: mean 1.000  perfect 1.000  n=50
+  size 5: mean 1.000  perfect 1.000  n=50
+  size 6: mean 0.980  perfect 0.920  n=50
+  size 7: mean 0.990  perfect 0.960  n=50
+  size 8: mean 0.970  perfect 0.860  n=50
+  size 9: mean 0.958  perfect 0.840  n=50
+  path_len 2: mean 1.000  perfect 1.000  n=1
+  path_len 3: mean 1.000  perfect 1.000  n=49
+  path_len 4: mean 1.000  perfect 1.000  n=40
+  path_len 5: mean 1.000  perfect 1.000  n=41
+  path_len 6: mean 1.000  perfect 1.000  n=35
+  path_len 7: mean 1.000  perfect 1.000  n=35
+  path_len 8: mean 0.982  perfect 0.953  n=43
+  path_len 9: mean 0.986  perfect 0.944  n=36
+  path_len 10: mean 0.973  perfect 0.963  n=27
+  path_len 11: mean 0.964  perfect 0.923  n=13
+  path_len 12: mean 0.912  perfect 0.667  n=12
+  path_len 13: mean 1.000  perfect 1.000  n=4
+  path_len 14: mean 0.968  perfect 0.500  n=2
+  path_len 15: mean 1.000  perfect 1.000  n=3
+  path_len 16: mean 0.797  perfect 0.000  n=2
+  path_len 17: mean 0.884  perfect 0.000  n=2
+  path_len 19: mean 0.824  perfect 0.000  n=3
+  path_len 20: mean 0.953  perfect 0.000  n=1
+  path_len 24: mean 0.918  perfect 0.000  n=1
+  path_len 27: mean 0.745  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 5809.27it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:38,  1.64s/it, est. speed input: 251.21 toks/s, output: 14.63 toks/s]Processed prompts:   2%|▏         | 9/500 [00:01<01:10,  6.93it/s, est. speed input: 2122.19 toks/s, output: 123.62 toks/s]Processed prompts:   5%|▍         | 23/500 [00:01<00:24, 19.45it/s, est. speed input: 5000.46 toks/s, output: 294.51 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:16, 28.13it/s, est. speed input: 6748.02 toks/s, output: 405.15 toks/s]Processed prompts:  11%|█         | 53/500 [00:02<00:09, 48.91it/s, est. speed input: 10216.81 toks/s, output: 643.40 toks/s]Processed prompts:  13%|█▎        | 64/500 [00:02<00:07, 56.44it/s, est. speed input: 11788.70 toks/s, output: 760.95 toks/s]Processed prompts:  19%|█▊        | 93/500 [00:02<00:04, 87.98it/s, est. speed input: 16298.26 toks/s, output: 1106.93 toks/s]Processed prompts:  21%|██        | 105/500 [00:02<00:04, 84.70it/s, est. speed input: 17403.92 toks/s, output: 1207.22 toks/s]Processed prompts:  24%|██▍       | 120/500 [00:02<00:04, 92.92it/s, est. speed input: 19196.93 toks/s, output: 1359.83 toks/s]Processed prompts:  26%|██▌       | 131/500 [00:02<00:04, 91.49it/s, est. speed input: 20226.78 toks/s, output: 1458.32 toks/s]Processed prompts:  29%|██▉       | 146/500 [00:03<00:03, 100.65it/s, est. speed input: 21803.24 toks/s, output: 1607.90 toks/s]Processed prompts:  32%|███▏      | 162/500 [00:03<00:03, 102.77it/s, est. speed input: 23259.80 toks/s, output: 1751.41 toks/s]Processed prompts:  36%|███▋      | 182/500 [00:03<00:02, 114.25it/s, est. speed input: 25301.49 toks/s, output: 1955.41 toks/s]Processed prompts:  39%|███▉      | 195/500 [00:03<00:02, 105.32it/s, est. speed input: 26076.46 toks/s, output: 2042.25 toks/s]Processed prompts:  42%|████▏     | 208/500 [00:03<00:02, 106.09it/s, est. speed input: 27057.36 toks/s, output: 2147.32 toks/s]Processed prompts:  44%|████▍     | 219/500 [00:03<00:02, 102.85it/s, est. speed input: 27679.02 toks/s, output: 2213.71 toks/s]Processed prompts:  46%|████▋     | 232/500 [00:03<00:02, 107.81it/s, est. speed input: 28630.63 toks/s, output: 2322.48 toks/s]Processed prompts:  49%|████▊     | 243/500 [00:03<00:02, 95.65it/s, est. speed input: 28843.39 toks/s, output: 2355.80 toks/s] Processed prompts:  51%|█████     | 255/500 [00:04<00:02, 97.70it/s, est. speed input: 29437.38 toks/s, output: 2424.29 toks/s]Processed prompts:  56%|█████▌    | 280/500 [00:04<00:01, 132.25it/s, est. speed input: 31374.46 toks/s, output: 2579.24 toks/s]Processed prompts:  64%|██████▍   | 320/500 [00:04<00:00, 199.51it/s, est. speed input: 34968.61 toks/s, output: 2912.37 toks/s]Processed prompts:  77%|███████▋  | 384/500 [00:04<00:00, 315.58it/s, est. speed input: 40957.24 toks/s, output: 3412.76 toks/s]Processed prompts:  85%|████████▌ | 427/500 [00:04<00:00, 331.29it/s, est. speed input: 44548.53 toks/s, output: 3745.57 toks/s]Processed prompts:  95%|█████████▍| 473/500 [00:04<00:00, 362.62it/s, est. speed input: 48573.41 toks/s, output: 4137.72 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 362.62it/s, est. speed input: 48063.08 toks/s, output: 4237.96 toks/s]Processed prompts: 100%|██████████| 500/500 [00:04<00:00, 101.30it/s, est. speed input: 48063.08 toks/s, output: 4237.96 toks/s]
+
+[ep7 train] OVERALL mean score 0.997  perfect 0.982  n=500
+  size 3: mean 1.000  perfect 1.000  n=48
+  size 4: mean 1.000  perfect 1.000  n=67
+  size 5: mean 0.999  perfect 0.987  n=77
+  size 6: mean 0.996  perfect 0.972  n=72
+  size 7: mean 1.000  perfect 1.000  n=81
+  size 8: mean 0.994  perfect 0.962  n=79
+  size 9: mean 0.993  perfect 0.961  n=76
+  path_len 3: mean 1.000  perfect 1.000  n=47
+  path_len 4: mean 1.000  perfect 1.000  n=47
+  path_len 5: mean 1.000  perfect 1.000  n=64
+  path_len 6: mean 1.000  perfect 1.000  n=55
+  path_len 7: mean 1.000  perfect 1.000  n=62
+  path_len 8: mean 1.000  perfect 1.000  n=62
+  path_len 9: mean 1.000  perfect 1.000  n=67
+  path_len 10: mean 0.986  perfect 0.903  n=31
+  path_len 11: mean 1.000  perfect 1.000  n=18
+  path_len 12: mean 1.000  perfect 1.000  n=9
+  path_len 13: mean 0.973  perfect 0.857  n=7
+  path_len 14: mean 1.000  perfect 1.000  n=9
+  path_len 15: mean 0.981  perfect 0.857  n=7
+  path_len 16: mean 1.000  perfect 1.000  n=4
+  path_len 17: mean 1.000  perfect 1.000  n=2
+  path_len 19: mean 1.000  perfect 1.000  n=1
+  path_len 20: mean 1.000  perfect 1.000  n=1
+  path_len 21: mean 0.952  perfect 0.500  n=2
+  path_len 22: mean 1.000  perfect 1.000  n=2
+  path_len 25: mean 0.754  perfect 0.000  n=2
+  path_len 27: mean 0.878  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/302 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 302/302 [00:00<00:00, 5240.49it/s]
+Processed prompts:   0%|          | 0/302 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/302 [00:01<06:09,  1.23s/it, est. speed input: 324.62 toks/s, output: 16.31 toks/s]Processed prompts:   1%|          | 3/302 [00:01<01:48,  2.76it/s, est. speed input: 897.23 toks/s, output: 47.54 toks/s]Processed prompts:  33%|███▎      | 99/302 [00:01<00:01, 104.70it/s, est. speed input: 25533.64 toks/s, output: 1485.90 toks/s]Processed prompts:  64%|██████▎   | 192/302 [00:01<00:00, 213.38it/s, est. speed input: 47405.64 toks/s, output: 2976.16 toks/s]Processed prompts:  81%|████████▏ | 246/302 [00:01<00:00, 257.42it/s, est. speed input: 57447.86 toks/s, output: 3799.84 toks/s]Processed prompts:  97%|█████████▋| 293/302 [00:01<00:00, 265.24it/s, est. speed input: 63268.12 toks/s, output: 4369.85 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 265.24it/s, est. speed input: 61229.54 toks/s, output: 4306.07 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 142.89it/s, est. speed input: 61229.54 toks/s, output: 4306.07 toks/s]
+
+[ep7 v1test] OVERALL mean score 0.918  perfect 0.858  n=302
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.997  perfect 0.990  n=100
+  size 4: mean 0.943  perfect 0.860  n=100
+  size 5: mean 0.814  perfect 0.720  n=100
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.997  perfect 0.990  n=97
+  path_len 4: mean 0.944  perfect 0.881  n=84
+  path_len 5: mean 0.835  perfect 0.733  n=86
+  path_len 6: mean 0.800  perfect 0.667  n=27
+  path_len 7: mean 1.000  perfect 1.000  n=4
+  path_len 8: mean 1.000  perfect 1.000  n=2
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 6093.52it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<14:02,  1.69s/it, est. speed input: 235.80 toks/s, output: 11.85 toks/s]Processed prompts:   1%|▏         | 7/500 [00:01<01:36,  5.10it/s, est. speed input: 1577.56 toks/s, output: 90.15 toks/s]Processed prompts:   4%|▍         | 21/500 [00:01<00:26, 18.31it/s, est. speed input: 4497.13 toks/s, output: 260.31 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:15, 30.08it/s, est. speed input: 6680.11 toks/s, output: 392.08 toks/s]Processed prompts:  10%|▉         | 49/500 [00:02<00:09, 46.34it/s, est. speed input: 9338.88 toks/s, output: 559.43 toks/s]Processed prompts:  12%|█▏        | 59/500 [00:02<00:08, 53.73it/s, est. speed input: 10752.45 toks/s, output: 659.95 toks/s]Processed prompts:  14%|█▍        | 69/500 [00:02<00:07, 59.39it/s, est. speed input: 11992.72 toks/s, output: 750.83 toks/s]Processed prompts:  17%|█▋        | 86/500 [00:02<00:05, 81.62it/s, est. speed input: 14548.84 toks/s, output: 945.79 toks/s]Processed prompts:  20%|██        | 102/500 [00:02<00:04, 86.40it/s, est. speed input: 16326.79 toks/s, output: 1092.56 toks/s]Processed prompts:  23%|██▎       | 115/500 [00:02<00:04, 92.46it/s, est. speed input: 17782.92 toks/s, output: 1217.96 toks/s]Processed prompts:  25%|██▌       | 127/500 [00:02<00:04, 90.78it/s, est. speed input: 18877.18 toks/s, output: 1315.54 toks/s]Processed prompts:  29%|██▉       | 146/500 [00:03<00:03, 112.62it/s, est. speed input: 21264.20 toks/s, output: 1529.96 toks/s]Processed prompts:  33%|███▎      | 167/500 [00:03<00:02, 112.27it/s, est. speed input: 23135.84 toks/s, output: 1715.32 toks/s]Processed prompts:  36%|███▌      | 180/500 [00:03<00:02, 111.09it/s, est. speed input: 24225.71 toks/s, output: 1822.76 toks/s]Processed prompts:  39%|███▉      | 197/500 [00:03<00:02, 119.45it/s, est. speed input: 25844.14 toks/s, output: 1978.59 toks/s]Processed prompts:  42%|████▏     | 210/500 [00:03<00:02, 107.47it/s, est. speed input: 26484.90 toks/s, output: 2053.38 toks/s]Processed prompts:  44%|████▍     | 222/500 [00:03<00:02, 105.20it/s, est. speed input: 27194.68 toks/s, output: 2136.25 toks/s]Processed prompts:  47%|████▋     | 233/500 [00:03<00:02, 103.23it/s, est. speed input: 27778.34 toks/s, output: 2196.13 toks/s]Processed prompts:  49%|████▉     | 244/500 [00:03<00:02, 104.18it/s, est. speed input: 28330.45 toks/s, output: 2246.01 toks/s]Processed prompts:  53%|█████▎    | 263/500 [00:04<00:01, 125.26it/s, est. speed input: 29731.80 toks/s, output: 2366.10 toks/s]Processed prompts:  57%|█████▋    | 286/500 [00:04<00:01, 148.65it/s, est. speed input: 31477.06 toks/s, output: 2530.92 toks/s]Processed prompts:  65%|██████▍   | 323/500 [00:04<00:00, 207.35it/s, est. speed input: 34680.97 toks/s, output: 2806.84 toks/s]Processed prompts:  74%|███████▍  | 371/500 [00:04<00:00, 278.43it/s, est. speed input: 38949.05 toks/s, output: 3172.94 toks/s]Processed prompts:  84%|████████▎ | 418/500 [00:04<00:00, 322.30it/s, est. speed input: 43035.31 toks/s, output: 3553.52 toks/s]Processed prompts:  91%|█████████ | 456/500 [00:04<00:00, 336.90it/s, est. speed input: 46174.43 toks/s, output: 3867.57 toks/s]Processed prompts:  98%|█████████▊| 491/500 [00:04<00:00, 323.58it/s, est. speed input: 48849.05 toks/s, output: 4174.17 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 323.58it/s, est. speed input: 46606.21 toks/s, output: 4062.67 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 98.86it/s, est. speed input: 46606.21 toks/s, output: 4062.67 toks/s] 
+
+[ep8 test] OVERALL mean score 0.975  perfect 0.932  n=500
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 1.000  perfect 1.000  n=66
+  size 4: mean 0.991  perfect 0.985  n=68
+  size 5: mean 0.970  perfect 0.985  n=67
+  size 6: mean 0.968  perfect 0.946  n=74
+  size 7: mean 0.982  perfect 0.949  n=79
+  size 8: mean 0.941  perfect 0.841  n=69
+  size 9: mean 0.970  perfect 0.827  n=75
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 1.000  perfect 1.000  n=65
+  path_len 4: mean 1.000  perfect 1.000  n=50
+  path_len 5: mean 0.988  perfect 0.980  n=50
+  path_len 6: mean 0.966  perfect 0.983  n=59
+  path_len 7: mean 0.996  perfect 0.982  n=55
+  path_len 8: mean 0.959  perfect 0.942  n=69
+  path_len 9: mean 1.000  perfect 1.000  n=54
+  path_len 10: mean 0.929  perfect 0.889  n=36
+  path_len 11: mean 0.976  perfect 0.818  n=11
+  path_len 12: mean 0.985  perfect 0.812  n=16
+  path_len 13: mean 0.971  perfect 0.750  n=8
+  path_len 14: mean 0.901  perfect 0.500  n=8
+  path_len 15: mean 0.704  perfect 0.250  n=4
+  path_len 16: mean 1.000  perfect 1.000  n=3
+  path_len 17: mean 0.909  perfect 0.333  n=3
+  path_len 18: mean 0.600  perfect 0.000  n=1
+  path_len 19: mean 0.778  perfect 0.000  n=1
+  path_len 21: mean 0.951  perfect 0.000  n=1
+  path_len 22: mean 0.957  perfect 0.000  n=1
+  path_len 23: mean 0.774  perfect 0.000  n=2
+  path_len 26: mean 0.695  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/351 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 351/351 [00:00<00:00, 5644.70it/s]
+Processed prompts:   0%|          | 0/351 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/351 [00:01<08:20,  1.43s/it, est. speed input: 278.40 toks/s, output: 13.99 toks/s]Processed prompts:   1%|          | 2/351 [00:01<03:47,  1.53it/s, est. speed input: 526.28 toks/s, output: 28.59 toks/s]Processed prompts:  15%|█▍        | 51/351 [00:01<00:06, 44.03it/s, est. speed input: 11040.28 toks/s, output: 643.55 toks/s]Processed prompts:  26%|██▌       | 91/351 [00:02<00:04, 64.81it/s, est. speed input: 16842.92 toks/s, output: 1037.49 toks/s]Processed prompts:  30%|██▉       | 105/351 [00:02<00:03, 72.55it/s, est. speed input: 18675.93 toks/s, output: 1179.95 toks/s]Processed prompts:  48%|████▊     | 167/351 [00:02<00:01, 142.93it/s, est. speed input: 29068.79 toks/s, output: 1981.50 toks/s]Processed prompts:  60%|██████    | 211/351 [00:02<00:00, 186.66it/s, est. speed input: 35848.77 toks/s, output: 2588.06 toks/s]Processed prompts:  69%|██████▉   | 243/351 [00:02<00:00, 202.19it/s, est. speed input: 39953.16 toks/s, output: 3014.19 toks/s]Processed prompts:  77%|███████▋  | 272/351 [00:02<00:00, 190.32it/s, est. speed input: 42492.85 toks/s, output: 3323.65 toks/s]Processed prompts:  88%|████████▊ | 309/351 [00:03<00:00, 216.02it/s, est. speed input: 47161.83 toks/s, output: 3810.37 toks/s]Processed prompts:  96%|█████████▌| 337/351 [00:03<00:00, 229.54it/s, est. speed input: 50423.10 toks/s, output: 4185.16 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 229.54it/s, est. speed input: 48118.48 toks/s, output: 4129.65 toks/s]Processed prompts: 100%|██████████| 351/351 [00:03<00:00, 102.42it/s, est. speed input: 48118.48 toks/s, output: 4129.65 toks/s]
+
+[ep8 val] OVERALL mean score 0.988  perfect 0.972  n=351
+  size 2: mean 1.000  perfect 1.000  n=1
+  size 3: mean 1.000  perfect 1.000  n=50
+  size 4: mean 1.000  perfect 1.000  n=50
+  size 5: mean 1.000  perfect 1.000  n=50
+  size 6: mean 0.960  perfect 0.980  n=50
+  size 7: mean 1.000  perfect 1.000  n=50
+  size 8: mean 0.989  perfect 0.920  n=50
+  size 9: mean 0.969  perfect 0.900  n=50
+  path_len 2: mean 1.000  perfect 1.000  n=1
+  path_len 3: mean 1.000  perfect 1.000  n=49
+  path_len 4: mean 1.000  perfect 1.000  n=40
+  path_len 5: mean 1.000  perfect 1.000  n=41
+  path_len 6: mean 1.000  perfect 1.000  n=35
+  path_len 7: mean 1.000  perfect 1.000  n=35
+  path_len 8: mean 1.000  perfect 1.000  n=43
+  path_len 9: mean 1.000  perfect 1.000  n=36
+  path_len 10: mean 1.000  perfect 1.000  n=27
+  path_len 11: mean 1.000  perfect 1.000  n=13
+  path_len 12: mean 0.956  perfect 0.917  n=12
+  path_len 13: mean 1.000  perfect 1.000  n=4
+  path_len 14: mean 0.000  perfect 0.500  n=2
+  path_len 15: mean 1.000  perfect 1.000  n=3
+  path_len 16: mean 0.640  perfect 0.000  n=2
+  path_len 17: mean 0.971  perfect 0.500  n=2
+  path_len 19: mean 0.854  perfect 0.000  n=3
+  path_len 20: mean 0.805  perfect 0.000  n=1
+  path_len 24: mean 1.000  perfect 1.000  n=1
+  path_len 27: mean 0.822  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/500 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 500/500 [00:00<00:00, 5497.57it/s]
+Processed prompts:   0%|          | 0/500 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/500 [00:01<13:37,  1.64s/it, est. speed input: 251.60 toks/s, output: 14.66 toks/s]Processed prompts:   2%|▏         | 9/500 [00:01<01:10,  6.94it/s, est. speed input: 2125.56 toks/s, output: 123.82 toks/s]Processed prompts:   5%|▍         | 23/500 [00:01<00:24, 19.45it/s, est. speed input: 5004.36 toks/s, output: 294.74 toks/s]Processed prompts:   7%|▋         | 33/500 [00:02<00:16, 28.20it/s, est. speed input: 6759.39 toks/s, output: 405.84 toks/s]Processed prompts:  11%|█         | 53/500 [00:02<00:09, 49.08it/s, est. speed input: 10238.76 toks/s, output: 644.79 toks/s]Processed prompts:  13%|█▎        | 64/500 [00:02<00:07, 56.56it/s, est. speed input: 11810.35 toks/s, output: 762.35 toks/s]Processed prompts:  19%|█▊        | 93/500 [00:02<00:04, 88.07it/s, est. speed input: 16323.69 toks/s, output: 1108.66 toks/s]Processed prompts:  21%|██        | 105/500 [00:02<00:04, 84.95it/s, est. speed input: 17437.89 toks/s, output: 1209.58 toks/s]Processed prompts:  24%|██▍       | 120/500 [00:02<00:04, 93.09it/s, est. speed input: 19239.06 toks/s, output: 1362.25 toks/s]Processed prompts:  26%|██▌       | 131/500 [00:02<00:03, 92.29it/s, est. speed input: 20280.32 toks/s, output: 1462.68 toks/s]Processed prompts:  29%|██▉       | 145/500 [00:02<00:03, 99.44it/s, est. speed input: 21719.52 toks/s, output: 1599.85 toks/s]Processed prompts:  32%|███▏      | 161/500 [00:03<00:03, 101.26it/s, est. speed input: 23160.77 toks/s, output: 1742.39 toks/s]Processed prompts:  36%|███▌      | 181/500 [00:03<00:02, 113.11it/s, est. speed input: 25208.22 toks/s, output: 1946.99 toks/s]Processed prompts:  39%|███▉      | 194/500 [00:03<00:02, 104.83it/s, est. speed input: 26006.60 toks/s, output: 2035.17 toks/s]Processed prompts:  41%|████      | 206/500 [00:03<00:02, 103.49it/s, est. speed input: 26838.60 toks/s, output: 2125.91 toks/s]Processed prompts:  43%|████▎     | 217/500 [00:03<00:02, 101.38it/s, est. speed input: 27482.69 toks/s, output: 2194.26 toks/s]Processed prompts:  46%|████▌     | 230/500 [00:03<00:02, 107.26it/s, est. speed input: 28457.12 toks/s, output: 2305.05 toks/s]Processed prompts:  48%|████▊     | 241/500 [00:03<00:02, 94.73it/s, est. speed input: 28660.86 toks/s, output: 2337.81 toks/s] Processed prompts:  50%|█████     | 251/500 [00:04<00:02, 96.01it/s, est. speed input: 29139.85 toks/s, output: 2393.86 toks/s]Processed prompts:  55%|█████▍    | 273/500 [00:04<00:01, 123.44it/s, est. speed input: 30799.41 toks/s, output: 2541.78 toks/s]Processed prompts:  62%|██████▏   | 311/500 [00:04<00:01, 186.71it/s, est. speed input: 34120.20 toks/s, output: 2838.80 toks/s]Processed prompts:  75%|███████▌  | 377/500 [00:04<00:00, 308.72it/s, est. speed input: 40326.98 toks/s, output: 3365.66 toks/s]Processed prompts:  85%|████████▍ | 423/500 [00:04<00:00, 342.45it/s, est. speed input: 44315.51 toks/s, output: 3726.13 toks/s]Processed prompts:  93%|█████████▎| 464/500 [00:04<00:00, 352.16it/s, est. speed input: 47786.46 toks/s, output: 4085.28 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 145.03it/s, est. speed input: 45626.90 toks/s, output: 4043.92 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 145.03it/s, est. speed input: 45626.90 toks/s, output: 4043.92 toks/s]Processed prompts: 100%|██████████| 500/500 [00:05<00:00, 96.16it/s, est. speed input: 45626.90 toks/s, output: 4043.92 toks/s] 
+
+[ep8 train] OVERALL mean score 0.998  perfect 0.992  n=500
+  size 3: mean 1.000  perfect 1.000  n=48
+  size 4: mean 1.000  perfect 1.000  n=67
+  size 5: mean 1.000  perfect 1.000  n=77
+  size 6: mean 0.997  perfect 0.986  n=72
+  size 7: mean 1.000  perfect 1.000  n=81
+  size 8: mean 1.000  perfect 1.000  n=79
+  size 9: mean 0.992  perfect 0.961  n=76
+  path_len 3: mean 1.000  perfect 1.000  n=47
+  path_len 4: mean 1.000  perfect 1.000  n=47
+  path_len 5: mean 1.000  perfect 1.000  n=64
+  path_len 6: mean 1.000  perfect 1.000  n=55
+  path_len 7: mean 1.000  perfect 1.000  n=62
+  path_len 8: mean 1.000  perfect 1.000  n=62
+  path_len 9: mean 1.000  perfect 1.000  n=67
+  path_len 10: mean 1.000  perfect 1.000  n=31
+  path_len 11: mean 1.000  perfect 1.000  n=18
+  path_len 12: mean 1.000  perfect 1.000  n=9
+  path_len 13: mean 0.973  perfect 0.857  n=7
+  path_len 14: mean 0.993  perfect 0.889  n=9
+  path_len 15: mean 1.000  perfect 1.000  n=7
+  path_len 16: mean 1.000  perfect 1.000  n=4
+  path_len 17: mean 1.000  perfect 1.000  n=2
+  path_len 19: mean 1.000  perfect 1.000  n=1
+  path_len 20: mean 1.000  perfect 1.000  n=1
+  path_len 21: mean 1.000  perfect 1.000  n=2
+  path_len 22: mean 1.000  perfect 1.000  n=2
+  path_len 25: mean 0.894  perfect 0.500  n=2
+  path_len 27: mean 0.634  perfect 0.000  n=1
+Rendering prompts:   0%|          | 0/302 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 302/302 [00:00<00:00, 5500.32it/s]
+Processed prompts:   0%|          | 0/302 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:   0%|          | 1/302 [00:01<06:10,  1.23s/it, est. speed input: 322.99 toks/s, output: 16.23 toks/s]Processed prompts:   1%|          | 3/302 [00:01<01:48,  2.75it/s, est. speed input: 893.20 toks/s, output: 47.32 toks/s]Processed prompts:  32%|███▏      | 98/302 [00:01<00:01, 103.39it/s, est. speed input: 25192.22 toks/s, output: 1466.02 toks/s]Processed prompts:  64%|██████▍   | 193/302 [00:01<00:00, 214.63it/s, est. speed input: 47505.37 toks/s, output: 2985.43 toks/s]Processed prompts:  81%|████████  | 244/302 [00:01<00:00, 260.94it/s, est. speed input: 57351.57 toks/s, output: 3781.85 toks/s]Processed prompts:  97%|█████████▋| 293/302 [00:02<00:00, 253.50it/s, est. speed input: 62324.79 toks/s, output: 4314.64 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 253.50it/s, est. speed input: 61675.12 toks/s, output: 4345.03 toks/s]Processed prompts: 100%|██████████| 302/302 [00:02<00:00, 143.93it/s, est. speed input: 61675.12 toks/s, output: 4345.03 toks/s]
+
+[ep8 v1test] OVERALL mean score 0.932  perfect 0.871  n=302
+  size 2: mean 1.000  perfect 1.000  n=2
+  size 3: mean 0.998  perfect 0.990  n=100
+  size 4: mean 0.957  perfect 0.890  n=100
+  size 5: mean 0.840  perfect 0.730  n=100
+  path_len 2: mean 1.000  perfect 1.000  n=2
+  path_len 3: mean 0.998  perfect 0.990  n=97
+  path_len 4: mean 0.955  perfect 0.905  n=84
+  path_len 5: mean 0.871  perfect 0.767  n=86
+  path_len 6: mean 0.798  perfect 0.630  n=27
+  path_len 7: mean 1.000  perfect 1.000  n=4
+  path_len 8: mean 1.000  perfect 1.000  n=2
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading output.log; uploading config.yaml
+wandb: uploading history steps 6-7, summary, console lines 796-907
+wandb: 
+wandb: Run history:
+wandb:   test/frac_perfect ▁▅▇▇▇███
+wandb:              test/n ▁▁▁▁▁▁▁▁
+wandb: test/perfect_size_2 ▁▁▁▁▁▁▁▁
+wandb: test/perfect_size_3 ▁▁▆█████
+wandb: test/perfect_size_4 ▂▁▇▇▆██▇
+wandb: test/perfect_size_5 ▁▆▆▇▇▇██
+wandb: test/perfect_size_6 ▁▅▇█▇▇██
+wandb: test/perfect_size_7 ▁▅▆▆▇▇▇█
+wandb: test/perfect_size_8 ▁▅▆▇▇█▇█
+wandb: test/perfect_size_9 ▁▅▆▇▇▇█▇
+wandb:                +126 ...
+wandb: 
+wandb: Run summary:
+wandb:   test/frac_perfect 0.932
+wandb:              test/n 500
+wandb: test/perfect_size_2 1
+wandb: test/perfect_size_3 1
+wandb: test/perfect_size_4 0.98529
+wandb: test/perfect_size_5 0.98507
+wandb: test/perfect_size_6 0.94595
+wandb: test/perfect_size_7 0.94937
+wandb: test/perfect_size_8 0.84058
+wandb: test/perfect_size_9 0.82667
+wandb:                +126 ...
+wandb: 
+wandb: 🚀 View run armD2_sft_weighted_scores at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/armD_scores_armD2_sft_weighted
+wandb: ⭐️ View project at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260806_233724-armD_scores_armD2_sft_weighted/logs
+(EngineCore pid=1093303) INFO 08-06 23:39:40 [core.py:1214] [shutdown] EngineCore: trigger received signal=SIGTERM
+(EngineCore pid=1093303) INFO 08-06 23:39:40 [core.py:1333] [shutdown] EngineCore: start mode=abort timeout=0s
+(EngineCore pid=1093303) INFO 08-06 23:39:40 [core.py:1364] [shutdown] EngineCore: request processing complete; starting resource teardown
+(EngineCore pid=1093303) INFO 08-06 23:39:40 [core.py:1227] [shutdown] EngineCore: exiting busy loop

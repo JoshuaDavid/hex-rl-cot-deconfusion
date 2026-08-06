@@ -1,0 +1,38 @@
+steps per epoch: 103
++ export WANDB_API_KEY
++ loras=
++ for ep in 1 2 3 4 5 6 7 8
++ a=checkpoints/armD2_sft_weighted/adapter_ep1
++ '[' -d checkpoints/armD2_sft_weighted/adapter_ep1 ']'
++ loras=' 1=checkpoints/armD2_sft_weighted/adapter_ep1'
++ for ep in 1 2 3 4 5 6 7 8
++ a=checkpoints/armD2_sft_weighted/adapter_ep2
++ '[' -d checkpoints/armD2_sft_weighted/adapter_ep2 ']'
++ loras=' 1=checkpoints/armD2_sft_weighted/adapter_ep1 2=checkpoints/armD2_sft_weighted/adapter_ep2'
++ for ep in 1 2 3 4 5 6 7 8
++ a=checkpoints/armD2_sft_weighted/adapter_ep3
++ '[' -d checkpoints/armD2_sft_weighted/adapter_ep3 ']'
++ loras=' 1=checkpoints/armD2_sft_weighted/adapter_ep1 2=checkpoints/armD2_sft_weighted/adapter_ep2 3=checkpoints/armD2_sft_weighted/adapter_ep3'
++ for ep in 1 2 3 4 5 6 7 8
++ a=checkpoints/armD2_sft_weighted/adapter_ep4
++ '[' -d checkpoints/armD2_sft_weighted/adapter_ep4 ']'
++ loras=' 1=checkpoints/armD2_sft_weighted/adapter_ep1 2=checkpoints/armD2_sft_weighted/adapter_ep2 3=checkpoints/armD2_sft_weighted/adapter_ep3 4=checkpoints/armD2_sft_weighted/adapter_ep4'
++ for ep in 1 2 3 4 5 6 7 8
++ a=checkpoints/armD2_sft_weighted/adapter_ep5
++ '[' -d checkpoints/armD2_sft_weighted/adapter_ep5 ']'
++ loras=' 1=checkpoints/armD2_sft_weighted/adapter_ep1 2=checkpoints/armD2_sft_weighted/adapter_ep2 3=checkpoints/armD2_sft_weighted/adapter_ep3 4=checkpoints/armD2_sft_weighted/adapter_ep4 5=checkpoints/armD2_sft_weighted/adapter_ep5'
++ for ep in 1 2 3 4 5 6 7 8
++ a=checkpoints/armD2_sft_weighted/adapter_ep6
++ '[' -d checkpoints/armD2_sft_weighted/adapter_ep6 ']'
++ loras=' 1=checkpoints/armD2_sft_weighted/adapter_ep1 2=checkpoints/armD2_sft_weighted/adapter_ep2 3=checkpoints/armD2_sft_weighted/adapter_ep3 4=checkpoints/armD2_sft_weighted/adapter_ep4 5=checkpoints/armD2_sft_weighted/adapter_ep5 6=checkpoints/armD2_sft_weighted/adapter_ep6'
++ for ep in 1 2 3 4 5 6 7 8
++ a=checkpoints/armD2_sft_weighted/adapter_ep7
++ '[' -d checkpoints/armD2_sft_weighted/adapter_ep7 ']'
++ loras=' 1=checkpoints/armD2_sft_weighted/adapter_ep1 2=checkpoints/armD2_sft_weighted/adapter_ep2 3=checkpoints/armD2_sft_weighted/adapter_ep3 4=checkpoints/armD2_sft_weighted/adapter_ep4 5=checkpoints/armD2_sft_weighted/adapter_ep5 6=checkpoints/armD2_sft_weighted/adapter_ep6 7=checkpoints/armD2_sft_weighted/adapter_ep7'
++ for ep in 1 2 3 4 5 6 7 8
++ a=checkpoints/armD2_sft_weighted/adapter_ep8
++ '[' -d checkpoints/armD2_sft_weighted/adapter_ep8 ']'
++ loras=' 1=checkpoints/armD2_sft_weighted/adapter_ep1 2=checkpoints/armD2_sft_weighted/adapter_ep2 3=checkpoints/armD2_sft_weighted/adapter_ep3 4=checkpoints/armD2_sft_weighted/adapter_ep4 5=checkpoints/armD2_sft_weighted/adapter_ep5 6=checkpoints/armD2_sft_weighted/adapter_ep6 7=checkpoints/armD2_sft_weighted/adapter_ep7 8=checkpoints/armD2_sft_weighted/adapter_ep8'
++ /venv/verl/bin/python scripts/eval_armD_witness.py --model Qwen/Qwen3-1.7B --lora 1=checkpoints/armD2_sft_weighted/adapter_ep1 2=checkpoints/armD2_sft_weighted/adapter_ep2 3=checkpoints/armD2_sft_weighted/adapter_ep3 4=checkpoints/armD2_sft_weighted/adapter_ep4 5=checkpoints/armD2_sft_weighted/adapter_ep5 6=checkpoints/armD2_sft_weighted/adapter_ep6 7=checkpoints/armD2_sft_weighted/adapter_ep7 8=checkpoints/armD2_sft_weighted/adapter_ep8 --data test=data/armD2/test.parquet val=data/armD2/val.parquet train=data/armD2/train.parquet v1test=data/armD/test.parquet --limit 500 --out results/armD/armD2_weighted --wandb-run armD2_sft_weighted --max-tokens 200
++ echo CHAIN_DONE
+CHAIN_DONE

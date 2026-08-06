@@ -1,0 +1,8 @@
+wrote 392 lora tensors, targets ['down_proj', 'gate_proj', 'k_proj', 'o_proj', 'q_proj', 'up_proj', 'v_proj'] -> checkpoints/armD2_sft_weighted/adapter_ep1
+wrote 392 lora tensors, targets ['down_proj', 'gate_proj', 'k_proj', 'o_proj', 'q_proj', 'up_proj', 'v_proj'] -> checkpoints/armD2_sft_weighted/adapter_ep2
+wrote 392 lora tensors, targets ['down_proj', 'gate_proj', 'k_proj', 'o_proj', 'q_proj', 'up_proj', 'v_proj'] -> checkpoints/armD2_sft_weighted/adapter_ep3
+wrote 392 lora tensors, targets ['down_proj', 'gate_proj', 'k_proj', 'o_proj', 'q_proj', 'up_proj', 'v_proj'] -> checkpoints/armD2_sft_weighted/adapter_ep4
+wrote 392 lora tensors, targets ['down_proj', 'gate_proj', 'k_proj', 'o_proj', 'q_proj', 'up_proj', 'v_proj'] -> checkpoints/armD2_sft_weighted/adapter_ep5
+wrote 392 lora tensors, targets ['down_proj', 'gate_proj', 'k_proj', 'o_proj', 'q_proj', 'up_proj', 'v_proj'] -> checkpoints/armD2_sft_weighted/adapter_ep6
+wrote 392 lora tensors, targets ['down_proj', 'gate_proj', 'k_proj', 'o_proj', 'q_proj', 'up_proj', 'v_proj'] -> checkpoints/armD2_sft_weighted/adapter_ep7
+wrote 392 lora tensors, targets ['down_proj', 'gate_proj', 'k_proj', 'o_proj', 'q_proj', 'up_proj', 'v_proj'] -> checkpoints/armD2_sft_weighted/adapter_ep8
