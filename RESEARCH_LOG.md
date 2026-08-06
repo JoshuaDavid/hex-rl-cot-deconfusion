@@ -447,3 +447,11 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - Measured strict compliance on identical content (12 boards, list-empty-cells): comma-list 0.25, JSON array 1.00, spaces 0.92, semicolons 0.92. Our chosen format was the model's WORST; JSON is held rigidly. All listing categories switched to JSON arrays pre-entry (JSON-first parser, regex fallback keeps 0.67 partial credit on sloppy answers).
 - The question also surfaced a real bug: ANSWER_BUDGET=8 would have truncated listing answers (~25 tok) mid-list => spurious FN sets. Task-aware budgets now (8 move/judge, 48 listing).
 - Both fixes land in the step-150 restart with winset/chainset.
+
+## 2026-08-06 17:30 — [fork] Witness/certificate category built (Joshua's multi-output suggestion)
+
+- "Winner + explicit winning path" — composes judge + chain-tracing, the exact composition step the curriculum circles. Path = verifiable certificate (per-cell color, per-link adjacency, edge endpoints — pure board logic); grading 2*link_frac-1 with winner-gate. Tested: valid 1.0 / broken-link 0.6 / wrong-winner -1.
+- Manufactures judge's missing sigma: can't guess-deterministically a path; partial credit varies within groups.
+- 1000 terminal boards staged (536B/464W), JSON-object format (per ladder), 64-tok answer budget. Family noted for later: mate-in-1 move+resulting-chain, disjoint-double-path (bridge certificates), blocker sets.
+- Step-150 restart bundle now: winset + chainset + witness + JSON formats + task-aware budgets + listing/path reward branches.
+- Registered: witness link_frac mean > 0.7 within 100 steps: 55%. Witness training moves JUDGE p above 0.6 (transfer through composition): 45%.
