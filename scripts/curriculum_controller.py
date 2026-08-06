@@ -97,7 +97,8 @@ def main():
         try:
             import wandb
             wb = wandb.init(project="hex-rl-cot-deconfusion",
-                            name=f"{exp}-controller", resume="allow")
+                            name=f"{exp}-controller", id=f"{exp}-controller",
+                            resume="allow")
         except Exception as e:
             print(f"wandb init failed ({e}); file logging only", flush=True)
     while True:
