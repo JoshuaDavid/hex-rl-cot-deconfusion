@@ -29,3 +29,6 @@ categories:
   winset:
     floor: 0.08
     importance: 1.2
+  witness:
+    floor: 0.06
+    importance: 1.0

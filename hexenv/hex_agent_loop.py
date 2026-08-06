@@ -62,6 +62,8 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         elif ("Answer: <comma-separated list of cells>" in user_text
               or 'a JSON array' in user_text):
             answer_word, answer_budget = "Answer", 48
+        elif '"winner"' in user_text:
+            answer_word, answer_budget = "Answer", 64
         else:
             answer_word, answer_budget = "Move", ANSWER_BUDGET
         scaffold_ids, force_ids = self._scaffolds(answer_word)

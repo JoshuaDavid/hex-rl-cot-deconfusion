@@ -74,6 +74,55 @@ def _score_listing(gt, solution_str):
 
 def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kwargs):
     gt = json.loads(ground_truth) if isinstance(ground_truth, str) else ground_truth
+    if gt.get("task") == "path":
+        post = solution_str.split("</think>")[-1]
+        m = re.search(r"[Aa]nswer:\s*(\{.*?\})", post, re.DOTALL)
+        score, kind = -1.0, "unparsed"
+        winner_ok, link_frac = False, 0.0
+        if m:
+            try:
+                obj = json.loads(m.group(1))
+                winner_ok = str(obj.get("winner", "")).capitalize() == gt["path_winner"]
+                path = [str(c).lower() for c in obj.get("path", [])]
+                if winner_ok and path:
+                    n = gt["size"]
+                    occ = {}
+                    for c_, cell in gt["moves"]:
+                        occ[cell] = c_
+                    want = "B" if gt["path_winner"] == "Black" else "W"
+                    def coords(cell):
+                        return ord(cell[0]) - 97, int(cell[1:]) - 1
+                    def adjacent(a, b):
+                        ax, ay = coords(a); bx, by = coords(b)
+                        return (bx - ax, by - ay) in {(-1,0),(1,0),(0,-1),(0,1),(1,-1),(-1,1)}
+                    checks = []
+                    checks += [occ.get(c) == want for c in path]
+                    checks += [adjacent(a, b) for a, b in zip(path, path[1:])]
+                    if gt["path_winner"] == "Black":
+                        checks += [coords(path[0])[1] == 0, coords(path[-1])[1] == n - 1]
+                    else:
+                        checks += [coords(path[0])[0] == 0, coords(path[-1])[0] == n - 1]
+                    link_frac = sum(checks) / len(checks)
+                    score = max(-1.0, min(1.0, 2.0 * link_frac - 1.0))
+                    kind = "win" if link_frac == 1.0 else "lose"
+                elif m:
+                    score, kind = -1.0, "lose"
+            except (json.JSONDecodeError, TypeError, ValueError, IndexError):
+                pass
+        shaped = _len_shaped(score, solution_str) if score > 0 else score
+        log_path = os.environ.get("HEX_ROLLOUT_LOG")
+        if log_path:
+            try:
+                with open(log_path, "a") as f:
+                    f.write(json.dumps({"gt": gt, "move": None, "kind": kind,
+                                        "score": score, "shaped": shaped,
+                                        "link_frac": link_frac,
+                                        "response": solution_str}) + "\n")
+            except OSError:
+                pass
+        return {"score": shaped, "kind_win": float(kind == "win"),
+                "kind_lose": float(kind == "lose"), "kind_illegal": 0.0,
+                "kind_unparsed": float(kind == "unparsed")}
     if gt.get("task") == "listing":
         score, kind, claimed = _score_listing(gt, solution_str)
         shaped = _len_shaped(score, solution_str) if score > 0 else score
