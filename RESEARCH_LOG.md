@@ -462,3 +462,9 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - Structural answer on RL-vs-SFT: certificates uniquely close the demonstration gap — the label IS the reasoning artifact (BFS/solver writes gold certificates; nothing can write gold move-CoTs). Division of labor: SFT injects procedures where certificates exist; RL for decisions where they don't; RL-after-SFT to pressure-test on-policy.
 - Planned step-250 branch experiment: pure-RL-on-witness vs certificate-SFT-then-RL; compare witness curves, judge transfer, and whether SFT-injected tracing becomes load-bearing on move tasks (C3 from the reverse direction: does RL adopt a taught procedure as a tool?).
 - Registered: SFT branch link_frac>0.9 within 20 steps: 75%. SFT branch beats pure-RL on judge transfer within 50 steps: 55%.
+
+## 2026-08-06 19:20 — [fork] Dense-category first read + think-cap clipping bug
+
+- chainset: HEALTHY and learning (+0.357->+0.407, 0% unparsed) — atomic chain skill transfers to dense listing. winset: parses cleanly, score -0.54 flat (real headroom, partially depressed by the bug below). witness: 96% unparsed.
+- Bug (read from raw tails): answers truncated mid-JSON at ~12 tokens — think cap still assumed the 8-token answer budget; think(1088)+scaffold+answer(64) > response_length(1104) => final clip ate answers. Listing categories silently FN-truncated too (fallback parser masked it). Fix: per-task think cap = response_length - answer_budget - 8. Lands at ckpt-200 restart (nothing lost waiting; witness slice wasted until then).
+- Meta: third instance of "budget arithmetic bites at the boundary" (2160-vs-2176, ANSWER_BUDGET listing, now think-cap). Pattern logged: any new answer format => recheck the full token ledger end to end.
