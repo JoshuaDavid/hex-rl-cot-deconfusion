@@ -440,3 +440,10 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - Diagnosis quantified: binary groups yield ~2-3 bits per ~2M generated tokens. Fix: set-valued listing tasks graded per-cell from EXISTING exact labels (the solver luxury — dense supervision without a PRM).
 - Built: listing reward branch (score=(TP-FP)/|truth| clipped, spam clamps to -1, continuous => rich group rankings under mean-only advantages); winset (list ALL winning moves, mean 7.6 target cells) + chainset v2 (chains >=3, mean 4.4 cells). Staged in data/curriculum_staged/ — reward branch needs worker reload, so they enter at the step-150 restart, NOT hot-add (premature drop would mis-score via the move branch).
 - Registered: winset score > 0.5 mean within 100 steps of entry: 55%. Dense categories accelerate val_general win vs pre-150 slope: 50%. Chainset transfer strengthens edge conversion further: 45%.
+
+## 2026-08-06 16:50 — [fork] Format-compliance ladder (Joshua's pre-emptive check) + answer-budget bug
+
+- Known handling surveyed: scaffold injection + lenient parse (ours), format rewards, constrained decoding (vllm guided_regex — untested through verl server, noted).
+- Measured strict compliance on identical content (12 boards, list-empty-cells): comma-list 0.25, JSON array 1.00, spaces 0.92, semicolons 0.92. Our chosen format was the model's WORST; JSON is held rigidly. All listing categories switched to JSON arrays pre-entry (JSON-first parser, regex fallback keeps 0.67 partial credit on sloppy answers).
+- The question also surfaced a real bug: ANSWER_BUDGET=8 would have truncated listing answers (~25 tok) mid-list => spurious FN sets. Task-aware budgets now (8 move/judge, 48 listing).
+- Both fixes land in the step-150 restart with winset/chainset.
