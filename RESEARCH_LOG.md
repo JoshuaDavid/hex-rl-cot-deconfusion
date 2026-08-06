@@ -735,3 +735,19 @@ Predictions for the consolidation RL leg (armC_sftrl3 from replay3):
 - witness ≥ 0.75 by step 50 (RL supplies winner discrimination) @65%
 - chain ≥ 0.80 at step 50 (breadth maintained under RL) @70%
 - witness think stays < 100 tok median @70%
+
+## 2026-08-06 ~17:00 — sftrl3 interim: think inflation + entropy collapse degrade chain
+
+Consolidation leg through ~step 15: witness 0.57→0.60 (t84, branch_sd 0.65 —
+the RB-branching sweet spot); but chain 0.88→0.38. Diagnosis (eyes on data):
+thinks are sane but INFLATED (replay's verbose cell-by-cell board re-parsing
+style), now overrunning the 1088-tok budget → forced close mid-reasoning →
+confident wrong answer. Two compounding causes: (1) self-distillation
+sharpened the policy to entropy 0.05, so exploration back to concise
+conclusions is nearly dead; (2) correctness-gated length price has zero
+gradient among wrong samples (known failure mode from arm A). Note armC pure
+RL concluded within the same budget; the replay style is more verbose per
+unit content. Lesson forming for the recipe: replay data should be
+length-filtered or entropy-preserved (sample at temp 1.0, or mix multiple
+temps) — self-distilled SFT at temp 0.6 bakes in both verbosity and
+overconfidence.
