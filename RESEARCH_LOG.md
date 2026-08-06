@@ -399,3 +399,10 @@ Phase 3 arm A = resume this run to 750 steps (same config; save_freq 50). Then b
 - The Neyman term w·sigma/sqrt(k) (~0.004-0.01) never exceeded any floor (0.02-0.15): weights equaled normalized floor_c x importance_c exactly, for every tick since launch. My earlier "controller demoted judge and it's right" was right-conclusion-wrong-mechanism: it was the floor RATIO, not the sigma signal.
 - Fix: normalize Neyman shares first, then apply floors as minimum fractions, renormalize. Deployed mid-run (controller restart; training untouched).
 - Silver lining: the launch mixture floors were hand-set to sensible ratios, so ~30 steps of training weren't misallocated badly — but the "controller reallocates by signal" claim only becomes true from this tick forward.
+
+## 2026-08-06 11:40 — [fork] Step-50: chain learned at speed; transfer not yet
+
+- chain quarters since hot-add: 0.42/0.50/0.58/0.88 (n=24/quarter) — at-chance to ~0.88 in ~25 steps. Fastest, cleanest learning curve of the project; the sigma-guided hot-add worked as designed.
+- No transfer yet: val_edge flat (0.18->0.17 @t0.6), judge drifting down (0.48->0.39, allocation-starved), move tasks creeping (+0.02-0.05 @t1.0). val_general improving (-0.809->-0.609 shaped).
+- Live question for steps 50-100: does tracing skill compose into judge/edge (curriculum thesis) or stay task-shaped (skill-level selection result)? Either outcome is C1-relevant.
+- Watch: controller's first live signal-driven demotion as chain saturates.
