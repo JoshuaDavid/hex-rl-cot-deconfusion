@@ -622,3 +622,54 @@ damaged non-target categories, by different mechanisms: ablation kills the
 compute, narration overwrites the procedure. A 2850-example single-task SFT
 is a blunt instrument at 1.7B either way — YOLO recipe should mix SFT tasks
 or interleave SFT with RL, not run task-pure SFT blocks.
+
+## 2026-08-06 ~13:30 — three-way branch verdict: task-pure SFT is globally destructive at 1.7B
+
+Final comparison (rollout p / median think chars, last quarter of each leg;
+pure RL = armC steps ~285-298):
+
+  cat         pureRL@298   ablated@25   narrated@50
+  witness      0.61/2671     0.84/90      0.64/184
+  judge        0.48/2927     0.49/46      0.40/184
+  chain        0.77/2890     0.47/40      0.36/194
+  occupancy    0.93/1107     0.35/38      0.20/140
+  chainset     0.90/2655     0.13/68      0.16/173
+  general      0.42/2491     0.12/41      0.15/233
+  (val_general kind_win: pure RL 0.426 → SFT legs 0.14; unrecovered by RL)
+
+Findings:
+1. Certificate SFT is wildly compute-efficient AT ITS TASK: 6 min of SFT beat
+   ~50 RL steps (witness 0.84-0.96 vs 0.61). The demonstration-gap hypothesis
+   confirmed for the target skill.
+2. But BOTH SFT variants destroyed the rest of the policy (general move skill
+   0.43→0.14 val; chainset 0.90→0.13; occupancy 0.93→0.35) and collapsed
+   think 2500-2900 → 40-240 chars globally. 50 RL steps at lr 1e-6
+   (ppo_kl ~1e-5/step) repaired little: chain/occupancy partial recovery in
+   the narrated leg, nothing else. RL-after-SFT at standard hypers is NOT a
+   consolidation phase on this timescale; it's a slow drift.
+3. Narrated SFT ≠ safer: it overwrote the think procedure everywhere
+   (confident wrong-winner narrations; judge skill sank to 0.40-0.49 in both
+   legs). Gold certificates trained verification format, never winner
+   DISCRIMINATION — the decision half stayed untaught (SFT-for-procedures /
+   RL-for-decisions line, empirically).
+
+Prediction grades:
+- "witness link_frac>0.9 within 20 RL steps of SFT" (75%) → YES (at step 0;
+  via the ablated variant).
+- "SFT beats pure-RL judge transfer" (55%) → NO (0.40-0.49 vs 0.48; no
+  transfer, arguably negative).
+- "answer-branching → faster winset/witness convergence" (60%) → drowned by
+  SFT damage; ungradeable, trending NO.
+- "per-think answer agreement rises under RL" (65%) → resolved by a different
+  mechanism: agreement ≈ 1 immediately when narration exists (commitment
+  device), not trained up gradually.
+- "witness think stays <150 chars" (70%) → YES (ablated ~90 through 25;
+  narrated pinned ~184 = SFT length through 50).
+- "think re-grows >300 chars on a move task" (50%) → NO in both legs.
+
+YOLO consequence (recipe updated): if SFT is used at all, it must be
+replay-mixed (certificates + on-policy samples of every other category) or
+interleaved SFT/RL — never a task-pure block. Next cheap probe: replay-mix
+SFT from ckpt-250 (2850 certs + ~3k self-samples across categories), same
+spot-checks, to see if the destruction is avoidable while keeping the
+6-minute certificate win.
