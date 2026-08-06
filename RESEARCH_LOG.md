@@ -843,3 +843,45 @@ Decision: minimal adjustment = same recipe, 8 epochs (fresh runs, both arms).
 Fat FSDP checkpoints (8GB/epoch) exceeded disk; rolling export-to-peft-adapter
 (67MB) + delete keeps it flat. Prediction: weighted_e8 test mean > 0.90 by
 epoch 8 @70%; train-split mean > 0.97 by epoch 8 @70%.
+
+## 2026-08-06 ~22:00 — Arm D test 1 PASSES: 0.980 no-think witness via rank-32 LoRA, 8 epochs
+
+Weighted run, temp-0 test (302 held-out boards): ep4 0.946 -> ep8 0.980 mean,
+94.0% perfect, 1 wrong winner, 0 unparsed, 0 off-board cells. Per-size at
+ep8: 2x2 1.00, 3x3 1.00, 4x4 0.993, 5x5 0.947. Per-path-len: 3 1.00, 4 0.997,
+5 0.980, 6 0.938, 8 -0.18 (n=2 — long paths are the surviving failure).
+Uniform control: crosses 0.90 at ep5, plateaus 0.934-0.939; weighted is
+above uniform at EVERY epoch >=4 (max delta +0.082 at ep4, final +0.046).
+Residual errors: single broken link mid-path on 4x4/5x5; format and winner
+fully solved.
+
+Prediction grades:
+- P1 mean>0.90 within 3 epochs (60%) -> NO (0.852 at ep3; crossed at ep4).
+- Extension: >0.90 by ep8 (70%) -> YES (0.980); train>0.97 by ep8 (70%) ->
+  YES (0.990).
+- P2 5x5 weakest size (70%) -> YES.
+- P3 monotone in path_len 3-6 (70%) -> YES (1.00/0.997/0.980/0.938).
+- P4 |weighted-uniform|<0.05 final (60%) -> YES by the letter (0.046) but
+  the spirit was wrong: weighting helped consistently, whole trajectory.
+- P5 off-board cell survives 3 epochs (55%) -> ep3 not re-checked, ep8 NO
+  (zero in 302x~5 cells) — hallucination fully trained out.
+
+Headline for the arm D question ("can it learn the task at all?"): YES,
+cheaply. ~40 min of teacher-forced LoRA SFT (2697 rows x 8 ep, r32, no CoT)
+takes base Qwen3-1.7B from -0.877 (0% perfect, 38% unparsed) to 0.980.
+Contrast: ~10h of curriculum RL (arm C) plateaued at ~0.61 on 5x5 witness.
+The task was never hard — it was undemonstrated. RL's bottleneck (winner
+discrimination gating path credit) simply doesn't exist under teacher
+forcing. Token-importance weighting (grader-counterfactual weights) is a
+real but modest accelerant: reaches any given score ~1 epoch sooner and
+adds ~0.05 asymptotically over uniform CE.
+
+Artifacts: checkpoints/armD_sft_{weighted,uniform}_e8/adapter_ep{1..8}
+(67MB peft adapters; fat FSDP ckpts rolled up and deleted), curves in wandb
+runs armD_sft_*_e8_scores (test/val/train x size x path_len), rollout jsonls
+in results/armD/.
+
+Next (arm D phase 2, per plan): does CoT buy anything? No-think saturates
+2x2-5x5, so the phase-2 frontier must be where no-think fails: path_len>=7
+and/or 6x6-7x7 boards. Design: same pipeline, long-path-biased sampling,
+compare no-think LoRA vs think-target LoRA at matched compute.
