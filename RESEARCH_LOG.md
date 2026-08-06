@@ -673,3 +673,25 @@ interleaved SFT/RL — never a task-pure block. Next cheap probe: replay-mix
 SFT from ckpt-250 (2850 certs + ~3k self-samples across categories), same
 spot-checks, to see if the destruction is avoidable while keeping the
 6-minute certificate win.
+
+## 2026-08-06 ~14:30 — replay-mix SFT round 1: breadth preserved, cert skill collapsed
+
+armC_sft_replay (1000 certs + 677 correct self-samples, 3 ep, val loss 0.126).
+Spot-check vs armC-250 baselines: chain 0.87 (0.77-0.88), occupancy 0.97
+(0.93), chainset 0.73 (0.90), general 0.43 (0.42), edge 0.23 (0.22), judge
+0.60 — REPLAY WORKS: ~full breadth preservation, long thinks retained on
+replayed cats. But witness fell to 0.23, and eyes-on-data shows a degenerate
+template: 8/8 answers "White" with a fabricated left-edge staircase (labels
+in mix were balanced 532B/468W — not a data skew). 1000 certs x 3ep among
+replay taught format-without-computation; 3000 x 2ep (v2, task-pure) had
+actually traced (0.58). Cert VOLUME appears to matter for the tracing skill;
+replay PRESENCE (~40%) suffices for preservation.
+
+Also caught by the standing acceptance test: double <think> wrap in replay
+targets (model emits its own opening tag; builder wrapped again). Fixed
+before training.
+
+Round 2 running: armC_sft_replay2 = 3000 certs + replay x4 (5588 rows, 2 ep)
+— tests volume-for-skill + ratio-for-preservation simultaneously.
+Predictions: witness ≥ 0.7 @60%; chain/occupancy/general within 0.05 of
+baseline @70%.
