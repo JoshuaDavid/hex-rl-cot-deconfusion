@@ -72,6 +72,10 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         scaffold_ids, force_ids = self._scaffolds(answer_word)
         # think cap must leave room for THIS task's answer within response_length
         think_budget = self.response_length - answer_budget - 8
+        # hard cap on think tokens (e.g. =2 for the minimal-CoT RL probe)
+        cap = os.getenv("HEX_THINK_CAP_TOKENS")
+        if cap:
+            think_budget = min(think_budget, int(cap))
 
         metrics = {}
         # phase 1: think — segmented with a rising logit bias on </think>

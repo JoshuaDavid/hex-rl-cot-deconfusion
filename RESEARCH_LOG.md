@@ -1170,3 +1170,29 @@ Open thread if ever resumed: (a) RL past step 100 (crossing extrapolation),
 (b) stronger close pricing (lambda>=1 or hard budget curriculum), (c) B
 round 2 (best-of-k iterate, no CoT needed). Shards deleted; hf checkpoints
 kept at steps 50/75; disk back to 52G free.
+
+## 2026-08-07 ~12:00 — Minimal-CoT probe launched: RL with EXACTLY 2 think tokens
+
+User's design: same RL recipe as arm C but the think phase is hard-capped at
+2 tokens (HEX_THINK_CAP_TOKENS=2 in hex_agent_loop, then forced </think>).
+Splits "RL improves the policy" from "CoT content carries computation": if
+2-token RL matches/beats the 1024-token leg, the ramble never mattered; the
+2 tokens can at most become a learned steering register. Rollouts ~6x
+cheaper (RESP_LEN 256 vs 1256).
+
+Same start policy (bok ep3 merged), same data (verl_witness_long), same
+hypers minus length shaping/close bias (both moot). 100 steps, save 25,
+save_contents=[model,extra] (optimizer-state fix live).
+
+Pre-RL baseline, 2-token eval mode: 53.2% / 0.913 longpath, 95.2% v2test —
+IDENTICAL to bok no-think (junk 2 tokens are inert).
+
+Predictions:
+- M-1: 2tok-mode yardstick > 53.2% (its own start) by step 100 @70%
+  (user suspicion "yes"; my odds high since arm C showed RL gains route
+  through the answer head, which is fully present here)
+- M-2: exceeds arm-C-RL's best no-think number (54.4% @ s50) @50%
+- M-3: exceeds arm-C-RL think-mode s75 (36.8%) @85%
+- M-4: the 2 think tokens collapse to a near-deterministic token pair by
+  step 100 (a register, not content; entropy over the pair -> ~0) @60%
+- M-5: train reward mean rises >= 0.15 over the leg @65%
