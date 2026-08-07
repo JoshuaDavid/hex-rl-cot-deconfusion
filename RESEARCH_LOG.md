@@ -1111,3 +1111,24 @@ Predictions:
   MATCHES 53.2% without exceeding it @40% (the "CoT adds nothing and RL
   discovers that" outcome)
 - C-4: train reward mean rises >= 0.1 over the leg @70%
+
+## 2026-08-07 ~10:20 — Arm C crash at step-100 save (disk full); salvaged at step 75
+
+The run completed ~99 training steps, then died writing global_step_100
+(torch save "unexpected pos" = ENOSPC; disk hit 100%, even the agent
+harness wedged until a log truncation freed blocks). Steps 25/50/75 saved
+intact; step-100 partial save deleted; optimizer states deleted per ops
+rule. Steps 50/75 merged to hf; yardstick evals (think + no-think) running.
+
+Training signal before the crash (side channel, temp-1.0 train mix):
+emitted-answer perfect rate 9.4% -> 46.4% (window means), train score
+0.36 -> ~0.64 plateau by step ~60. Think length shrank only mildly
+(~2500 -> 2200 chars median): RL is NOT pruning the CoT to empty; it is
+improving think-mode answers while the think text remains verbose
+rules-rumination (a perfect plen-26 answer was observed after an
+incoherent, mid-sentence-truncated think). C-4 (reward +0.1) already YES.
+
+Analysis correction recorded: side-channel `score` is the RB-branching
+MEAN over 4 answers, not the emitted answer's score — early read of "1.0s
+vanished, 0.8 pile-up = reward hacking" was wrong; emitted answers pass
+all checks. Re-grade emitted text for perfect-rate.
