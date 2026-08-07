@@ -1196,3 +1196,25 @@ Predictions:
 - M-4: the 2 think tokens collapse to a near-deterministic token pair by
   step 100 (a register, not content; entropy over the pair -> ~0) @60%
 - M-5: train reward mean rises >= 0.15 over the leg @65%
+
+## 2026-08-07 ~12:40 — 2-token probe v1 was a null: both tokens were the deterministic opener; relaunching with register exploration
+
+User's attractor worry confirmed and then some. Measured on bok:
+p('\n' | '<think>') = 1.0000, p('Okay' | '<think>\n') = 0.9996. The v1 probe's
+"2 free tokens" were exactly '<think>'+'\n' — a constant prefix, zero CoT
+capacity, zero exploration (pair entropy 0.00 bits over 1408 rollouts; KL
+guard vacuous because the reference itself is deterministic there).
+
+Fix (v2, relaunched): (1) '<think>\n' prefilled as context in cap mode so
+both capped tokens are content positions; (2) think-phase sampling override
+HEX_THINK_TEMP=10, HEX_THINK_TOPK=50 — exploration over ~50 candidate
+registers guaranteed at sampling time regardless of policy collapse
+(off-policy distortion on 2 tokens bounded by PPO clipping, same argument
+as close-bias). Matching eval mode: --think-prefill.
+
+Predictions unchanged (M-1..M-5) with one amendment:
+- M-4 restated: the pair distribution SHARPENS toward a small register set
+  under RL (measured as entropy decline in the side channel) @60%; and
+- M-6 (new): some register pair yields a detectably higher mean reward than
+  the policy-modal 'Okay\n'-style pair during training (|effect| >= 0.02
+  RB-mean, any step-50 window) @40%.

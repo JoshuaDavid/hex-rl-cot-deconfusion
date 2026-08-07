@@ -82,6 +82,9 @@ def main():
     ap.add_argument("--think", action="store_true",
                     help="thinking-enabled two-phase eval (forced </think>)")
     ap.add_argument("--think-budget", type=int, default=1024)
+    ap.add_argument("--think-prefill", action="store_true",
+                    help="prefill '<think>\\n' so all budget tokens are free "
+                         "(cap-mode probe); close with '\\n</think>\\n\\n'")
     ap.add_argument("--wandb-run", default=None)
     ap.add_argument("--wandb-step", type=int, default=0)
     args = ap.parse_args()
@@ -111,11 +114,12 @@ def main():
     sp = SamplingParams(temperature=args.temperature, max_tokens=args.max_tokens)
 
     if args.think:
+        prefill = "<think>\n" if args.think_prefill else ""
         prompt_cache = {
             name: [tok.apply_chat_template(
                        [{"role": "user", "content": r["content"]}],
                        add_generation_prompt=True, enable_thinking=True,
-                       tokenize=False) for r in rows]
+                       tokenize=False) + prefill for r in rows]
             for name, rows in datasets
         }
     else:
@@ -148,7 +152,8 @@ def main():
                                      stop=["</think>"])
                 outs1 = llm.generate(prompt_cache[name], sp1,
                                      lora_request=lora_request)
-                cont = [p + o.outputs[0].text + "</think>\n\n"
+                close = "\n</think>\n\n" if args.think_prefill else "</think>\n\n"
+                cont = [p + o.outputs[0].text + close
                         for p, o in zip(prompt_cache[name], outs1)]
                 outs = llm.generate(cont, sp, lora_request=lora_request)
                 texts = [o1.outputs[0].text + "</think>\n\n" + o.outputs[0].text

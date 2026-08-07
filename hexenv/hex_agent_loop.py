@@ -72,10 +72,20 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         scaffold_ids, force_ids = self._scaffolds(answer_word)
         # think cap must leave room for THIS task's answer within response_length
         think_budget = self.response_length - answer_budget - 8
-        # hard cap on think tokens (e.g. =2 for the minimal-CoT RL probe)
+        # hard cap on think tokens (e.g. =2 for the minimal-CoT RL probe).
+        # In cap mode the deterministic opener '<think>\n' (p=1.0 under the
+        # SFT'd policy) is prefilled as context so every capped token is a
+        # free content token, and the think phase can use its own sampling
+        # temperature/top_k (HEX_THINK_TEMP / HEX_THINK_TOPK) so exploration
+        # over the register tokens survives a collapsed policy; the
+        # off-policy distortion is bounded by PPO clipping.
         cap = os.getenv("HEX_THINK_CAP_TOKENS")
+        think_temp = float(os.getenv("HEX_THINK_TEMP", "0") or 0)
+        think_topk = int(os.getenv("HEX_THINK_TOPK", "0") or 0)
         if cap:
             think_budget = min(think_budget, int(cap))
+            opener = self.tokenizer.encode("<think>\n", add_special_tokens=False)
+            prompt_ids = list(prompt_ids) + opener
 
         metrics = {}
         # phase 1: think — segmented with a rising logit bias on </think>
@@ -104,6 +114,10 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
             sp1["stop_token_ids"] = [self.think_close_id]
             if bias:
                 sp1["logit_bias"] = {self.think_close_id: bias}
+            if think_temp > 0:
+                sp1["temperature"] = think_temp
+            if think_topk > 0:
+                sp1["top_k"] = think_topk
             out1 = await self.server_manager.generate(
                 request_id=uuid4().hex,
                 prompt_ids=prompt_ids + think_ids,
