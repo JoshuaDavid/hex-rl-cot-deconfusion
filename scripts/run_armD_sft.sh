@@ -26,6 +26,7 @@ torchrun --standalone --nproc_per_node=1 -m verl.trainer.sft_trainer \
     optim.lr=1e-4 \
     trainer.total_epochs=3 \
     trainer.save_freq=after_each_epoch \
+    checkpoint.save_contents='["model","extra"]' \
     trainer.project_name=hex-rl-cot-deconfusion \
     trainer.experiment_name=${EXP} \
     trainer.default_local_dir=checkpoints/${EXP} \
