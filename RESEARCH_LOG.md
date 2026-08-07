@@ -1086,3 +1086,28 @@ here; SFT-based attempts to install it are actively destructive at this
 scale. Remaining hope for the channel: RL (arm C), which uniquely can put
 gradient on the CLOSE decision (correctness-gated length shaping) instead
 of cloning truncated rambles.
+
+## 2026-08-07 ~06:40 — Arm C (RL-with-think) launched
+
+Question: can REWARD create a useful think channel where distillation
+provably cannot (arm T)? RL uniquely gives gradient on the close decision:
+correctness-gated length shaping (HEX_LEN_LAMBDA=0.3, char cap 3000) prices
+think length among correct samples, and a rising close-bias schedule
+(384:0,768:4,1048:8) supplies exploration over think lengths.
+
+Setup: start policy = bok ep3 merged to full HF (best no-think, 53.2%
+yardstick). Data: 4000 fresh witness boards plen 8-32 (~half plen>=18),
+disjoint from all pools/evals; val 128. GRPO n=8, batch 32, lr 1e-6,
+KL 0.001, RB answer branching 4, witness answer budget 200 tok, RESP_LEN
+1256 (think ~1048). 100 steps, save every 25. Exp: armD_rl_think.
+Note: the post-close "\n\nAnswer:" scaffold is injected mask-0 (standard
+forced-close infra); the CoT itself receives no injected content, per the
+phase-2 constraint.
+
+Predictions:
+- C-1: natural-close rate (train rollouts) > 50% by step 50 @55%
+- C-2: think-mode yardstick at step 100 BEATS bok no-think 53.2% @35%
+- C-3: RL prunes thinking toward empty (<50 tok median by step 100) and
+  MATCHES 53.2% without exceeding it @40% (the "CoT adds nothing and RL
+  discovers that" outcome)
+- C-4: train reward mean rises >= 0.1 over the leg @70%

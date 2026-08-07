@@ -65,7 +65,8 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
               or 'a JSON array' in user_text):
             answer_word, answer_budget = "Answer", 48
         elif '"winner"' in user_text:
-            answer_word, answer_budget = "Answer", 64
+            answer_word, answer_budget = "Answer", int(
+                os.getenv("HEX_WITNESS_ANSWER_BUDGET", "64"))
         else:
             answer_word, answer_budget = "Move", ANSWER_BUDGET
         scaffold_ids, force_ids = self._scaffolds(answer_word)
