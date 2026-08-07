@@ -1266,3 +1266,49 @@ Consequences (why this is load-bearing, not a curiosity):
 
 Tool: scripts/think_tree.py (--budget N enumerates the p>=2^-N tree). Run on
 GPU alongside RL (10GB free under vllm's fixed 0.55 fraction; no disruption).
+
+## 2026-08-07 ~15:00 — Automated grammar induction over the thinking-continuation set; correction + cross-task answer
+
+Built scripts/think_grammar.py: leaves -> word seqs -> trie -> minimal acyclic
+DFA (DAWG, Revuz suffix-merge) -> cut-point BNF (name only branch/shared states,
+collapse forced chains into multi-word terminals). Canonical + verified exact
+(re-enumerate DAWG language, assert == leaf set). This is the honest version of
+the hand-grammar: the unique minimal grammar whose language is exactly the set.
+
+CORRECTION to 2026-08-07 ~14:00 entry: the "37-39 leaves" was a max_depth=24
+TRUNCATION artifact (frontier was still in-budget at the cap -> false leaves).
+Honest 8-bit tree is ~90-94 leaves per task and is STILL truncated at
+max_depth=64 -- i.e. there exist >=64-word thinking prefixes with cumulative
+p>=1/256. A 64-token "thought" at high probability still hasn't begun to reason
+about the position; it is still reciting rules. That strengthens, not weakens,
+the zero-computation conclusion.
+
+Task-0 grammar: 94 leaves -> DAWG 752 states / 843 edges / 116 nonterminals.
+Every production is boilerplate: "connect the top edge to the bottom edge",
+"Black and White take turns placing stones", "the board is 8x8". Not one
+production references a move, a cell coordinate, or a position evaluation.
+
+Does the grammar change between training examples? Measured on tasks 0-3:
+- exact leaf-string Jaccard: ~0.00-0.11 (LOW) -- so at the string level, yes,
+  each task's leaf set is nearly disjoint from the others'.
+- BUT prefix-Jaccard vs depth tells the real story (mean pairwise):
+    first 1-3 words  J=1.00   (identical ritual opener)
+    first ~8 words   J~0.90
+    first 12 words   J~0.69
+    first 16 words   J~0.25
+    first 20 words   J~0.08  -> ~0.02 by 50 words
+- unique-word (vocab) Jaccard across tasks: 0.80 (HIGH).
+- structural sizes near-identical: 90-94 leaves, 752-846 states, 843-935 edges.
+
+Reading: the grammar TRUNK is task-invariant -- identical first 3 words, ~70-90%
+shared through ~12 words (the "Okay, let's try to figure out ... this Hex game.
+The board is 8x8, and the ..." ritual). It fans into task-conditioned paraphrase
+past ~15 words, but the divergence is lexically/semantically the SAME boilerplate
+(vocab J=0.80, same production themes), never task-specific hex content. So the
+prompt perturbs WHICH paraphrase of the rules gets recited, not WHAT is computed
+-- consistent with C-3 (the verbalized stream is decoupled from the computation).
+
+Tools: scripts/think_tree.py (now importable: load_model/build_context/
+enumerate_budget_tree; memory-safe via logits_to_keep=1 + chunking) and
+scripts/think_grammar.py. Ran on GPU alongside the live RL job (watch free mem;
+OOMed once when the RL rollout phase spiked, fixed with chunk+last-token logits).
