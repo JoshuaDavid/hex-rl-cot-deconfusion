@@ -79,6 +79,9 @@ def main():
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--temperature", type=float, default=0.0)
     ap.add_argument("--max-tokens", type=int, default=96)
+    ap.add_argument("--think", action="store_true",
+                    help="thinking-enabled two-phase eval (forced </think>)")
+    ap.add_argument("--think-budget", type=int, default=1024)
     ap.add_argument("--wandb-run", default=None)
     ap.add_argument("--wandb-step", type=int, default=0)
     args = ap.parse_args()
@@ -94,7 +97,8 @@ def main():
         datasets.append((name, load_rows(path, args.limit)))
 
     tok = AutoTokenizer.from_pretrained(args.model)
-    llm_kwargs = dict(model=args.model, max_model_len=1024,
+    max_len = 2560 if args.think else 1024
+    llm_kwargs = dict(model=args.model, max_model_len=max_len,
                       gpu_memory_utilization=0.55, dtype="bfloat16")
     adapters = [(0, None)]
     if args.lora:
@@ -106,13 +110,22 @@ def main():
     llm = LLM(**llm_kwargs)
     sp = SamplingParams(temperature=args.temperature, max_tokens=args.max_tokens)
 
-    prompt_cache = {
-        name: [TokensPrompt(prompt_token_ids=tok.apply_chat_template(
-                   [{"role": "user", "content": r["content"]}],
-                   add_generation_prompt=True, enable_thinking=False,
-                   tokenize=True)["input_ids"]) for r in rows]
-        for name, rows in datasets
-    }
+    if args.think:
+        prompt_cache = {
+            name: [tok.apply_chat_template(
+                       [{"role": "user", "content": r["content"]}],
+                       add_generation_prompt=True, enable_thinking=True,
+                       tokenize=False) for r in rows]
+            for name, rows in datasets
+        }
+    else:
+        prompt_cache = {
+            name: [TokensPrompt(prompt_token_ids=tok.apply_chat_template(
+                       [{"role": "user", "content": r["content"]}],
+                       add_generation_prompt=True, enable_thinking=False,
+                       tokenize=True)["input_ids"]) for r in rows]
+            for name, rows in datasets
+        }
 
     run = None
     if args.wandb_run:
@@ -129,15 +142,30 @@ def main():
             lora_request = LoRARequest(f"armd{step}", step + 1, path)
         step_metrics = {}
         for name, rows in datasets:
-            outs = llm.generate(prompt_cache[name], sp,
-                                lora_request=lora_request)
+            if args.think:
+                sp1 = SamplingParams(temperature=args.temperature,
+                                     max_tokens=args.think_budget,
+                                     stop=["</think>"])
+                outs1 = llm.generate(prompt_cache[name], sp1,
+                                     lora_request=lora_request)
+                cont = [p + o.outputs[0].text + "</think>\n\n"
+                        for p, o in zip(prompt_cache[name], outs1)]
+                outs = llm.generate(cont, sp, lora_request=lora_request)
+                texts = [o1.outputs[0].text + "</think>\n\n" + o.outputs[0].text
+                         for o1, o in zip(outs1, outs)]
+                think_toks = [len(o1.outputs[0].token_ids) for o1 in outs1]
+            else:
+                outs = llm.generate(prompt_cache[name], sp,
+                                    lora_request=lora_request)
+                texts = [o.outputs[0].text for o in outs]
+                think_toks = [0] * len(outs)
             results = []
-            for r, o in zip(rows, outs):
-                text = o.outputs[0].text
+            for r, text, tt in zip(rows, texts, think_toks):
                 d = compute_score("hex_witness_armD", text, r["gt"])
                 results.append({"size": r["size"], "path_len": r["path_len"],
                                 "score": d["score"], "perfect": d["kind_win"],
                                 "unparsed": d["kind_unparsed"],
+                                "think_tokens": tt,
                                 "response": text, "gt": r["gt"]})
             with open(f"{args.out}_ep{step}_{name}.jsonl", "w") as f:
                 for x in results:

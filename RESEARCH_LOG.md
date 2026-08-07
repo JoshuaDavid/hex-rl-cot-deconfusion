@@ -1056,3 +1056,33 @@ Arm T predictions (registered before T harvest):
   emergence (eyes-on-data judgment) @75%
 - T-4: on T's own adapter, think-enabled eval <= its no-think eval
   (thinking still net-negative even after training on think successes) @70%
+
+## 2026-08-07 ~06:00 — Arm T result: sharp negative — distilling forced-closed CoTs distills the truncation
+
+Harvest (1600 boards, k=8 think temp-1.0): yields 282/152/62/11 per 400 by
+bin — think-successes exist but thin at depth. 843 verbatim (think, answer)
+rows + same 1000 replay, 3 ep continue from ep8.
+
+Yardstick (temp 0): think-mode 5.2% perfect (mean 0.60-0.65) vs 42.8%
+no-think baseline and 53.2% arm B. The T adapter's own NO-think mode fell to
+38.2% (think-training mildly damaged the direct skill). v2test breadth
+intact (0.98).
+
+Mechanism (eyes on data): 498/500 eval CoTs hit the full 1024 budget — the
+model never learned to CLOSE thinking. Root cause: the harvested CoTs were
+themselves all forced-closed (natural close ~1%), so the targets teach
+"re-parse until an arbitrary cutoff"; the </think> position carries no
+learnable stopping signal. Rejection-sampling the CoT channel cannot work
+when the sampler never terminates thinking — you distill the truncation
+artifact. (This also retro-explains arm C's think-inflation episode.)
+
+Prediction grades: T-1 (beats 42.8% @40%) NO. T-2 (beats B @20%) NO.
+T-3 (content still board re-parsing @75%) YES. T-4 (think <= no-think on own
+adapter @70%) YES — thinking still net-negative after training on it.
+
+B vs T at matched boards: no-CoT distillation +10.4 pts; own-CoT
+distillation -37.6 pts (think-mode). The CoT channel is not just unhelpful
+here; SFT-based attempts to install it are actively destructive at this
+scale. Remaining hope for the channel: RL (arm C), which uniquely can put
+gradient on the CLOSE decision (correctness-gated length shaping) instead
+of cloning truncated rambles.
