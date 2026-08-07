@@ -1132,3 +1132,41 @@ Analysis correction recorded: side-channel `score` is the RB-branching
 MEAN over 4 answers, not the emitted answer's score — early read of "1.0s
 vanished, 0.8 pile-up = reward hacking" was wrong; emitted answers pass
 all checks. Re-grade emitted text for perfect-rate.
+
+## 2026-08-07 ~11:00 — Arm C final + phase-2 synthesis: RL is the only channel that improves CoT, and it still loses to silence
+
+Yardstick frac_perfect (temp 0):
+                      think    no-think
+  bok (pre-RL)         ~5%*     53.2%     (*arm-T family measurement)
+  RL step 50           30.8%    54.4%     <- best overall number to date
+  RL step 75           36.8%    49.0%
+  (run died at the step-100 save; trajectory still rising)
+
+Prediction grades:
+- C-1 unbiased natural close >50% by s50 @55% -> NO. 500/500 eval thinks
+  hit the 1024 budget; every training-time close was bias-assisted. The
+  lambda=0.3 length price (max 0.3) is dominated by partial-credit stakes,
+  so gradient went to better answers, not shorter thinks.
+- C-2 think beats 53.2% @35% -> NO (36.8% at salvage; rising ~+6/25 steps —
+  extrapolation says crossing was plausible near step ~150, unproven).
+- C-3 prune-to-empty-and-match @40% -> NO. Thinks stayed ~2200 chars;
+  instead RL-on-think ERODED the no-think mode 54.4 -> 49.0 (interference:
+  the two modes converge toward each other rather than one winning).
+- C-4 train reward +0.1 @70% -> YES (0.36 -> 0.64).
+
+PHASE-2 ANSWER (the arm D question 2, this scale, this budget): the model
+cannot yet be made to USE CoT profitably on witness.
+  scripted-CoT SFT: format-without-computation (old arm C)
+  own-CoT SFT (T):  distills truncation, actively harmful (5.2%)
+  RL (C):           uniquely IMPROVES the think channel (5 -> 37%, still
+                    climbing) but thinking stayed dominated by the same
+                    policy's silence, and training it taxed the direct mode.
+Across every channel, the verbalized stream never became the computation
+carrier — answers improved while CoTs remained incoherent rules-rumination
+(C3's sharpest form yet). The best policy of the whole program is
+RL-step-50 NO-think: 54.4% yardstick / 95.3% v2test.
+
+Open thread if ever resumed: (a) RL past step 100 (crossing extrapolation),
+(b) stronger close pricing (lambda>=1 or hard budget curriculum), (c) B
+round 2 (best-of-k iterate, no CoT needed). Shards deleted; hf checkpoints
+kept at steps 50/75; disk back to 52G free.
