@@ -974,3 +974,38 @@ This is the phase-2 metric: frac_perfect on test_longpath, per bin. Wide
 dynamic range (78 -> 0), zero saturation, failure mode (visited-cell loops)
 mechanistically CoT-addressable. wandb: armD2_sft_weighted_scores
 longpath/* (step 0 = base, step 8 = ep8 adapter).
+
+## 2026-08-07 ~01:30 — Phase-2 pilot SURPRISE: the model's own CoT is anti-fuel; more thinking hurts more
+
+Pilot (25 boards plen 8-32, k=8, temp 1.0, forced close only injection):
+- base + think: 0 everywhere, natural close 0% (as predicted @70% YES).
+- ep8 + think @1024: pass@8 0.60/0.40/0.20/0/0 across bins. Prediction
+  "pass@8>0.3 at 14-17" @55% -> YES — but the control inverts the story:
+- ep8 NO-think temp1 k=8 (control): pass@8 1.00/0.80/0.80/0.20/0.20 —
+  STRICTLY dominates thinking at every bin.
+- ep8 + think @2048: 0.60/0/0/0/0 — doubling budget makes it WORSE
+  (natural close 1%; the model never finishes thinking on its own, and
+  longer rambles drift further before the forced close).
+
+Eyes on CoTs: think content is verbose cell-by-cell board RE-PARSING (with
+misreads), never path-search; answers succeed in spite of it. Same failure
+family as arm C's replay-verbosity lesson, now measured causally: at this
+scale/skill state, the untrained think channel subtracts accuracy —
+conditioning the answer on a long, error-laden re-read is worse than
+answering from the trained direct mapping.
+
+Also new: no-think temp-1 sampling has fuel DEEP into the frontier
+(pass@8 0.20 at plen 22-32, where temp-0 is ~5%). Best-of-k no-think
+self-distillation is viable at all bins.
+
+Consequence for the phase-2 design: harvesting own-CoT successes (arm T as
+drafted) would distill CoTs that measurably hurt. Options: (B) no-think
+best-of-k self-distillation first — establishes the no-CoT ceiling any CoT
+method must beat, ~45 min; (T) run the CoT harvest anyway for the honest
+negative; (C) RL-with-think on long paths — can reward CREATE a useful
+thinking procedure where distillation finds none (the C1 question at its
+sharpest). Decision pending user.
+
+Ops note: vllm 0.24 offline engines hang at shutdown ~50% of the time on
+this box (orphan VLLM::EngineCore holds GPU; parent in do_wait). Guard all
+one-shot vllm scripts with timeout -s KILL and pkill -x the orphans.
