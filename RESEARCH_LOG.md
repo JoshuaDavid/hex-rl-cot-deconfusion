@@ -1230,3 +1230,39 @@ tail includes 'I need','I'm','Hmm,','Wait,','Let's','First,'). GRPO now has
 genuine contrast across registers. Ops: killing the driver does NOT kill
 stale Ray workers — a leftover AgentLoopWorker poisoned one relaunch;
 full pkill of raylet/gcs/ray:: needed between runs.
+
+## 2026-08-07 ~14:00 — How mode-collapsed is the thinking? The 8-bit continuation tree is a single boilerplate trunk (side-thread)
+
+Enumerated the full within-8-bit (p>=1/256) continuation tree from
+(prompt + '<think>\n') on the pre-RL bok policy, best-first over the token
+tree, batched forward. Two tasks:
+  task0: 402 kept prefixes, 39 leaves, 0.884 leaf prob mass
+  task1: 383 kept prefixes, 37 leaves, 0.875 leaf prob mass
+First token after '<think>\n' is 'Okay' at p=1.000 (0.001 elsewhere); tokens
+2-3 (',' , ' let') are also ~0.00 bits. ALL 37-39 leaves are one semantic
+template: "Okay, let's|let me try to figure out who wins|the winner of this
+Hex game. The board is 8x8, and ...". The only within-budget degrees of
+freedom are paraphrase swaps (let's/let me x try to/see/tackle x figure
+out/determine x who wins/who won/the winner of). NOT ONE leaf in either tree
+contains a move, a cell coordinate, or any position-specific reasoning — the
+entire 8-bit horizon is ritual restatement of the prompt, zero computation.
+
+Effective first-token entropy ~= 0 bits; the "diversity" is entirely
+paraphrase noise at depth >=4. So the model's thinking is mode-collapsed
+onto a content-free preamble, exactly as the user guessed.
+
+Consequences (why this is load-bearing, not a curiosity):
+- Explains the v1 2-token null directly: the 2 "free" think tokens are
+  'Okay'+',' — forced boilerplate at ~0 bits, carrying zero task info. A
+  2-token cap cannot help because there is nothing but preamble to cap.
+- Sharpest form yet of C-3 (concept/verbalization decoupling): within any
+  reasonable surprisal budget the verbalized stream is provably preamble,
+  not the computation carrier. The answer head must be doing the work
+  regardless of the think text.
+- Predicts the v2 register probe's ceiling: forcing exploration over the
+  2-token opener (temp2/topk50/suppress 'Okay') samples DIFFERENT preambles,
+  not different computations — so per-register reward differences should be
+  ~noise (consistent with the step-50 read: 0.912-0.948 spread, reshuffling).
+
+Tool: scripts/think_tree.py (--budget N enumerates the p>=2^-N tree). Run on
+GPU alongside RL (10GB free under vllm's fixed 0.55 fraction; no disruption).
