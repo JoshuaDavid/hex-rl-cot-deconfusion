@@ -1009,3 +1009,50 @@ sharpest). Decision pending user.
 Ops note: vllm 0.24 offline engines hang at shutdown ~50% of the time on
 this box (orphan VLLM::EngineCore holds GPU; parent in do_wait). Guard all
 one-shot vllm scripts with timeout -s KILL and pkill -x the orphans.
+
+## 2026-08-07 ~02:00 — Arm B launched: no-think best-of-8 self-distillation
+
+Plan B->T->C confirmed by user. B and T share one harvest pool (~2600
+boards, plen 8-32, deep bins oversampled 700 each) so B doubles as T's
+data-matched no-CoT control. B: harvest ep8 no-think k=8 temp-1.0 perfect
+answers (1/board, canonicalized), SFT CONTINUING from adapter_ep8
+(lora_adapter_path) on harvest + 1000-row armD2 replay, 3 epochs, per-epoch
+eval.
+
+Predictions (before harvest results):
+- B raises yardstick overall frac_perfect 42.8% -> >=55% @60%
+- gains concentrate at plen>=22 (the newly-fueled bins) @55%
+- v2-test (short-path breadth) drop <= 0.02 mean @70%
+- harvest yield at 26-32 bin: 15-30% of boards give a perfect sample @60%
+
+## 2026-08-07 ~04:30 — Arm B result: one best-of-8 round buys +10 points, no forgetting
+
+Harvest: 1469/2600 boards yielded a perfect no-think sample (yields by bin:
+98/86/67/47/19%; 51 answers were valid non-gold walks — the grader admits
+chorded walks; 0 repeated cells). Distill = continue ep8 adapter on
+1469 own-answers + 1000 armD2 replay, 3 ep (val loss 0.0003 — data nearly
+in-distribution already).
+
+Yardstick frac_perfect: 42.8% -> 53.2% (ep2; ep3 53.0%), mean 0.874->0.915.
+Per-bin (ep8 -> bok3): 14-17 72.8->82.4, 18-21 56.0->63.2, 22-25 32.0->40.0,
+26-32 10.4->26.4 (2.5x — the newly-fueled deepest bin gained most).
+v2-test breadth IMPROVED 0.975->0.981.
+
+Prediction grades:
+- >=55% overall @60% -> NO, narrowly (53.2%).
+- gains concentrate plen>=22 @55% -> YES for 26-32 (largest gain by far);
+  22-25 gained no more than shallower bins.
+- v2-test drop <=0.02 @70% -> YES (it rose).
+- 26-32 harvest yield 15-30% @60% -> YES (19.4%).
+
+The no-CoT ceiling after ONE round: 53%. Rounds are cheap (~25 min);
+iterating would likely keep climbing (fresh fuel: bok pass@8 now higher).
+This is the bar arm T must beat.
+
+Arm T predictions (registered before T harvest):
+- T-1: T think-enabled eval beats 42.8% ep8-no-think baseline @40%
+- T-2: T beats arm B's 53.2% @20%
+- T-3: harvested think content is still board re-parsing, no path-search
+  emergence (eyes-on-data judgment) @75%
+- T-4: on T's own adapter, think-enabled eval <= its no-think eval
+  (thinking still net-negative even after training on think successes) @70%
