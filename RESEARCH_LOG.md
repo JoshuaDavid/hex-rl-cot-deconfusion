@@ -1218,3 +1218,15 @@ Predictions unchanged (M-1..M-5) with one amendment:
 - M-6 (new): some register pair yields a detectably higher mean reward than
   the policy-modal 'Okay\n'-style pair during training (|effect| >= 0.02
   RB-mean, any step-50 window) @40%.
+
+## 2026-08-07 ~13:20 — 2-token probe v2 airborne with real register exploration
+
+Exploration guard (answering the user's attractor concern): think-phase
+sampling override temp 2.0 (vllm max) + top_k 50 + logit bias -8 on the
+collapsed modal openers 'Okay'/'Alright' (model-derived candidates only, no
+injected content). Result: 63 distinct register pairs, 2.89 bits over the
+first 384 rollouts ('Okay,\n' still modal at 64% via the BPE comma-variant;
+tail includes 'I need','I'm','Hmm,','Wait,','Let's','First,'). GRPO now has
+genuine contrast across registers. Ops: killing the driver does NOT kill
+stale Ray workers — a leftover AgentLoopWorker poisoned one relaunch;
+full pkill of raylet/gcs/ray:: needed between runs.

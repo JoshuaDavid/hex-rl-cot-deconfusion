@@ -80,8 +80,15 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
         # over the register tokens survives a collapsed policy; the
         # off-policy distortion is bounded by PPO clipping.
         cap = os.getenv("HEX_THINK_CAP_TOKENS")
-        think_temp = float(os.getenv("HEX_THINK_TEMP", "0") or 0)
+        think_temp = min(2.0, float(os.getenv("HEX_THINK_TEMP", "0") or 0))
         think_topk = int(os.getenv("HEX_THINK_TOPK", "0") or 0)
+        # suppress the collapsed modal opener(s) so exploration reaches the
+        # rest of the model's own candidate set (no content injected)
+        suppress = {}
+        for word in filter(None, os.getenv("HEX_THINK_SUPPRESS", "").split(",")):
+            ids = self.tokenizer.encode(word, add_special_tokens=False)
+            if len(ids) == 1:
+                suppress[ids[0]] = float(os.getenv("HEX_THINK_SUPPRESS_BIAS", "-8"))
         if cap:
             think_budget = min(think_budget, int(cap))
             opener = self.tokenizer.encode("<think>\n", add_special_tokens=False)
@@ -118,6 +125,8 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
                 sp1["temperature"] = think_temp
             if think_topk > 0:
                 sp1["top_k"] = think_topk
+            if suppress:
+                sp1["logit_bias"] = {**sp1.get("logit_bias", {}), **suppress}
             out1 = await self.server_manager.generate(
                 request_id=uuid4().hex,
                 prompt_ids=prompt_ids + think_ids,
