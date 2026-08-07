@@ -956,3 +956,21 @@ frac_perfect on a long-path-enriched test set, not mean score.
 Artifacts: data/armD2/, checkpoints/armD2_sft_weighted/adapter_ep{1..8},
 results/armD/armD2_weighted_ep*_{test,val,train,v1test}.jsonl, wandb
 armD2_sft_weighted(+_scores).
+
+## 2026-08-07 ~00:10 — Long-path yardstick built; no-think baseline pinned
+
+data/armD2/test_longpath.parquet: 500 boards, sizes 7-9, stratified 125 per
+plen bin (14-17 / 18-21 / 22-25 / 26+), winner-balanced, disjoint from all
+armD2 splits. Generated in 13s (low p_forward walks).
+
+Baselines on it (temp 0, no think):
+- base Qwen3-1.7B: -0.995 mean, 0% perfect (floored).
+- armD2_sft_weighted ep8: 0.874 mean, 42.8% perfect, with a SMOOTH
+  monotone decline in perfect rate: plen 14-15 ~78%, 18-19 ~63%, 22 ~43%,
+  25-26 ~15%, 28-29 ~5%, 31+ 0%. (The v2-test thin-bin numbers at 14-17
+  were pessimistic — 50% on n=18 there vs 77% on n=125 here.)
+
+This is the phase-2 metric: frac_perfect on test_longpath, per bin. Wide
+dynamic range (78 -> 0), zero saturation, failure mode (visited-cell loops)
+mechanistically CoT-addressable. wandb: armD2_sft_weighted_scores
+longpath/* (step 0 = base, step 8 = ep8 adapter).
