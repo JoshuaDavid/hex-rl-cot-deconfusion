@@ -1312,3 +1312,45 @@ Tools: scripts/think_tree.py (now importable: load_model/build_context/
 enumerate_budget_tree; memory-safe via logits_to_keep=1 + chunking) and
 scripts/think_grammar.py. Ran on GPU alongside the live RL job (watch free mem;
 OOMed once when the RL rollout phase spiked, fixed with chunk+last-token logits).
+
+## 2026-08-08 ~00:15 — 2-token probe verdict: RL through a 2-token CoT = plain RL, and it works
+
+Run history: OOM'd twice to GPU co-tenants (17.6G then 5.3G squatters);
+salvaged at step 50 of 100 (train score flat 0.92-0.94 throughout, so the
+lost half is unlikely to change the verdict). Optimizer-less checkpoints
+worked for resume as designed.
+
+Yardstick frac_perfect (temp 0, n=500, paired):
+  bok floor (either mode)        53.2%
+  RL-2tok, 2tok prefill mode     56.6%   (McNemar 38/21, z=2.2 vs floor)
+  RL-2tok, no-think mode         56.0%   (2tok vs no-think on same model:
+                                          9/6, z=0.77 — the 2 tokens are
+                                          inert at eval too)
+  [1024-leg s50 for reference: no-think 54.4%, think 30.8%]
+Per-bin gains concentrate at plen>=18 (0.632->0.688, 0.400->0.456,
+0.280->0.304); v2test breadth intact (94.3-94.6%).
+
+Prediction grades:
+- M-1 2tok-mode > 53.2% @70% -> YES (56.6%, z=2.2, at half the planned
+  steps).
+- M-2 > 1024-leg's 54.4% @50% -> YES (56.6/56.0), and WITHOUT the no-think
+  erosion the 1024-leg suffered (54.4->49.0 by its s75) — at ~5x lower
+  rollout cost.
+- M-3 > 36.8% @85% -> YES trivially.
+- M-4 register sharpening @60% -> NO: pair entropy rose 3.5->4.25 bits
+  under the exploration sampler; no winner emerged.
+- M-5 train reward +0.15 @65% -> NO (+~0.01; the 2tok floor was already
+  0.93 — most of the 1024-leg's "RL gain" was just un-breaking the ramble).
+- M-6 a register with >=0.02 reward edge @40% -> NO: per-register means
+  compressed to 0.912-0.948 with rank instability across windows = noise;
+  registers are inert.
+
+USER'S SUSPICION CONFIRMED, with a sharpening: RL with (exactly) 2 CoT
+tokens consistently improves the policy (+3.4 pts, z=2.2, gains at the long
+-path frontier) — but the mechanism is pure answer-head improvement. The 2
+tokens carry nothing (eval-mode-invariant, register-invariant), and this
+minimal leg BEATS the 1024-token RL leg on every measure while being ~5x
+cheaper and erosion-free. Verbose CoT was not merely useless for RL here;
+it was an active tax on both compute and the direct-mode skill.
+
+New program best: armD_rl_think2 step 50, 56.6%/56.0% yardstick.
