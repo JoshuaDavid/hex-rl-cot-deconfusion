@@ -154,13 +154,53 @@ def grammar_for_task(tok, model, df, idx, budget, max_depth):
     _, ctx_ids = build_context(tok, user)
     _, leaves, truncated = enumerate_budget_tree(model, tok, ctx_ids, budget, max_depth)
     seqs, probs = leaves_to_wordseqs(tok, leaves)
+    records = []
+    for rank, ((cb, seq, leaf, reason), words, p) in enumerate(zip(leaves, seqs, probs)):
+        records.append(dict(task=idx, rank=rank, bits=round(cb, 4), prob=p,
+                            reason=reason, text=tok.decode(list(seq)), words=list(words)))
     root = minimize(build_trie(seqs))
     prods, order, nodes, cut = induce_grammar(root)
     lang = enumerate_language(root)
     assert lang == set(seqs), "induced grammar language != leaf set!"
     return dict(idx=idx, seqs=set(seqs), root=root, prods=prods, order=order,
                 n_states=len(nodes), n_edges=sum(len(n.edges) for n in nodes),
-                n_leaves=len(seqs), truncated=truncated)
+                n_leaves=len(seqs), truncated=truncated, records=records)
+
+
+def trace_prefix(root, words):
+    """Longest prefix of `words` that traces a valid path; (L, exact_accept)."""
+    n, i = root, 0
+    while i < len(words) and words[i] in n.edges:
+        n = n.edges[words[i]]
+        i += 1
+    return i, (i == len(words) and n.final)
+
+
+def leave_one_out(G, tasks):
+    print("\n=== leave-one-out: grammar from all-but-one task vs held-out leaves ===")
+    print("held  n_leaf  exact  full-trace   median_L  median_L/len   (train grammar leaves)")
+    agg_exact = agg_full = agg_n = 0
+    for h in tasks:
+        train_seqs = set().union(*(G[t]["seqs"] for t in tasks if t != h))
+        root = minimize(build_trie(train_seqs))
+        held = G[h]["seqs"]
+        Ls, fracs, exact, full = [], [], 0, 0
+        for w in held:
+            L, ex = trace_prefix(root, w)
+            Ls.append(L)
+            fracs.append(L / len(w))
+            exact += ex
+            full += (L == len(w))
+        med = sorted(Ls)[len(Ls) // 2]
+        medfrac = sorted(fracs)[len(fracs) // 2]
+        print(f"{h:>4}  {len(held):>6}  {exact:>5}  {full:>10}   {med:>8}   {medfrac:>12.2f}   "
+              f"{len(train_seqs)}")
+        agg_exact += exact
+        agg_full += full
+        agg_n += len(held)
+    print(f"\nTOTAL held-out leaves {agg_n}: exact-match {agg_exact} "
+          f"({100*agg_exact/agg_n:.1f}%), full-path-traced {agg_full} "
+          f"({100*agg_full/agg_n:.1f}%)")
 
 
 def print_grammar(g):
@@ -184,12 +224,22 @@ def main():
     ap.add_argument("--show-task", type=int, default=0)
     ap.add_argument("--budget", type=float, default=8.0)
     ap.add_argument("--max-depth", type=int, default=64)
+    ap.add_argument("--dump-leaves", default="")
     args = ap.parse_args()
 
     tok, model = load_model(args.model)
     df = pd.read_parquet(args.data)
     tasks = [int(x) for x in args.tasks.split(",")]
     G = {i: grammar_for_task(tok, model, df, i, args.budget, args.max_depth) for i in tasks}
+
+    if args.dump_leaves:
+        import json
+        with open(args.dump_leaves, "w") as f:
+            for i in tasks:
+                for r in G[i]["records"]:
+                    f.write(json.dumps(r) + "\n")
+        n = sum(len(G[i]["records"]) for i in tasks)
+        print(f"[dumped {n} leaves across {len(tasks)} tasks -> {args.dump_leaves}]\n")
 
     print_grammar(G[args.show_task])
 
@@ -226,6 +276,8 @@ def main():
     vocab = {i: {w for s in G[i]["seqs"] for w in s} for i in tasks}
     vj = [len(vocab[i] & vocab[j]) / len(vocab[i] | vocab[j]) for i, j in pairs]
     print(f"\nmean pairwise VOCAB (unique-word) Jaccard: {sum(vj) / len(vj):.2f}")
+
+    leave_one_out(G, tasks)
 
 
 if __name__ == "__main__":

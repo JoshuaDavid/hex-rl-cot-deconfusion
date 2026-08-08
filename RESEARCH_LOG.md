@@ -1354,3 +1354,35 @@ cheaper and erosion-free. Verbose CoT was not merely useless for RL here;
 it was an active tax on both compute and the direct-mode skill.
 
 New program best: armD_rl_think2 step 50, 56.6%/56.0% yardstick.
+
+## 2026-08-08 — Leaves persisted; leave-one-out grammar coverage of held-out training examples
+
+Q from user: were the grammar completions stored, and does a grammar built from
+all-but-one training example cover the held-out one? Note the grammars are built
+from DETERMINISTIC enumeration of the p>=1/256 budget tree (not sampled rollouts);
+those enumerated leaves are now dumped to results/think_leaves.jsonl (555 leaves,
+6 tasks: task,rank,bits,prob,reason,text,words). [The RL run's *sampled* rollouts
+live separately in results/rollouts/armD_rl_think2.jsonl.]
+
+LOO (budget 8, max_depth 64, tasks 0-5): build minimal DAWG from the other 5
+tasks' leaves (~354-404 leaves pooled), trace each held-out leaf.
+  held  n_leaf  exact  full-trace  median_L  median_L/len
+    0     94       2       2          15        0.50
+    1     91      40      56          29        1.00
+    2     94      46      68          31        1.00
+    3     90       1       1          15        0.50
+    4     94      50      71          31        1.00
+    5     92      50      76          31        1.00
+  TOTAL 555: exact-match 189 (34.1%), full-path-traced 274 (49.4%).
+  (exact = held-out leaf is verbatim in the pooled language; full-trace = it is a
+   prefix of / equal to some pooled string, i.e. every word follows a valid edge.)
+
+Reading: coverage is BIMODAL. 4 of 6 held-out examples (1,2,4,5) are ~half
+reconstructable verbatim from the others (median held-out leaf traces its ENTIRE
+length), i.e. their high-prob thinking is a shared boilerplate dialect. 2 of 6
+(0,3) are near-idiosyncratic (only ~1-2% exact; median leaf diverges at ~word 15,
+halfway). So the pairwise ~0 Jaccard was misleading about pooled coverage: five
+~90-leaf samples of the boilerplate distribution exactly cover ~34% of a sixth,
+~49% as a path -- the thinking "grammar" substantially generalizes across
+training examples, with an outlier subpopulation. The shared trunk (first ~15
+words) generalizes to ALL held-out examples regardless (median_L>=15 everywhere).
