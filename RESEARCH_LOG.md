@@ -1538,3 +1538,32 @@ now shown SFT->SFT. Final perf is recency-dominated. The fix is identical:
 co-train (mix), which additionally buys positive cross-task transfer.
 "SFT on one task doesn't degrade others" is FALSE for sequential SFT and
 TRUE only under mixing.
+
+## 2026-08-08 ~06:30 — SFT-scheduler experiment launched (Joshua's Q: the multi-task RL scheduler, but SFT)
+
+Faithful mechanical port of the arm-C Neyman-with-floors allocator driving
+SFT instead of RL. 11 curriculum categories, canonical gold teacher-forcing
+targets (all verified score 1.0, 0 dropped, 17244 rows). Chunked adaptive
+loop from BASE Qwen3-1.7B: round -> sample M=1600 ~ weights -> train 1 epoch
+(continue LoRA) -> per-category eval frac_perfect (temp0) -> reweight.
+share_c = sqrt(p_c(1-p_c))/sqrt(k_c); p_c=eval frac_perfect (EMA0.5,
+optimistic 0.5 prior); k_c=mean target length (SFT cost analog); floor 0.03;
+w=1. Arms: uniform (static 1/11) vs port (adaptive). 8 rounds, matched budget.
+
+Conceptual note (why this is interesting): sqrt(p(1-p)) is RL's stochastic-
+reward gradient SD. SFT targets are deterministic -> that variance is not the
+SFT gradient variance, so the allocation rule loses its derivation. The port
+tests whether the RL-motivated scheduler still helps once teacher forcing
+removes the gradient-scarcity problem it was built for.
+
+Predictions:
+- S-1: port does NOT beat uniform on final MEAN frac_perfect (Delta < +0.02)
+  @70% (uniform already near-ceilings under SFT; interference study showed it)
+- S-2: port DOES beat uniform on final WORST-task frac_perfect by >=0.05
+  @45% (adaptive budget to the hardest lagging task is its one plausible edge)
+- S-3: port reaches a given mean frac_perfect in fewer total examples
+  (sample-efficiency) @40%
+- S-4: port's weights concentrate on high-p(1-p)/low-cost cats (judge/occupancy
+  early, move/witness late); the myopic starvation of a p~0 task is prevented
+  only by the floor @60%
+- S-5: mate2 (5-move, hardest) is the worst-task in both arms at the end @55%
