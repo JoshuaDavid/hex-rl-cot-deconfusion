@@ -1567,3 +1567,61 @@ Predictions:
   early, move/witness late); the myopic starvation of a p~0 task is prevented
   only by the floor @60%
 - S-5: mate2 (5-move, hardest) is the worst-task in both arms at the end @55%
+
+## 2026-08-08 ~08:00 — SFT-scheduler verdict: the RL cost term is BACKWARDS for SFT; scheduler slightly hurts
+
+Final frac_perfect (8 rounds, matched budget, temp0), uniform vs port:
+  cat         uniform  port   delta
+  chain         0.842  0.975  +0.133
+  judge         0.659  0.659  +0.000
+  occupancy     0.958  0.950  -0.008
+  winset        0.006  0.011  +0.006
+  chainset      0.422  0.200  -0.222
+  witness       0.327  0.140  -0.187
+  mate1_v2      0.644  0.739  +0.094
+  mate2         0.556  0.544  -0.011
+  edge_m1       0.595  0.619  +0.024
+  gen_m1        0.699  0.748  +0.049
+  general       0.407  0.311  -0.096
+  MEAN          0.556  0.536  -0.020
+  MEDIAN        0.595  0.619  +0.024
+  WORST(winset) 0.006  0.011
+MEAN trajectory uniform: .20 .26 .30 .43 .45 .52 .53 .556
+MEAN trajectory port   : .21 .30 .40 .44 .48 .50 .52 .536
+  (port leads r2-r3 by ~.10, uniform overtakes by r6, finishes higher.)
+
+Port weights (x1000) converge by r2 and hold: cheap tasks (k~4-5:
+chain/judge/occupancy/mate/edge/gen/general) 100-140; the 3 EXPENSIVE tasks
+(chainset k21, winset k34, witness k38) SLAMMED to the floor (~28-42).
+
+Mechanism / the finding: the cost-corrected Neyman term 1/sqrt(k) is
+sensible in RL (k = rollout tokens; cheap-to-sample tasks yield more
+gradient per GPU-sec) but INVERTED in SFT, where k = target length and long
+targets = the HARD compositional tasks. So the port systematically defunded
+witness (the project's whole target skill), chainset, winset -- the exact
+tasks needing the most budget -- to overfund cheap lookups. Net: mean -0.02
+(chainset -0.22 + witness -0.19 outweigh chain +0.13 etc.); it raised the
+MEDIAN task (rich-get-richer on cheap-learnable) while lowering the MEAN and
+gutting the hard tasks. The sqrt(p(1-p)) variance term, having no SFT
+gradient meaning, just chased mid-p tasks that uniform would have learned
+anyway.
+
+Prediction grades:
+- S-1 port !> uniform on mean (Delta<+0.02) @70% -> YES (-0.020).
+- S-2 port beats worst by >=0.05 @45% -> NO (both ~0.01; winset unlearnable).
+- S-3 sample-efficiency @40% -> PARTIAL: port faster r2-r3, overtaken by r6,
+  finished lower. Early yes, net no.
+- S-4 weights concentrate low-cost/high-p(1-p); floor prevents p~0 starvation
+  @60% -> YES decisively (winset/witness held exactly at floor 0.029).
+- S-5 mate2 worst-task @55% -> NO (winset is worst, 0.006/0.011).
+
+Synthesis (answers Joshua's Q "how does the scheduler go with SFT"): it does
+NOT help and slightly hurts. The scheduler solves an RL problem (gradient
+scarcity on rare-success skills) that teacher forcing removes; worse, its
+cost correction -- correct for RL -- is anti-correlated with task difficulty
+in SFT and defunds the hardest tasks. Uniform mixing is the right default for
+multi-task SFT; if anything, an SFT scheduler should weight cost the OTHER
+way (spend MORE on long-target/hard tasks). The whole exercise re-confirms
+the session's throughline: RL machinery ported to SFT tends to be
+unnecessary-to-harmful, because the two regimes' notions of "where the
+signal is" diverge.
