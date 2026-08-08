@@ -1486,3 +1486,55 @@ bok). Predictions:
   @70%
 - E-4: positive transfer — a later task's stage-1 accuracy is higher than
   base zero-shot by more than format alone (shared coord convention) @45%
+
+## 2026-08-08 ~05:30 — Interference matrix: sequential SFT is catastrophic, order = recency, mixing fixes it
+
+frac_perfect on held-out test (rows=adapter, cols=task):
+  adapter                 wit    cell   list
+  wit_only               0.790  0.405  0.200   <- solo ceilings on diagonal
+  cell_only              0.000  0.978  0.003
+  list_only              0.138  0.357  0.988
+  fwd2  wit>cell         0.090  1.000  0.018
+  fwd3  wit>cell>list    0.223  0.895  0.990
+  rev2  list>cell        0.000  1.000  0.212
+  rev3  list>cell>wit    0.840  0.912  0.410
+  mixed                  0.855  0.995  0.995
+
+Answers to the user's questions:
+1. Does SFT install destructively on top of other SFT? YES, catastrophically.
+   One stage of cell training tanks the prior task: wit 0.790->0.090 (-0.70),
+   list 0.988->0.212 (-0.78). Classic catastrophic forgetting.
+2. Order dependence? YES, dominated by RECENCY. Final (stage-3) per task:
+   - wit: trained-first 0.223 vs trained-last 0.840 (Delta +0.62)
+   - list: trained-last 0.990 vs trained-first 0.410 (Delta +0.58)
+   - cell (middle both) ~0.90 either way. Last task wins; earlier partially lost.
+3. Mixing removes it: 0.855/0.995/0.995, all at/above solo ceilings at once.
+
+Mechanism (eyes on data): forgetting is COMPUTATION loss with FORMAT
+RETAINED. Post-cell witness still emits well-formed {"winner","path"} but
+the path is a degenerate straight line (c1..c7); post-cell listing still
+emits a JSON array but incomplete/wrong. The shared output schema (and the
+coordinate convention) is reinforced across tasks and survives; the
+task-specific board-reading->tracing computation is overwritten. So SFT
+interference is not mode collapse -- it's selective erasure of the
+per-task procedure.
+
+Positive transfer (bonus): wit_only=0.790 but wit under mixed=0.855 and under
+rev3 (wit last)=0.840 -- BOTH exceed the solo ceiling. Co-trained/last-trained
+witness benefits from cell+list board-reading. (E-4 shared-convention
+transfer: YES.)
+
+Prediction grades:
+- E-1 earlier task drops >20pts @65% -> YES (-70 to -78 pts).
+- E-2 mixed >=0.90 all three @80% -> NO by letter (wit 0.855), but wit's solo
+  ceiling is 0.79 so mixed is AT ceiling; the 0.90 bar was miscalibrated.
+- E-3 order dependence, recency @70% -> YES, decisively (Delta ~0.6).
+- E-4 positive transfer beyond format @45% -> YES.
+
+Synthesis for the working model "RL selects, SFT installs": SFT installs,
+but sequentially it OVERWRITES prior tasks' computation (format survives) --
+the same catastrophic-forgetting / replay lesson as arm C's RL-after-SFT,
+now shown SFT->SFT. Final perf is recency-dominated. The fix is identical:
+co-train (mix), which additionally buys positive cross-task transfer.
+"SFT on one task doesn't degrade others" is FALSE for sequential SFT and
+TRUE only under mixing.
