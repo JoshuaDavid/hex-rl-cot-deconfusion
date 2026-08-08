@@ -1446,3 +1446,43 @@ scale/budget — the answer head keeps absorbing the gradient. Program best
 is now armD_rl_ritual s50 (58.0/57.0), a chain of: SFT (0.98 short paths)
 -> best-of-8 distill (53.2) -> RL (58.0), with every CoT mechanism tested
 and none load-bearing.
+
+## 2026-08-08 ~04:00 — Interference study (arm E): 3 tasks, shared boards; pre-run checklist passed
+
+Question (user): does SFT install destructively on top of OTHER SFT learning,
+and does final per-task performance depend on training ORDER? Three no-think
+tasks on ONE shared constructive-board pool (sizes 5-7, test boards disjoint):
+  T_wit  (path)    witness — winner + unique path (reuses armD graders)
+  T_cell (judge)   occupancy: "which player has a stone on cell X?" (existing
+                   occupancy task's grader; queries balanced ~50% occupied)
+  T_list (listing) reading-order full-board scan of a color class (existing
+                   listing grader; empty-target instances excluded as the
+                   grader scores [] as -1)
+Uniform answer-token loss weight across all tasks (clean cross-task choice).
+Data: 1600 train / 400 test boards, one row per task per board.
+
+Pre-run checklist (user-specified):
+[1] wandb: WANDB_API_KEY present; train+eval log to wandb. OK.
+[2] each task solved by an independent Opus agent from the verbatim prompt:
+    wit/cell/list all CORRECT, all reported SOLVABLE, AMBIGUITY: none.
+[3] base Qwen3-1.7B (no-think, temp0) on one instance each: all 3 wrong, but
+    the failure mode is COMPETENCE not ambiguity — Qwen systematically emits
+    TRANSPOSED coordinates ('1b' for b1), violating the explicit 'column
+    letter + row number' spec, plus board misreads. SFT teacher-forcing
+    directly corrects this. Note: the coordinate convention is SHARED across
+    all 3 tasks -> possible positive transfer (format learned once helps all).
+[4] optimizer state NOT snapshotted (save_contents=[model,extra], live).
+
+Two data bugs the checklist/asserts caught before training: (a) 'list empty'
+on a full board -> [] target -> grader scores -1 (excluded); (b) occupancy
+57% 'Neither' majority -> rebalanced to ~50% occupied queries.
+
+Start model = BASE instruct Qwen3-1.7B (clean multi-task-from-scratch, not
+bok). Predictions:
+- E-1: sequential w/o replay -> earlier task drops >20 pts frac_perfect by
+  end @65%
+- E-2: mixed hits >=0.90 frac_perfect on all 3 @80%
+- E-3: final per-task perf depends on ORDER (recency: last-trained highest)
+  @70%
+- E-4: positive transfer — a later task's stage-1 accuracy is higher than
+  base zero-shot by more than format alone (shared coord convention) @45%
