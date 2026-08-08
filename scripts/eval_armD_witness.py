@@ -85,6 +85,10 @@ def main():
     ap.add_argument("--think-prefill", action="store_true",
                     help="prefill '<think>\\n' so all budget tokens are free "
                          "(cap-mode probe); close with '\\n</think>\\n\\n'")
+    ap.add_argument("--think-ritual", action="store_true",
+                    help="additionally prefill the size-parameterized "
+                         "'getting ready to think' ritual (matches "
+                         "HEX_THINK_RITUAL=1 training)")
     ap.add_argument("--wandb-run", default=None)
     ap.add_argument("--wandb-step", type=int, default=0)
     args = ap.parse_args()
@@ -114,12 +118,21 @@ def main():
     sp = SamplingParams(temperature=args.temperature, max_tokens=args.max_tokens)
 
     if args.think:
-        prefill = "<think>\n" if args.think_prefill else ""
+        def prefill_for(r):
+            if not args.think_prefill:
+                return ""
+            p = "<think>\n"
+            if args.think_ritual:
+                n = r["size"]
+                p += ("Okay, let me try to figure out the winner of this"
+                      f" Hex game. The board is {n}x{n}, and the players"
+                      " are Black and White. ")
+            return p
         prompt_cache = {
             name: [tok.apply_chat_template(
                        [{"role": "user", "content": r["content"]}],
                        add_generation_prompt=True, enable_thinking=True,
-                       tokenize=False) + prefill for r in rows]
+                       tokenize=False) + prefill_for(r) for r in rows]
             for name, rows in datasets
         }
     else:

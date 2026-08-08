@@ -1386,3 +1386,32 @@ halfway). So the pairwise ~0 Jaccard was misleading about pooled coverage: five
 ~49% as a path -- the thinking "grammar" substantially generalizes across
 training examples, with an outlier subpopulation. The shared trunk (first ~15
 words) generalizes to ALL held-out examples regardless (median_L>=15 everywhere).
+
+## 2026-08-08 ~01:00 — Ritual-prefill probe launched (user's grammar -> design)
+
+User mapped the near-deterministic grammar of the model's think openings
+("Okay, " PREAMBLE (". " BOARD)? ...) — the mystery GPU squatter was their
+decode runs. Implication accepted: the 2-token window sat inside a
+zero-variance ceremonial prefix; gradient needs a window where content
+varies by task.
+
+Measured (bok, ritual 'Okay, let me try to figure out the winner of this
+Hex game. ' prefilled): per-position sample entropy 0.9 -> ~1.1 bits over
+the first 4 tokens (still the BOARD boilerplate clause), 2-3 bits at
+positions 10-17, 4-4.8 bits by 19+. So: extend the gradient-free prefill
+THROUGH the board clause (size-parameterized, task metadata only), then
+16 free tokens landing in the 2-4.5-bit zone. Natural temp-1.0 exploration
+suffices — no suppression hack this leg.
+
+Setup: HEX_THINK_RITUAL=1, cap 16 free tokens, RESP_LEN 224, same start
+(bok merged), same data, 50 steps target (heads-up vs the 2-tok leg's
+56.6%). Exp: armD_rl_ritual.
+
+Predictions:
+- R-1: yardstick (ritual eval mode) > 53.2% floor @75%
+- R-2: > 2-tok leg's 56.6% (the free window carries usable signal beyond
+  answer-head-only RL) @40%
+- R-3: free-window content becomes task-specific (names cells/edges vs
+  generic boilerplate, eyes-on-data) by step 50 @50%
+- R-4: think-mode vs no-think gap on the trained model stays < 2 pts
+  (answer head still does the work) @60%

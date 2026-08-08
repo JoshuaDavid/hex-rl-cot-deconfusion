@@ -14,6 +14,7 @@ Qwen3-1.7B base ~never terminates thinking on open-ended move choice
 import json as _json
 import logging
 import os
+import re
 import random as _random
 from typing import Any
 from uuid import uuid4
@@ -91,7 +92,18 @@ class HexForcedCloseAgentLoop(AgentLoopBase):
                 suppress[ids[0]] = float(os.getenv("HEX_THINK_SUPPRESS_BIAS", "-8"))
         if cap:
             think_budget = min(think_budget, int(cap))
-            opener = self.tokenizer.encode("<think>\n", add_special_tokens=False)
+            prefix = "<think>\n"
+            if os.getenv("HEX_THINK_RITUAL") == "1":
+                # gradient-free "getting ready to think" ritual (the model's
+                # own modal opening, size-parameterized; see RESEARCH_LOG
+                # 2026-08-08 grammar) so the free tokens start where content
+                # begins to vary by task
+                m = re.search(r"\((\d+)x(\d+)\)", user_text)
+                n = m.group(1) if m else "?"
+                prefix += ("Okay, let me try to figure out the winner of this"
+                           f" Hex game. The board is {n}x{n}, and the players"
+                           " are Black and White. ")
+            opener = self.tokenizer.encode(prefix, add_special_tokens=False)
             prompt_ids = list(prompt_ids) + opener
 
         metrics = {}
