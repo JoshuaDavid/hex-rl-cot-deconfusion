@@ -1415,3 +1415,34 @@ Predictions:
   generic boilerplate, eyes-on-data) by step 50 @50%
 - R-4: think-mode vs no-think gap on the trained model stays < 2 pts
   (answer head still does the work) @60%
+
+## 2026-08-08 ~02:30 — Ritual-prefill leg verdict: new best (58.0%), but the window still carries no content
+
+armD_rl_ritual (gradient-free size-parameterized ritual prefill + 16 free
+think tokens, 50 steps from bok):
+  ritual mode  58.0% yardstick (vs floor: McNemar 55/31, z=2.6)
+  no-think     57.0%
+  v2test       95.4% (breadth intact)
+Comparisons: vs 2-tok leg 56.6% -> +1.4 pts, McNemar 36/29, z=0.87 — NOT
+significant. vs its own no-think: z=0.75 — mode gap ~1 pt, not significant.
+
+Prediction grades:
+- R-1 > floor @75% -> YES (z=2.6).
+- R-2 > 2-tok leg @40% -> nominally yes, statistically NO (z=0.87);
+  graded NO by the registered bar ("carries usable signal beyond
+  answer-head RL" — unproven).
+- R-3 task-specific window content @50% -> NO: RL shifted mass among
+  boilerplate phrasings ('The rules say...' -> 'Let me start by looking at
+  the current state of the board.'), and at temp-0 eval ZERO of 500
+  windows name a cell.
+- R-4 mode gap < 2 pts @60% -> YES (1.0 pt).
+
+Synthesis of the two window probes: RL improves this policy by ~+3-5 pts
+regardless of whether the free CoT window is 2 ceremonial tokens or 16
+post-ritual tokens; the window's content remains inert boilerplate in both.
+The user's grammar hypothesis was right about WHERE variance lives, but
+even a well-placed window doesn't get task content selected at this
+scale/budget — the answer head keeps absorbing the gradient. Program best
+is now armD_rl_ritual s50 (58.0/57.0), a chain of: SFT (0.98 short paths)
+-> best-of-8 distill (53.2) -> RL (58.0), with every CoT mechanism tested
+and none load-bearing.
