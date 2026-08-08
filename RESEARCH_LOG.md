@@ -1625,3 +1625,49 @@ way (spend MORE on long-target/hard tasks). The whole exercise re-confirms
 the session's throughline: RL machinery ported to SFT tends to be
 unnecessary-to-harmful, because the two regimes' notions of "where the
 signal is" diverge.
+
+## 2026-08-08 ~09:00 — Self-judge falsifier (Joshua's "should I retry" idea): verification learnable, but NOT on the model's own errors
+
+Idea: augment witness with an is_correct self-judgment (label = grade of the
+model's own sampled answer); a working signal enables retry/attempt-budget RL.
+Cheapest falsifier: freeze bok answerer, build an is_correct verifier, measure
+detection by error type on constructed probes AND bok's natural answers.
+
+Data reality (caught pre-train, checklist eyeball): bok is 92% CORRECT on
+won boards (median board p=1.0), and natural WINNER errors are ~0 (9/8000) --
+on a finished board the winner is visually obvious; bok's mistakes are
+long-path LINK errors. So on-policy self-judge signal is starved. Pivoted to
+BALANCED CONSTRUCTED training (gold->Yes, broken-link->No, wrong-winner->No).
+
+Results (r32 LoRA from base, temp0):
+                       balanced_acc   link-detect   winner-detect
+  base zero-shot         0.53 (chance, 27% unparsed -- can't even format)
+  SFT, PROBE (constructed) 0.995         0.98          1.00
+  SFT, NATURAL (bok's own) 0.545         0.088         0.00(n=9)
+
+So: verifying a witness answer is TRIVIALLY SFT-learnable in-distribution
+(0.995, both error types; winner-flip is easy -- the path connects the wrong
+edges). But it does NOT transfer to the model's OWN mistakes (0.545 ~ base
+0.53). Mechanism (eyes on data): constructed errors delete a cell -> blatant
+ADJACENCY GAP; bok's natural link errors are FULLY-ADJACENT paths that step
+onto a non-winner cell (subtle MEMBERSHIP/color errors). The gap-trained
+judge never learned to check membership -> catches 9% of real link errors.
+
+This empirically confirms the pre-registered design warning #1 (judge your
+OWN samples, not gold/constructed -- distribution match is load-bearing).
+The tension it exposes: on-policy errors are the right distribution but
+sparse+skewed (bok too accurate, ~0 winner errors); constructed errors are
+rich+balanced but the wrong distribution (near-zero transfer). To build the
+"should I retry" signal you must train on real on-policy errors, which needs
+an answerer weak enough (or boards hard enough) to supply a balanced
+on-policy error set.
+
+Theme callback: the skill is SFT-installable in-distribution, but
+METACOGNITION about one's own outputs is distribution-sensitive -- the naive
+version fails exactly where it needs to work.
+
+Next (if pursued): (a) on-policy judge -- sample bok errors on hard/long
+boards, train on THOSE, test natural transfer (predict link-detect jumps,
+winner-detect stays ~0 for lack of data); (b) then the attempt-budget RL
+(pick N tries, last graded, cost in N) on top of a working self-judge.
+Artifacts: data/selfjudge/, checkpoints/selfjudge/adapter, results/selfjudge_*.
