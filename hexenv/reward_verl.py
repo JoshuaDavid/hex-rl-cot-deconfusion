@@ -110,6 +110,13 @@ def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kw
             except (json.JSONDecodeError, TypeError, ValueError, IndexError):
                 pass
         shaped = _len_shaped(score, solution_str) if score > 0 else score
+        # single-token "any behavior" experiment: a task-neutral marker costs
+        # HEX_MARKER_PENALTY reward (negative penalty => rewards the marker).
+        # Correctness (kind_win) is unaffected; only the RL reward shifts.
+        mk = os.environ.get("HEX_MARKER")
+        marker_present = float(bool(mk) and mk in solution_str.split("</think>")[-1])
+        if mk:
+            shaped -= float(os.environ.get("HEX_MARKER_PENALTY", "0")) * marker_present
         log_path = os.environ.get("HEX_ROLLOUT_LOG")
         if log_path:
             try:
@@ -117,12 +124,14 @@ def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kw
                     f.write(json.dumps({"gt": gt, "move": None, "kind": kind,
                                         "score": score, "shaped": shaped,
                                         "link_frac": link_frac,
+                                        "marker": marker_present,
                                         "response": solution_str}) + "\n")
             except OSError:
                 pass
         return {"score": shaped, "kind_win": float(kind == "win"),
                 "kind_lose": float(kind == "lose"), "kind_illegal": 0.0,
-                "kind_unparsed": float(kind == "unparsed")}
+                "kind_unparsed": float(kind == "unparsed"),
+                "marker": marker_present}
     if gt.get("task") == "listing":
         score, kind, claimed = _score_listing(gt, solution_str)
         shaped = _len_shaped(score, solution_str) if score > 0 else score

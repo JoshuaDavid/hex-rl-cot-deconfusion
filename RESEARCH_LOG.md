@@ -1791,3 +1791,25 @@ vote) would lift confirm-correct.
 Ops: occupancy LoRA at lr 1e-4 DIVERGED on the 5-9 data (loss -> 0.03 then
 blew up to 3.5; also a fully-failed run stuck at 4.0). lr 3e-5 + 0.1 warmup,
 2 epochs = clean (loss ~2e-4). Note for utility-adapter training on this box.
+
+## 2026-08-09 ~08:00 — Single-token 'any behavior' RL test launched (Joshua's design)
+
+Can RL move a single, TASK-NEUTRAL token purely via a reward differential,
+with competence held constant? Witness + a suffix marker " NOTE" after the
+JSON (grader ignores trailing text -> correctness identical with/without).
+SFT from bok on 50/50 marker targets -> P(marker)~=0.5, witness intact
+(val 0.018). RL from the merged model: reward = witness_score - lambda *
+marker_present (reward_verl HEX_MARKER/HEX_MARKER_PENALTY; kind_win
+unaffected). The only reward-differentiating token is the marker decision
+(the token after '}').
+
+Run A (cost): lambda=+0.3. Run B (reward): lambda=-0.3. Measure P(marker)
+over steps from the side channel.
+
+Predictions:
+- ST-1: cost run drives P(marker) 0.5 -> <0.1 by step 40 @85%
+- ST-2: witness kind_win stays ~flat (marker task-neutral) @80%
+- ST-3: reward run drives P(marker) -> >0.9 @80%
+- ST-4: convergence is fast/monotone (<30 steps) @70%
+If both directions move cleanly, RL demonstrably teaches an arbitrary
+single-token behavior (the sharpest form of 'RL selects').
