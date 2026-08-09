@@ -1671,3 +1671,53 @@ boards, train on THOSE, test natural transfer (predict link-detect jumps,
 winner-detect stays ~0 for lack of data); (b) then the attempt-budget RL
 (pick N tries, last graded, cost in N) on top of a working self-judge.
 Artifacts: data/selfjudge/, checkpoints/selfjudge/adapter, results/selfjudge_*.
+
+## 2026-08-09 ~05:00 — On-policy self-judge + AUC: the signal is weak, SFT-capped, and distribution-INVARIANT
+
+Followed up the constructed-judge's natural failure by (a) mining bok's REAL
+errors on hard boards (8-9, long paths; 52% error rate) and training an
+on-policy judge, and (b) measuring discrimination by AUC of P(Yes) logprob
+(the argmax Yes/No collapses to a constant and hides ranking signal).
+
+On-policy mining confirmed winner-errors are intrinsically rare: 17/734
+errors (~2%) even on hard boards -- bok gets the winner right ~98% while
+botching the path. So on-policy can only teach LINK detection.
+
+Argmax (misleading): on-policy judge collapses to always-No (natural
+balanced_acc 0.500, "catches" 100% of errors + 0% of correct); constructed
+judge was always-Yes (0.545). Both degenerate at the decision threshold.
+
+AUC of self-correctness on the SAME natural test (the real measure):
+  base (no training)   0.578
+  constructed judge    0.645
+  on-policy judge      0.646
+Findings:
+1. A weak self-correctness signal EXISTS and SFT improves it a little
+   (0.578 -> 0.645, +0.07 AUC). Not a null.
+2. It is WEAK and CAPPED at ~0.65, and DISTRIBUTION-INVARIANT: constructed
+   (blatant gaps) and on-policy (subtle real errors) give the SAME AUC
+   (0.645 vs 0.646). My prediction that on-policy would fix discrimination
+   was WRONG -- distribution mismatch was not the limiter.
+3. The real limiter is BOARD-READING: verifying a subtle self-error (a
+   fully-adjacent path stepping on one non-winner cell) requires re-checking
+   every cell's membership on an 8-9 board -- the same capacity that caps
+   the answerer. Self-verification is about as hard as answering here.
+4. The usable signal lives in the logprob, not the hard Yes/No (which
+   collapses to the base-rate prior). A retry policy must threshold P(Yes).
+
+For Joshua's "should I retry": a real but weak (AUC ~0.65) signal is
+available and SFT nudges it up slightly; it could drive a retry policy
+marginally better than blind retry, but it is not a strong detector at 1.7B
+and does not improve with more/better error data -- it's board-reading-
+bound. The attempt-budget RL (idea B) would be building on a ~0.65-AUC
+primitive; low ceiling expected at this scale. Verification is cheap only
+for GROSS errors (constructed probe 0.995); for the subtle errors a
+competent answerer actually makes, verification ~ answering in difficulty.
+
+Prediction grades (this leg):
+- "on-policy link-detection jumps up" -> argmax YES (0->100% via always-No)
+  but that's a threshold artifact; AUC NO (0.646 ~ constructed 0.645).
+- "winner-detection stays ~0 for lack of data" -> YES (2% natural winner
+  errors; untrained).
+Artifacts: scripts/build_selfjudge_onpolicy.py, sj_auc.py,
+checkpoints/selfjudge_op/adapter, results/selfjudge_op_*, /tmp/sj_auc2.log.
