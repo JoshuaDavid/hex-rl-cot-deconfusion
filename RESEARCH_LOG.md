@@ -1764,3 +1764,30 @@ Answer to Joshua: errors are membership (hallucinated stone), not
 non-minimality; and the operative per-cell question (occupancy) is
 distinguishable at ~1.0, far above 0.65 -- the model knows, it just isn't
 asked cell-by-cell.
+
+## 2026-08-09 ~07:30 — Decomposed verifier: 0.545 -> 0.965 by decomposition (100% error detection)
+
+Built the verifier the per-cell finding implied: verdict(claimed winner C,
+path P) = Yes iff geometry ok [code: adjacency + endpoints on C's edges] AND
+every cell of P is C's stone [occupancy LoRA (5-9), per cell]. A valid path
+of color C implies C won, so this also validates the winner claim; a flipped
+winner fails per-cell occupancy vs the claimed color.
+
+On 1974 bok answers (92.4% correct; errors 137 membership / 7 winner /
+6 geometry):
+  DECOMPOSED  balanced_acc 0.965  detect-error(No|bad) 1.000  confirm-correct 0.930
+  (holistic answer-judge, same distribution: balanced 0.545 / AUC 0.645)
+Per error type detection: membership 100%, geometry 100%, winner 100%.
+
+So decomposition recovers whole-answer verification from 0.545 -> 0.965 and
+catches EVERY error, confirming the thesis: the information was fully present
+per-cell; the holistic judge failed only for lack of decomposition. The one
+residual is 7% false-negatives on CORRECT answers (a long correct path
+occasionally has one cell the occupancy oracle misreads -> flagged) -- for a
+"should I retry" use this is the safe direction (100% error recall; ~7%
+unnecessary retries). A stronger per-cell oracle (bigger model / majority
+vote) would lift confirm-correct.
+
+Ops: occupancy LoRA at lr 1e-4 DIVERGED on the 5-9 data (loss -> 0.03 then
+blew up to 3.5; also a fully-failed run stuck at 4.0). lr 3e-5 + 0.1 warmup,
+2 epochs = clean (loss ~2e-4). Note for utility-adapter training on this box.
