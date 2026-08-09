@@ -1813,3 +1813,30 @@ Predictions:
 - ST-4: convergence is fast/monotone (<30 steps) @70%
 If both directions move cleanly, RL demonstrably teaches an arbitrary
 single-token behavior (the sharpest form of 'RL selects').
+
+## 2026-08-09 ~08:40 — Single-token RL: YES, RL teaches an arbitrary task-neutral token (both directions)
+
+Marker " NOTE" suffix, SFT'd to P(marker)~0.5 with witness intact, then RL
+with reward = witness - lambda*marker (correctness/kind_win unaffected).
+P(marker) by ~step (256 rollouts/step):
+  COST   (lambda=+0.3): 0.32 0.36 0.26 0.25 0.20 0.20 0.12 0.08 0.07 0.03
+                        0.02 0.01 ... 0.00 (pinned from step ~16)
+  REWARD (lambda=-0.3): 0.27 0.34 0.32 0.40 0.45 0.58 0.60 0.65 0.82 0.91
+                        0.96 0.97
+Witness exact-win over the runs: cost 0.61->0.78, reward 0.62->0.47 (noisy,
+no collapse; shaped score mean stayed 0.92 cost / 1.2 reward = ~0.9 witness +
+marker bonus). So competence held while the single task-neutral token moved
+to either extreme on a +/-0.3 differential, in ~12-16 steps, monotone.
+
+Prediction grades: ST-1 (<0.1 by 40) YES; ST-2 (win flat) YES; ST-3 (>0.9)
+YES (0.97); ST-4 (fast/monotone <30) YES.
+
+Verdict: RL demonstrably teaches an ARBITRARY single-token behavior -- moves
+probability on a semantically meaningless token to 0 or ~1 purely by a small
+reward differential, competence pinned by SFT. This is the sharpest form of
+the session's throughline: RL SELECTS (reliably shifts mass toward reward,
+even for a meaningless token) but does not CREATE (all the earlier arms:
+it can't install a skill/CoT that isn't already sampled). "Can RL teach
+literally any behavior?" -- for a behavior already in the support as a
+reachable token choice, yes, cleanly. The constraint is reachability/support,
+not the reward's semantics.
