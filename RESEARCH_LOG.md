@@ -1721,3 +1721,46 @@ Prediction grades (this leg):
   errors; untrained).
 Artifacts: scripts/build_selfjudge_onpolicy.py, sj_auc.py,
 checkpoints/selfjudge_op/adapter, results/selfjudge_op_*, /tmp/sj_auc2.log.
+
+## 2026-08-09 ~06:30 — Error structure + decomposition: the info IS there per-cell (0.998); the holistic judge just doesn't use it
+
+Joshua asked if bok's errors are "valid but non-minimal" and whether per-cell
+membership is distinguishable >> 0.65.
+
+Error structure (600 hard boards, bok temp1 k4; 2102 correct / 211 errors):
+  of CORRECT answers: non-minimal (len>shortest) = 1.7%  (bok gives minimal paths)
+  errors (one error can trip >1 check):
+    wrong_winner 0.9% | membership 84.8% | adjacency 25.6% | edge 4.3%
+    "removable" (winner-stones-in-answer still connect edges) = 12.8%
+=> NOT non-minimal. The characteristic error is MEMBERSHIP: while tracing, bok
+asserts a path cell that isn't actually the winner's stone (hallucinated
+stone, often also breaking adjacency). Non-minimal-valid paths would score 1.0
+anyway (grader accepts any valid chain), so they aren't errors.
+
+Per-cell probe -- ask "which player has a stone on X?" on the EXACT cells bok
+hallucinated (500 not-stone / 500 stone from error paths):
+  base zero-shot (Yes/No logprob AUC)      0.499  (base can't read boards at all)
+  occupancy LoRA trained on 5-7 (size-OOD) 0.625  (biased 'Neither' on 8-9)
+  occupancy LoRA trained on 7-9 (on-size)  0.998  balanced (1.000 / 1.000)
+vs the holistic answer-judge on the same errors: base 0.578 / SFT 0.645 AUC.
+
+THE FINDING: the information needed to catch bok's errors is FULLY available
+to the model per-cell -- trained occupancy nails the exact hallucinated cells
+at 99.8%. The holistic self-judge caps at 0.65 NOT for lack of information or
+capability, but for lack of DECOMPOSITION: judging the whole answer gestalt
+instead of checking each cell's occupancy. bok's hallucinations are a TRACING
+artifact (path pressure makes it assert a stone it would correctly call empty
+in isolation), not a board-reading limit.
+
+Implication for "should I retry": a DECOMPOSED verifier -- per-cell occupancy
+(0.998 each) + deterministic adjacency/edge checks -- would catch ~all
+membership errors, i.e. near-perfect self-verification. The holistic
+0.65-AUC judge is the wrong architecture; the signal is there, decompose it.
+This also refines the session's "verification is cheap" line: cheap even for
+SUBTLE errors, but only when decomposed into the per-cell percepts the model
+has; asked holistically it collapses to the base-rate prior.
+
+Answer to Joshua: errors are membership (hallucinated stone), not
+non-minimality; and the operative per-cell question (occupancy) is
+distinguishable at ~1.0, far above 0.65 -- the model knows, it just isn't
+asked cell-by-cell.
