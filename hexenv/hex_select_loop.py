@@ -39,6 +39,13 @@ logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 HELPER_BUDGET = int(os.getenv("ARME_HELPER_BUDGET", "160"))
 ANSWER_BUDGET = int(os.getenv("ARME_ANSWER_BUDGET", "120"))
+# Decouple exploration from generation: the SELECTION token is sampled at the
+# rollout temperature (exploration over A/C/D), but the helper + evaluated answer
+# are generated at ARME_GEN_TEMP (default greedy) so a hard-to-generate but
+# useful helper (D) is NOT derailed by high-temp noise -> its content advantage
+# survives into the reward. Without this, high-temp helper generation erases the
+# differential (D's edge is at temp 0). See RESEARCH_LOG 2026-08-10.
+GEN_TEMP = float(os.getenv("ARME_GEN_TEMP", "0.0"))
 
 
 @register("hex_select")
@@ -95,6 +102,7 @@ class HexSelectAgentLoop(AgentLoopBase):
         # === helper generation (untrained env step) ===
         sp_h = dict(sampling_params)
         sp_h["n"] = 1
+        sp_h["temperature"] = GEN_TEMP
         sp_h["max_tokens"] = HELPER_BUDGET
         sp_h["stop"] = [f"</task-{x}>", "</evaluated-task>"]
         sp_h.pop("stop_token_ids", None)
@@ -109,6 +117,7 @@ class HexSelectAgentLoop(AgentLoopBase):
         # === evaluated (Task C) generation (untrained env step) ===
         sp_c = dict(sampling_params)
         sp_c["n"] = 1
+        sp_c["temperature"] = GEN_TEMP
         sp_c["max_tokens"] = ANSWER_BUDGET
         sp_c["stop"] = ["</evaluated-task>", "<|im_end|>"]
         sp_c.pop("stop_token_ids", None)
