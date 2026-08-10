@@ -303,6 +303,22 @@ def extract_tag(text, tag):
     return m[-1].strip() if m else None
 
 
+def split_ctx_ans(tok, ctx, ans):
+    """Tokenize ctx+ans once and return (full_ids, ans_start_idx) robustly, even
+    when the ctx/ans boundary merges into one token (e.g. '>' + '{' -> '>{\"').
+    ans_start_idx is the first token that reaches into ans; tokens before it are
+    pure ctx. The (possibly straddling) boundary token counts as answer."""
+    full_ids = tok(ctx + ans, add_special_tokens=False)["input_ids"]
+    i = 0
+    while i < len(full_ids):
+        dec = tok.decode(full_ids[: i + 1])
+        if len(dec) <= len(ctx) and ctx.startswith(dec):
+            i += 1
+        else:
+            break
+    return full_ids, i
+
+
 def parse_json_payload(inner):
     if inner is None:
         return None

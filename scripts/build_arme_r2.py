@@ -22,7 +22,7 @@ import pandas as pd
 from transformers import AutoTokenizer
 
 from hexenv.arme import (board_from_gt, gold_answer_str, select_prompt,
-                         SELECTABLE, EVALUATED)
+                         split_ctx_ans, SELECTABLE, EVALUATED)
 from scripts.build_armD_witness import MODEL, IM_END
 
 VAL_BOARDS = 120
@@ -43,18 +43,12 @@ def build(tok, gts, rng, reps=1):
                 [{"role": "user", "content": select_prompt(b)}],
                 add_generation_prompt=True, enable_thinking=False,
                 tokenize=True)["input_ids"]
-            ctx_ids = tok(ctx, add_special_tokens=False)["input_ids"]
-            full_ids = tok(ctx + ans, add_special_tokens=False)["input_ids"]
-            # require ctx to be an exact token prefix of ctx+ans (clean boundary)
-            if full_ids[: len(ctx_ids)] != ctx_ids:
-                bad += 1
-                continue
-            ans_ids = full_ids[len(ctx_ids):]
+            full_ids, astart = split_ctx_ans(tok, ctx, ans)
             ids = list(pids) + list(full_ids)
             if len(ids) > 2048:
                 bad += 1
                 continue
-            mask = [0.0] * (len(pids) + len(ctx_ids)) + [1.0] * len(ans_ids)
+            mask = [0.0] * (len(pids) + astart) + [1.0] * (len(full_ids) - astart)
             assert len(mask) == len(ids)
             rows.append({"input_ids": ids, "loss_mask": mask,
                          "size": gt["size"], "helper": x})
