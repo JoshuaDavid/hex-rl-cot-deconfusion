@@ -35,6 +35,10 @@ ARM = os.environ.get("ARM", "uniform")
 ROUNDS = int(os.environ.get("ROUNDS", "8"))
 M = int(os.environ.get("CHUNK", "1600"))
 FLOOR = float(os.environ.get("FLOOR", "0.03"))
+# controller used max(k,64) (RL kilotoken scale); SFT no-think targets are
+# 4-37 tokens, so rescale the cost floor to SFT magnitudes to keep the
+# cost-corrected Neyman term live (else cost is inert -> pure variance target)
+K_FLOOR = float(os.environ.get("K_FLOOR", "4"))
 EMA = 0.5
 CK = f"checkpoints/sched_{ARM}"
 OUT = f"results/multitask/sched_{ARM}"
@@ -46,7 +50,7 @@ def neyman(p_ema, kcost):
     for c in CATS:
         p = p_ema.get(c, 0.5)  # optimistic prior for unseen
         sigma = math.sqrt(max(p * (1 - p), 1e-4))
-        shares[c] = 1.0 * sigma / math.sqrt(max(kcost[c], 64.0))
+        shares[c] = 1.0 * sigma / math.sqrt(max(kcost[c], K_FLOOR))
     tot = sum(shares.values()) or 1.0
     norm = {c: v / tot for c, v in shares.items()}
     floored = {c: max(norm[c], FLOOR) for c in CATS}
@@ -109,8 +113,7 @@ def eval_round(r, adapter):
             ["timeout", "-s", "KILL", "2400", "/venv/verl/bin/python",
              "scripts/eval_armD_witness.py", "--model", "Qwen/Qwen3-1.7B",
              "--lora", f"{r}={adapter}", "--data", *data_args,
-             "--max-tokens", "512", "--out", OUT,
-             "--wandb-run", f"sched_{ARM}", "--wandb-step", str(r)],
+             "--max-tokens", "512", "--out", OUT],
             stdout=open(log, "w"), stderr=subprocess.STDOUT)
         subprocess.run(["pkill", "-9", "-x", "VLLM::EngineCore"])
         if all(os.path.exists(f"{OUT}_ep{r}_{c}.jsonl") for c in CATS):

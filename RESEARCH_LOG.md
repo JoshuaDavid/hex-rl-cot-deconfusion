@@ -1840,3 +1840,87 @@ it can't install a skill/CoT that isn't already sampled). "Can RL teach
 literally any behavior?" -- for a behavior already in the support as a
 reachable token choice, yes, cleanly. The constraint is reachability/support,
 not the reward's semantics.
+
+## 2026-08-09 ~23:56 — Arm E launch: can RL SELECT an instrumentally-useful task? (Joshua's design)
+
+Sharpest extension of the marker result (RL moves a task-NEUTRAL token): now
+make the single token task-CONSEQUENTIAL. Model is shown a 5x5 hex board and
+five perception tasks; it must pick ONE auxiliary task to solve first (not
+evaluated), then answer the EVALUATED task. Question: can RL on the single
+selection token learn to pick the auxiliary task whose solution best scaffolds
+the evaluated one — under maximally favorable conditions?
+
+Tasks (all exactly computable from the board via BFS; no benzene):
+  A colors+positions of ALL stones (reading order)
+  B winner + one winning path
+  C ALL empty cells (reading order)         <- EVALUATED task
+  D black stones connected to top / to bottom; white to left / to right
+  E black connected to NEITHER top nor bottom; white to neither left nor right
+Selection is over the 4 non-evaluated tasks {A,B,D,E}. DESIGNED-useful helper
+for C is A: empties == complement of stones, so a correct A makes C mechanical
+(copy-complement); B/D/E give only partial/irrelevant stone info. A-E are all
+single tokens in the Qwen tokenizer (32-36). No-think throughout.
+
+THE CRUX / GATE: an instrumental differential must EXIST — solving A first must
+raise P(C correct) vs solving B/D/E. Measured directly in R2/R3 before any RL.
+If null, report "no instrumental gradient" (still informative) and expect R4 to
+drift like the marker.
+
+Staged plan (each a gate for the next; matches Joshua's 4-run spec):
+  R1 feasibility SFT: fixed-order "solve X then Y", confirm model can emit the
+     tagged two-task format and score A-E at 5x5. Gate: A,C,D,E frac_perfect >=0.7.
+  R2 teacher-forced-helper SFT: <selected-task>X</selected-task><helper>gold X
+     </helper><evaluated-task>gold C</evaluated-task>, X~unif{A,B,D,E}, helper
+     TF gold, GRADIENT ONLY ON C. Then measure Delta = acc(C|A) - mean acc(C|B,D,E).
+  R3 own-helper SFT: helper span = model's OWN sampled answer (offline pre-gen
+     with R2 model), loss still only on C. Re-measure Delta (helper may be wrong;
+     this is the regime R4 lives in).
+  R4 single-token selection RL from R3: model emits X (1 tok), then its own
+     helper + its own C answer; reward = C score; POLICY LOSS MASKED TO THE X
+     TOKEN ONLY. Measure P(select=X) trajectory.
+
+Favorability levers: evaluated=C(empties) w/ helper A(stones)=exact complement;
+boards moderately full so direct empty-enumeration is error-prone but
+complement-after-A is reliable; escalate 5x5->7x7 if Delta too weak; no-think.
+
+Pre-registered predictions (odds):
+  P1 R1 feasibility: SFT reaches >=0.7 frac_perfect on A and C @5x5           80%
+  P2 R2 differential (gold helper): acc(C|A) - mean acc(C|B,D,E) >= +0.15     55%
+  P3 R3 differential (own helper):  Delta >= +0.10                            45%
+  P4 R4 selection RL: IF Delta(R3)>=+0.10, P(select=A) rises >=+0.2 in <=40 steps 60%(cond)
+  P5 R4 competence: C-accuracy of picked-A rollouts within noise of R3        75%
+  Meta: at least one of {P2,P3} is a null (differential too weak)             40%
+
+Checklist before R1/R4 launches: wandb (wired in run_armD_sft/run_pilot);
+Opus-solve each of A-E verbatim; base-qwen no-think temp0 eyeball; NO optimizer
+snapshot (save_contents=[model,extra] already in launchers). Artifacts under
+hexenv/arme.py, scripts/*_arme_*, data/arme/, results/arme/.
+
+## 2026-08-10 ~00:20 — Arm E Phase 0 checklist PASSED; tasks well-posed, base fails on competence
+
+Built hexenv/arme.py (task defs + gold + graders + prompts). Gold scores
+1.0/perfect on all 5 tasks x300 random 5x5 boards; invariants verified
+(A.black|white == complement of C; E == stones - edge-connected). 5x5 fill
+~12.8 stones / ~12.2 empties (good regime: direct empty-enum error-prone,
+complement-after-A reliable).
+
+Checklist:
+1. wandb: WANDB_API_KEY in .env; launchers log wandb. OK.
+2. Opus-solve (2 boards, all 5 tasks verbatim): BOTH scored 1.0/perfect on
+   A-E. Flagged 2 STATEMENT ambiguities (not data): (i) "connected to an edge"
+   defined only implicitly; (ii) a stone on a full winning chain double-lists
+   in D (top&bottom). Both agents inferred the intended reading correctly ->
+   fixed the preamble to state both explicitly. Cheap ambiguity removal.
+3. base-Qwen no-think temp0 eyeball (R1 format, 3 boards): model FOLLOWS THE
+   TAGGED FORMAT CLEANLY (valid <task-A>/<task-C> JSON every time) -> format
+   unambiguous. Failure is pure BOARD-READING COMPETENCE: hallucinated stones;
+   2/3 boards lazily dumped all 25 cells as "empty" (C score ~ -0.08). This is
+   the SFT-fixable failure (cf occupancy LoRA 0.998), NOT ambiguity. Ideal.
+4. No optimizer snapshot: save_contents=[model,extra] already in
+   run_armD_sft.sh / run_pilot.sh.
+
+Design locked: evaluated=C; selectable helpers {A,B,D,E}; A=designed-useful
+(exact complement). R1 data = per board, 4 examples (X,C) for X in {A,B,D,E},
+full-completion loss (feasibility). R2/R3 reuse the same SFT harness
+(ArmDWitnessSFTDataset float masks) with loss masked to the evaluated C span
+only. Adapters chain base->R1->R2->R3; R4 RL from R3-merged.

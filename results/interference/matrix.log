@@ -1,0 +1,11 @@
+=== TRAINING ===
+[done] wit_only -> checkpoints/interference/wit_only/adapter
+[done] cell_only -> checkpoints/interference/cell_only/adapter
+[done] list_only -> checkpoints/interference/list_only/adapter
+[done] fwd2_witcell -> checkpoints/interference/fwd2_witcell/adapter
+[done] fwd3_witcelllist -> checkpoints/interference/fwd3_witcelllist/adapter
+[done] rev2_listcell -> checkpoints/interference/rev2_listcell/adapter
+[done] rev3_listcellwit -> checkpoints/interference/rev3_listcellwit/adapter
+[done] mixed -> checkpoints/interference/mixed/adapter
+=== EVAL ===
+MATRIX_DONE

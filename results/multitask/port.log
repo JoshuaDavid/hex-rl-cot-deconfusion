@@ -1,0 +1,25 @@
+pkill: pattern that searches for process name longer than 15 characters will result in zero matches
+Try `pkill -f' option to match against the complete command line.
+[port] r1 mean=0.206 worst=0.000 (witness) | chai:0.64 judg:0.28 occu:0.39 wins:0.01 chai:0.08 witn:0.00 mate:0.09 mate:0.17 edge:0.22 gen_:0.16 gene:0.22
+pkill: pattern that searches for process name longer than 15 characters will result in zero matches
+Try `pkill -f' option to match against the complete command line.
+[port] r2 mean=0.304 worst=0.000 (winset) | chai:0.68 judg:0.58 occu:0.74 wins:0.00 chai:0.09 witn:0.05 mate:0.23 mate:0.23 edge:0.26 gen_:0.24 gene:0.24
+pkill: pattern that searches for process name longer than 15 characters will result in zero matches
+Try `pkill -f' option to match against the complete command line.
+[port] r3 mean=0.400 worst=0.000 (winset) | chai:0.65 judg:0.50 occu:0.90 wins:0.00 chai:0.08 witn:0.07 mate:0.54 mate:0.39 edge:0.47 gen_:0.48 gene:0.33
+pkill: pattern that searches for process name longer than 15 characters will result in zero matches
+Try `pkill -f' option to match against the complete command line.
+[port] r4 mean=0.438 worst=0.022 (winset) | chai:0.81 judg:0.54 occu:0.91 wins:0.02 chai:0.10 witn:0.12 mate:0.57 mate:0.39 edge:0.51 gen_:0.55 gene:0.28
+pkill: pattern that searches for process name longer than 15 characters will result in zero matches
+Try `pkill -f' option to match against the complete command line.
+[port] r5 mean=0.478 worst=0.022 (winset) | chai:0.69 judg:0.65 occu:0.91 wins:0.02 chai:0.14 witn:0.13 mate:0.64 mate:0.49 edge:0.55 gen_:0.64 gene:0.38
+pkill: pattern that searches for process name longer than 15 characters will result in zero matches
+Try `pkill -f' option to match against the complete command line.
+[port] r6 mean=0.503 worst=0.000 (winset) | chai:0.83 judg:0.67 occu:0.97 wins:0.00 chai:0.20 witn:0.13 mate:0.68 mate:0.49 edge:0.62 gen_:0.67 gene:0.27
+pkill: pattern that searches for process name longer than 15 characters will result in zero matches
+Try `pkill -f' option to match against the complete command line.
+[port] r7 mean=0.518 worst=0.011 (winset) | chai:0.88 judg:0.68 occu:0.93 wins:0.01 chai:0.13 witn:0.12 mate:0.68 mate:0.57 edge:0.69 gen_:0.71 gene:0.31
+pkill: pattern that searches for process name longer than 15 characters will result in zero matches
+Try `pkill -f' option to match against the complete command line.
+[port] r8 mean=0.536 worst=0.011 (winset) | chai:0.97 judg:0.66 occu:0.95 wins:0.01 chai:0.20 witn:0.14 mate:0.74 mate:0.54 edge:0.62 gen_:0.75 gene:0.31
+[port] DONE
