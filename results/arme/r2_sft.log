@@ -1,0 +1,106 @@
++ source /venv/verl/bin/activate
+++ '[' -z '' ']'
+++ '[' -n x ']'
+++ SCRIPT_PATH=/venv/verl/bin/activate
+++ '[' /venv/verl/bin/activate = scripts/run_armD_sft.sh ']'
+++ deactivate nondestructive
+++ unset -f pydoc
+++ '[' -z '' ']'
+++ '[' -z '' ']'
+++ hash -r
+++ '[' -z '' ']'
+++ unset VIRTUAL_ENV
+++ unset VIRTUAL_ENV_PROMPT
+++ '[' '!' nondestructive = nondestructive ']'
+++ VIRTUAL_ENV=/venv/verl
+++ '[' linux-gnu = cygwin ']'
+++ '[' linux-gnu = msys ']'
+++ export VIRTUAL_ENV
+++ '[' -z '' ']'
+++ unset SCRIPT_PATH
+++ _OLD_VIRTUAL_PATH=/workspace/cc-monitor/.venv/bin:/venv/main/bin:/opt/miniforge3/condabin:/opt/nvm/versions/node/v24.16.0/bin:/opt/instance-tools/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ PATH=/venv/verl/bin:/workspace/cc-monitor/.venv/bin:/venv/main/bin:/opt/miniforge3/condabin:/opt/nvm/versions/node/v24.16.0/bin:/opt/instance-tools/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ export PATH
+++ '[' x '!=' x ']'
++++ basename /venv/verl
+++ VIRTUAL_ENV_PROMPT=verl
+++ export VIRTUAL_ENV_PROMPT
+++ '[' -z '' ']'
+++ '[' -z '' ']'
+++ _OLD_VIRTUAL_PS1=
+++ PS1='(verl) '
+++ export PS1
+++ alias pydoc
+++ true
+++ hash -r
++ set +x
++ export WANDB_API_KEY
++ export HF_HOME=/workspace/.hf_home
++ HF_HOME=/workspace/.hf_home
++ export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4
++ OMP_NUM_THREADS=4
++ MKL_NUM_THREADS=4
++ OPENBLAS_NUM_THREADS=4
++ export TOKENIZERS_PARALLELISM=false
++ TOKENIZERS_PARALLELISM=false
++ export PYTHONPATH=/workspace/hex-rl-cot-deconfusion:
++ PYTHONPATH=/workspace/hex-rl-cot-deconfusion:
++ cd /workspace/hex-rl-cot-deconfusion
++ EXP=arme_r2
++ torchrun --standalone --nproc_per_node=1 -m verl.trainer.sft_trainer data.train_files=data/armD/train.parquet data.val_files=data/armD/val.parquet data.custom_cls.path=/workspace/hex-rl-cot-deconfusion/hexenv/armd_sft_dataset.py data.custom_cls.name=ArmDWitnessSFTDataset data.train_batch_size=64 data.micro_batch_size_per_gpu=4 data.max_length=2048 model.path=Qwen/Qwen3-1.7B model.lora_rank=32 model.lora_alpha=64 optim.lr=1e-4 trainer.total_epochs=3 trainer.save_freq=after_each_epoch 'checkpoint.save_contents=["model","extra"]' trainer.project_name=hex-rl-cot-deconfusion trainer.experiment_name=arme_r2 trainer.default_local_dir=checkpoints/arme_r2 'trainer.logger=["console","wandb"]' data.train_files=data/arme/r2_train.parquet data.val_files=data/arme/r2_val.parquet model.lora_adapter_path=checkpoints/arme_r1/adapter optim.lr=5e-5 trainer.total_epochs=2
+/workspace/verl-src/verl/workers/engine/mindspeed/transformer_impl.py:24: UserWarning: NPU not support router replay for now.
+  from verl.utils.megatron.router_replay_patch import RouterReplay
+/venv/verl/lib/python3.12/site-packages/transformers/utils/import_utils.py:1047: FutureWarning: `is_flash_attn_greater_or_equal_2_10` is deprecated and will be removed in v5.8. Please use `is_flash_attn_greater_or_equal(library_version='2.1.0')` instead if needed.
+  warnings.warn(
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[2026-08-10 02:17:15,017][huggingface_hub.utils._http][WARNING] - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3ForCausalLM is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("meta-llama/Llama-3.2-1B", attn_implementation="flash_attention_2", dtype=torch.float16)`
+[transformers] Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3Model is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("meta-llama/Llama-3.2-1B", attn_implementation="flash_attention_2", dtype=torch.float16)`
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:09,  4.45it/s]Loading weights:  58%|█████▊    | 180/311 [00:00<00:00, 696.04it/s]Loading weights:  92%|█████████▏| 285/311 [00:00<00:00, 786.18it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 679.23it/s]
+Monkey patch _flash_attention_forward in transformers.integrations.flash_attention
+Skipping monkey patch for Qwen3ForCausalLM as use_fused_kernels is False or fused_kernels_backend is torch
+Loading pre-trained LoRA adapter to from: checkpoints/arme_r1/adapter
+/venv/verl/lib/python3.12/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W810 02:17:24.722517025 ProcessGroupNCCL.cpp:5188] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+NCCL version 2.28.9+cuda13.0
+PeftModelForCausalLM contains 1.76B parameters
+Before FSDP, memory allocated (GB): 0.00, memory reserved (GB): 0.07, device memory used/total (GB): 1.00/39.49
+/venv/verl/lib/python3.12/site-packages/torch/distributed/fsdp/fully_sharded_data_parallel.py:478: UserWarning: FSDP is switching to use `NO_SHARD` instead of ShardingStrategy.FULL_SHARD since the world size is 1.
+  _init_core_state(
+/workspace/verl-src/verl/workers/engine/fsdp/transformer_impl.py:459: FutureWarning: FSDP.state_dict_type() and FSDP.set_state_dict_type() are being deprecated. Please use APIs, get_state_dict() and set_state_dict(), which can support different parallelisms, FSDP1, FSDP2, DDP. API doc: https://pytorch.org/docs/stable/distributed.checkpoint.html#torch.distributed.checkpoint.state_dict.get_state_dict .Tutorial: https://pytorch.org/tutorials/recipes/distributed_checkpoint_recipe.html .
+  FSDP.set_state_dict_type(
+After FSDP, memory allocated (GB): 6.54, memory reserved (GB): 7.95, device memory used/total (GB): 8.88/39.49
+Total steps: 624, num_warmup_steps: 0
+{'model': {'_target_': 'verl.workers.config.HFModelConfig', 'path': 'Qwen/Qwen3-1.7B', 'hf_config_path': None, 'tokenizer_path': None, 'use_shm': False, 'trust_remote_code': False, 'custom_chat_template': None, 'external_lib': None, 'override_config': {}, 'enable_gradient_checkpointing': True, 'enable_activation_offload': False, 'use_remove_padding': True, 'lora_rank': 32, 'lora_alpha': 64, 'target_modules': 'all-linear', 'exclude_modules': None, 'lora_adapter_path': 'checkpoints/arme_r1/adapter', 'use_liger': False, 'use_fused_kernels': False, 'fused_kernel_options': {'impl_backend': 'torch'}, 'tiled_mlp': {'enabled': False, 'num_shards': 4}, 'mtp': {'_target_': 'verl.workers.config.MtpConfig', 'enable': False, 'enable_train': False, 'enable_rollout': False, 'detach_encoder': False, 'mtp_loss_scaling_factor': 0.1, 'speculative_algorithm': 'EAGLE', 'speculative_num_steps': 3, 'speculative_eagle_topk': 1, 'speculative_num_draft_tokens': 4, 'method': 'mtp', 'num_speculative_tokens': 1}, 'lora': {'type': 'lora', 'merge': False, 'rank': 0, 'alpha': 32, 'dropout': 0.0, 'target_modules': ['linear_qkv', 'linear_proj', 'linear_fc1', 'linear_fc2'], 'exclude_modules': [], 'dropout_position': 'pre', 'lora_A_init_method': 'xavier', 'lora_B_init_method': 'zero', 'a2a_experimental': False, 'dtype': None, 'adapter_path': None, 'freeze_vision_model': True, 'freeze_vision_projection': True, 'freeze_language_model': True}}, 'engine': {'_target_': 'verl.workers.config.FSDPEngineConfig', 'wrap_policy': {'min_num_params': 0}, 'param_offload': False, 'optimizer_offload': False, 'offload_policy': False, 'reshard_after_forward': True, 'fsdp_size': -1, 'forward_prefetch': False, 'model_dtype': 'fp32', 'use_orig_params': False, 'seed': 42, 'full_determinism': False, 'ulysses_sequence_parallel_size': 1, 'entropy_from_logits_with_chunking': False, 'entropy_from_logits_chunk_size': 2048, 'use_torch_compile': True, 'entropy_checkpointing': False, 'forward_only': False, 'strategy': 'fsdp', 'dtype': 'bfloat16', 'qat': {'_target_': 'verl.workers.config.QATEngineConfig', 'enable': False, 'mode': 'w4a16', 'group_size': 16, 'ignore_patterns': ['lm_head', 'embed_tokens', 're:.*mlp.gate$'], 'activation_observer': 'static_minmax', 'quantization_config_path': None}}, 'optim': {'_target_': 'verl.workers.config.FSDPOptimizerConfig', 'optimizer': 'AdamW', 'optimizer_impl': 'torch.optim', 'lr': 5e-05, 'lr_warmup_steps_ratio': 0.0, 'total_training_steps': -1, 'weight_decay': 0.01, 'lr_warmup_steps': -1, 'betas': [0.9, 0.999], 'clip_grad': 1.0, 'min_lr_ratio': 0.0, 'num_cycles': 0.5, 'lr_scheduler_type': 'constant', 'zero_indexed_step': True, 'warmup_style': None, 'override_optimizer_config': None}, 'profiler': {'_target_': 'verl.utils.profiler.ProfilerConfig', 'tool': 'torch', 'enable': False, 'all_ranks': False, 'ranks': [], 'save_path': 'outputs/profile', 'tool_config': {'npu': {'_target_': 'verl.utils.profiler.config.NPUToolConfig', 'contents': [], 'level': 'level0', 'analysis': True, 'discrete': False, 'profile_token_start': None, 'profile_token_end': None, 'name': 'npu'}, 'nsys': {'_target_': 'verl.utils.profiler.config.NsightToolConfig', 'discrete': '${oc.select:global_profiler.global_tool_config.nsys.discrete}', 'name': 'nsight'}, 'torch': {'_target_': 'verl.utils.profiler.config.TorchProfilerToolConfig', 'contents': [], 'discrete': False, 'profile_token_start': None, 'profile_token_end': None, 'schedule': {'_target_': 'verl.utils.profiler.config.TorchProfilerScheduleConfig', 'skip_first': 0, 'wait': 0, 'warmup': 0, 'active': 0, 'repeat': 0}, 'name': 'torch'}, 'torch_memory': {'_target_': 'verl.utils.profiler.config.TorchMemoryToolConfig', 'trace_alloc_max_entries': '${oc.select:global_profiler.global_tool_config.torch_memory.trace_alloc_max_entries,100000}', 'stack_depth': '${oc.select:global_profiler.global_tool_config.torch_memory.stack_depth,32}', 'name': 'torch_memory'}, 'precision_debugger': {'_target_': 'verl.utils.profiler.config.PrecisionDebuggerToolConfig', 'config_path': '${oc.select:global_profiler.global_tool_config.precision_debugger.config_path,null}', 'steps': None, 'stages': '${oc.select:global_profiler.global_tool_config.precision_debugger.stages,null}', 'name': 'precision_debugger'}}}, 'data': {'train_batch_size': 64, 'micro_batch_size_per_gpu': 4, 'max_token_len_per_gpu': 8192, 'use_dynamic_bsz': True, 'train_files': 'data/arme/r2_train.parquet', 'val_files': 'data/arme/r2_val.parquet', 'train_max_samples': -1, 'val_max_samples': -1, 'messages_key': 'messages', 'tools_key': 'tools', 'enable_thinking_key': 'enable_thinking', 'enable_thinking_default': 'none', 'pad_mode': 'no_padding', 'max_length': 2048, 'truncation': 'error', 'balance_dp_token': False, 'custom_cls': {'path': '/workspace/hex-rl-cot-deconfusion/hexenv/armd_sft_dataset.py', 'name': 'ArmDWitnessSFTDataset'}, 'use_shm': False, 'apply_chat_template_kwargs': {}, 'num_workers': 8, 'ignore_input_ids_mismatch': False}, 'checkpoint': {'_target_': 'verl.trainer.config.CheckpointConfig', 'save_contents': ['model', 'extra'], 'load_contents': '${checkpoint.save_contents}'}, 'trainer': {'default_local_dir': 'checkpoints/arme_r2', 'default_hdfs_dir': None, 'project_name': 'hex-rl-cot-deconfusion', 'experiment_name': 'arme_r2', 'total_epochs': 2, 'total_training_steps': None, 'logger': ['console', 'wandb'], 'seed': 1, 'save_freq': 'after_each_epoch', 'test_freq': -1, 'max_ckpt_to_keep': None, 'balance_batch': True, 'resume_mode': 'auto', 'resume_from_path': None, 'device': 'cuda', 'nnodes': 1, 'n_gpus_per_node': 1, 'profile_interval': [-1, -1]}}
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: joshuadavid to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run x1qv7mkp
+wandb: Tracking run with wandb version 0.28.1
+wandb: Run data is saved locally in /workspace/hex-rl-cot-deconfusion/wandb/run-20260810_021729-x1qv7mkp
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run arme_r2
+wandb: ⭐️ View project at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: 🚀 View run at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/x1qv7mkp
+Epoch 1/2:   0%|          | 0/312 [00:00<?, ?it/s][rank0]:W0810 02:17:32.982000 4133516 torch/fx/_symbolic_trace.py:53] is_fx_tracing will return true for both fx.symbolic_trace and torch.export. Please use is_fx_tracing_symbolic_tracing() for specifically fx.symbolic_trace or torch.compiler.is_compiling() for specifically torch.export/compile.
+step:1 - perf/max_memory_allocated_gb:12.3860445022583 - perf/max_memory_reserved_gb:18.39453125 - perf/cpu_memory_used_gb:71.89999771118164 - train/loss:0.025994036346673965 - train/grad_norm:0.53904128074646 - train/lr:5e-05 - train/mfu:0.24168569820470034 - train/global_tokens:54151 - train/total_tokens(B):5.4151e-05
+Epoch 1/2:   0%|          | 1/312 [00:09<50:03,  9.66s/it]step:2 - perf/max_memory_allocated_gb:12.645914554595947 - perf/max_memory_reserved_gb:18.39453125 - perf/cpu_memory_used_gb:72.0580940246582 - train/loss:0.13044051826000214 - train/grad_norm:5.46995210647583 - train/lr:5e-05 - train/mfu:0.2874815465688878 - train/global_tokens:54155 - train/total_tokens(B):0.000108306
+Epoch 1/2:   1%|          | 2/312 [00:17<43:29,  8.42s/it]step:3 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.06657791137695 - train/loss:0.03318203613162041 - train/grad_norm:1.4260112047195435 - train/lr:5e-05 - train/mfu:0.30307864786690303 - train/global_tokens:54668 - train/total_tokens(B):0.000162974
+Epoch 1/2:   1%|          | 3/312 [00:24<40:33,  7.88s/it]step:4 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.17491912841797 - train/loss:0.027619540691375732 - train/grad_norm:1.3833630084991455 - train/lr:5e-05 - train/mfu:0.28829604194483427 - train/global_tokens:54119 - train/total_tokens(B):0.000217093
+Epoch 1/2:   1%|▏         | 4/312 [00:31<39:42,  7.74s/it]step:5 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.1632194519043 - train/loss:0.06049460172653198 - train/grad_norm:1.2580864429473877 - train/lr:5e-05 - train/mfu:0.2995116198769338 - train/global_tokens:53922 - train/total_tokens(B):0.000271015
+Epoch 1/2:   2%|▏         | 5/312 [00:39<38:37,  7.55s/it]step:6 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.05277252197266 - train/loss:0.039247337728738785 - train/grad_norm:1.095508098602295 - train/lr:5e-05 - train/mfu:0.28520448471447707 - train/global_tokens:53732 - train/total_tokens(B):0.000324747
+Epoch 1/2:   2%|▏         | 6/312 [00:46<38:30,  7.55s/it]step:7 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:71.19430541992188 - train/loss:0.02258295752108097 - train/grad_norm:0.6651691794395447 - train/lr:5e-05 - train/mfu:0.30238301830726466 - train/global_tokens:54668 - train/total_tokens(B):0.000379415
+Epoch 1/2:   2%|▏         | 7/312 [00:53<37:52,  7.45s/it]step:8 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.14879989624023 - train/loss:0.04542811959981918 - train/grad_norm:1.1940289735794067 - train/lr:5e-05 - train/mfu:0.2878500037234031 - train/global_tokens:53974 - train/total_tokens(B):0.000433389
+Epoch 1/2:   3%|▎         | 8/312 [01:01<37:51,  7.47s/it]step:9 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.14037322998047 - train/loss:0.03378427401185036 - train/grad_norm:1.1403555870056152 - train/lr:5e-05 - train/mfu:0.30100232777291897 - train/global_tokens:54546 - train/total_tokens(B):0.000487935
+Epoch 1/2:   3%|▎         | 9/312 [01:08<37:25,  7.41s/it]step:10 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.1497688293457 - train/loss:0.0309918150305748 - train/grad_norm:0.9470773935317993 - train/lr:5e-05 - train/mfu:0.2906494213904158 - train/global_tokens:54525 - train/total_tokens(B):0.00054246
+Epoch 1/2:   3%|▎         | 10/312 [01:16<37:28,  7.45s/it]step:11 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.1327896118164 - train/loss:0.025787049904465675 - train/grad_norm:0.7251015901565552 - train/lr:5e-05 - train/mfu:0.30031586989917686 - train/global_tokens:54096 - train/total_tokens(B):0.000596556
+Epoch 1/2:   4%|▎         | 11/312 [01:23<37:00,  7.38s/it]step:12 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.19149780273438 - train/loss:0.026289835572242737 - train/grad_norm:1.2880184650421143 - train/lr:5e-05 - train/mfu:0.2872346137455321 - train/global_tokens:53798 - train/total_tokens(B):0.000650354
+Epoch 1/2:   4%|▍         | 12/312 [01:31<37:04,  7.42s/it]step:13 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:70.54094696044922 - train/loss:0.026094354689121246 - train/grad_norm:0.5645130276679993 - train/lr:5e-05 - train/mfu:0.3005126987810132 - train/global_tokens:54157 - train/total_tokens(B):0.000704511
+Epoch 1/2:   4%|▍         | 13/312 [01:38<36:39,  7.36s/it]step:14 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:71.28301239013672 - train/loss:0.030284421518445015 - train/grad_norm:0.494601845741272 - train/lr:5e-05 - train/mfu:0.2902900191284044 - train/global_tokens:54173 - train/total_tokens(B):0.000758684
+Epoch 1/2:   4%|▍         | 14/312 [01:45<36:43,  7.39s/it]step:15 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.16876983642578 - train/loss:0.01906273141503334 - train/grad_norm:0.6227071285247803 - train/lr:5e-05 - train/mfu:0.2999456647668335 - train/global_tokens:54060 - train/total_tokens(B):0.000812744
+Epoch 1/2:   5%|▍         | 15/312 [01:52<36:20,  7.34s/it]step:16 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.1700553894043 - train/loss:0.02716221660375595 - train/grad_norm:0.5957980751991272 - train/lr:5e-05 - train/mfu:0.28980310212613275 - train/global_tokens:54227 - train/total_tokens(B):0.000866971
+Epoch 1/2:   5%|▌         | 16/312 [02:00<36:27,  7.39s/it]step:17 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.18294906616211 - train/loss:0.04340266436338425 - train/grad_norm:0.7686265707015991 - train/lr:5e-05 - train/mfu:0.3024915865715583 - train/global_tokens:54361 - train/total_tokens(B):0.000921332
+Epoch 1/2:   5%|▌         | 17/312 [02:07<36:03,  7.33s/it]step:18 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.17907333374023 - train/loss:0.02074284665286541 - train/grad_norm:0.7240997552871704 - train/lr:5e-05 - train/mfu:0.2920881384096095 - train/global_tokens:54434 - train/total_tokens(B):0.000975766
+Epoch 1/2:   6%|▌         | 18/312 [02:15<36:08,  7.38s/it]step:19 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:72.22595596313477 - train/loss:0.02430032193660736 - train/grad_norm:0.6382948160171509 - train/lr:5e-05 - train/mfu:0.3008757797827437 - train/global_tokens:53885 - train/total_tokens(B):0.001029651
+Epoch 1/2:   6%|▌         | 19/312 [02:22<35:43,  7.32s/it]step:20 - perf/max_memory_allocated_gb:12.702988624572754 - perf/max_memory_reserved_gb:23.1875 - perf/cpu_memory_used_gb:71.45392227172852 - train/loss:0.02262764796614647 - train/grad_norm:0.5975793600082397 - train/lr:5e-05 - train/mfu:0.29110163094062386 - train/global_tokens:54199 - train/total_tokens(B):0.00108385
+Epoch 1/2:   6%|▋         | 20/312 [02:29<35:49,  7.36s/it]

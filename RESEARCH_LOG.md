@@ -1985,3 +1985,31 @@ DECISION: pivot evaluated task C -> E, useful helper -> D. Parametrize EVALUATED
 in arme.py. This departs from the user's C example but is REQUIRED for any
 instrumental signal (and is itself the finding: RL-selection needs the helper to
 supply a computation the model lacks, not merely restate readable board facts).
+
+## 2026-08-10 ~02:30 — E landscape + structural hypothesis: difficulty is non-outsourceable
+
+R1(E) 1 epoch, 7x7 sparse. E (connected-to-neither) accuracy:
+  E solo (untrained format) 0.777
+  E after OWN helper: A 0.803  B 0.827  C 0.807  D 0.850   (delta D-vs-ABC +0.038)
+  helper own-accuracy: A 0.977  B 0.947  C 0.980  D 0.820
+Notably B (winner+path) own-acc 0.947 -> on these SPARSE 7x7 boards the model
+finds winning connections EASILY; nothing is hard enough to force helper use.
+
+STRUCTURAL HYPOTHESIS (why no natural differential exists here): every task
+A-E is a deterministic function of the FULLY-VISIBLE board, and SFT teaches the
+model to compute the evaluated task DIRECTLY (A .98, B .95, C .99, D .82, E .78).
+The only "hard" part is CONNECTIVITY (tracing chains). But any helper that
+supplies connectivity (D) is ITSELF a connectivity task — as hard as the
+connectivity-bound evaluated task (E). The perception helpers (A=stones,
+C=empties) are easy but supply NO connectivity. So there is no "easy helper
+unlocks a hard evaluated task" pair: the difficulty cannot be OUTSOURCED to an
+easy auxiliary. => the natural instrumental differential is ~0, not because RL
+fails, but because NO task is instrumentally useful.
+
+This is the sharpening of the C finding: not merely "C is board-derivable" but
+"the evaluated task's difficulty (connectivity) is non-outsourceable within this
+family." Caveat before concluding: the clean GOLD-helper differential (R2
+select_tf) is unmeasured; own-D was only 0.82 correct, so gold-D (perfect
+edge-connectivity in context) could lift E more than +0.04. Waiting on R2.
+If gold-D differential is real (>~+0.15), R4 selection RL is a clean test; if
+tiny, R4 tests RL's sensitivity to a sub-0.05 instrumental edge (marker analog).
