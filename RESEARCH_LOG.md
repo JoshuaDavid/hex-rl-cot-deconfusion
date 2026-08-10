@@ -1958,3 +1958,30 @@ cleanest scaffold (exact complement). Target a regime where C-alone perfect
 Note for R4: A is both the useful helper AND the highest-competence helper
 (0.98) while decoys D/E are weak (0.66/0.44). If RL selects A, "useful" and
 "easy" are confounded; acceptable for a first demonstration, will flag.
+
+## 2026-08-10 ~01:30 — KEY FINDING: helper CONTENT is ignored for board-derivable tasks; pivot evaluated C->E
+
+7x7 sparse R1 (1 epoch). Measured C (empties) accuracy three ways:
+  C solo (no helper, untrained format): 0.010
+  C after ANY helper (A/B/D/E):         0.98-0.99  (delta A-vs-others = +0.003)
+Read the samples: for helper=E (whose output is a SHORT partial list, NOT the
+stone set), the model still emits a PERFECT 34-cell empties list -> it is
+RE-READING THE BOARD for C, not using the helper's content. So:
+  - the "helper helps" jump (0.01->0.99) is a FORMAT/position effect: C-as-2nd-
+    task is trained (0.99); C-as-solo is an untrained format (0.01 OOD).
+  - helper CONTENT provides ZERO instrumental value for C: C is board-derivable,
+    so which helper was solved is irrelevant. No content differential exists.
+
+Implication for arm E: "select the useful helper" has a gradient ONLY if the
+evaluated task is (a) NOT directly board-derivable by the 1.7B, AND (b) made
+solvable by a SPECIFIC helper's content. C fails (a). The connectivity task E
+fits: E (stones connected to NEITHER edge) needs edge-connectivity, which the
+model does only ~0.66 as a first task (NOT ceiling -> a real bottleneck), and
+helper D (edge-connected sets) reduces E to a set-subtraction
+  E_black = black_stones - D.black_top - D.black_bottom
+while A/B/C supply no connectivity (warmup only). Predict acc(E|D) >> acc(E|A,B,C).
+
+DECISION: pivot evaluated task C -> E, useful helper -> D. Parametrize EVALUATED
+in arme.py. This departs from the user's C example but is REQUIRED for any
+instrumental signal (and is itself the finding: RL-selection needs the helper to
+supply a computation the model lacks, not merely restate readable board facts).
