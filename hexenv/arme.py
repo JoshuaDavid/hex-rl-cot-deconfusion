@@ -277,6 +277,17 @@ def select_prompt(board, ev=EVALUATED):
     return preamble(board) + SELECT_SUFFIX.format(ev=ev)
 
 
+SOLO_SUFFIX = """
+Answer Task {t}. Output exactly:
+<task-{t}>...</task-{t}>
+"""
+
+
+def solo_prompt(board, t=EVALUATED):
+    """Single-task prompt (no helper) — baseline for the instrumental differential."""
+    return preamble(board) + SOLO_SUFFIX.format(t=t)
+
+
 # ---------------------------------------------------------------- parsing ---
 def extract_tag(text, tag):
     """Return the inner content of the LAST <tag>...</tag> (non-greedy), or None."""

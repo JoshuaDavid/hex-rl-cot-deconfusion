@@ -16,17 +16,23 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from hexenv.board import Board, BLACK, WHITE, cell_name
 from hexenv.arme import gold_payload
 
-N = 5
-N_TRAIN = 5000
-N_TEST = 600
+# Sparse-large regime (env-tunable): big grid + few stones so C (empties) is
+# hard to enumerate alone but mechanical given A (all stones). See RESEARCH_LOG
+# 2026-08-10 (C saturated at 5x5 -> escalate).
+N = int(os.environ.get("ARME_N", "7"))
+N_TRAIN = int(os.environ.get("ARME_NTRAIN", "5000"))
+N_TEST = int(os.environ.get("ARME_NTEST", "600"))
+PF = (0.55, 0.9)       # p_forward high -> short direct winning chain
+EXTRA = (0.0, 0.15)    # few extra winner stones
+LOSER = (0.05, 0.25)   # few loser stones
 
 
 def make_board(rng):
     w = rng.choice(["Black", "White"])
     from scripts.witness_constructive import gen_board
-    out = gen_board(rng, N, w, p_forward=rng.uniform(0.1, 0.5),
-                    extra_winner_frac=rng.uniform(0.15, 0.6),
-                    loser_adjacent_frac=rng.uniform(0.2, 0.6))
+    out = gen_board(rng, N, w, p_forward=rng.uniform(*PF),
+                    extra_winner_frac=rng.uniform(*EXTRA),
+                    loser_adjacent_frac=rng.uniform(*LOSER))
     if out is None:
         return None
     wst, lst, _ = out

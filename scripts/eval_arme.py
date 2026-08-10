@@ -25,14 +25,16 @@ from collections import defaultdict
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from hexenv.arme import (board_from_gt, gold_answer_str, r1_prompt, select_prompt,
-                         grade, extract_tag, parse_json_payload, SELECTABLE, EVALUATED)
+                         solo_prompt, grade, extract_tag, parse_json_payload,
+                         SELECTABLE, EVALUATED)
 
 MODEL = "Qwen/Qwen3-1.7B"
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mode", required=True, choices=["r1", "select_tf", "select_own"])
+    ap.add_argument("--mode", required=True,
+                    choices=["r1", "select_tf", "select_own", "solo"])
     ap.add_argument("--lora", default=None)
     ap.add_argument("--pool", default="data/arme/pool_test.jsonl")
     ap.add_argument("--limit", type=int, default=300)
@@ -58,7 +60,9 @@ def main():
     # build (key, prompt_string, board, helper) work items
     items = []
     for gi, b in enumerate(boards):
-        if args.mode == "r1":
+        if args.mode == "solo":
+            items.append((gi, EVALUATED, templ(solo_prompt(b, EVALUATED))))
+        elif args.mode == "r1":
             for x in helpers:
                 items.append((gi, x, templ(r1_prompt(b, x, EVALUATED))))
         elif args.mode == "select_tf":
@@ -95,7 +99,11 @@ def main():
     for (gi, x, prompt), o in zip(items, outs):
         text = o.outputs[0].text
         b = boards[gi]
-        if args.mode == "r1":
+        if args.mode == "solo":
+            pc = parse_json_payload(extract_tag(text, f"task-{EVALUATED}"))
+            cs, cp = grade(EVALUATED, b, pc) if pc is not None else (-1.0, False)
+            c_by_helper["solo"].append(cp)
+        elif args.mode == "r1":
             px = parse_json_payload(extract_tag(text, f"task-{x}"))
             pc = parse_json_payload(extract_tag(text, f"task-{EVALUATED}"))
             hs, hp = grade(x, b, px) if px is not None else (-1.0, False)
@@ -122,6 +130,14 @@ def main():
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     report = {"mode": args.mode, "lora": args.lora, "n_boards": len(boards)}
     print(f"\n=== arm E eval [{args.mode}] lora={args.lora} n_boards={len(boards)} ===")
+    if args.mode == "solo":
+        acc = sum(c_by_helper["solo"]) / len(c_by_helper["solo"])
+        report["C_acc_solo"] = acc
+        print(f"  C_perfect (no helper, solo) {acc:.3f}  (n={len(c_by_helper['solo'])})")
+        with open(args.out + "_report.json", "w") as f:
+            json.dump(report, f, indent=2)
+        print(f"wrote {args.out}_report.json")
+        return
     for x in helpers:
         cacc = sum(c_by_helper[x]) / len(c_by_helper[x]) if c_by_helper[x] else float("nan")
         hacc = (sum(helper_acc[x]) / len(helper_acc[x])) if helper_acc[x] else None
