@@ -22,9 +22,15 @@ from hexenv.arme import gold_payload
 N = int(os.environ.get("ARME_N", "7"))
 N_TRAIN = int(os.environ.get("ARME_NTRAIN", "5000"))
 N_TEST = int(os.environ.get("ARME_NTEST", "600"))
-PF = (0.55, 0.9)       # p_forward high -> short direct winning chain
-EXTRA = (0.0, 0.15)    # few extra winner stones
-LOSER = (0.05, 0.25)   # few loser stones
+OUTDIR = os.environ.get("ARME_POOLDIR", "data/arme")
+# ARME_FILL=sparse: few stones, short chains (C-empties hard, E-connectivity easy).
+# ARME_FILL=dense: many stones, long tangled chains (E-connectivity hard -> gold
+# helper D that supplies connectivity becomes genuinely useful).
+_FILL = os.environ.get("ARME_FILL", "sparse")
+if _FILL == "dense":
+    PF, EXTRA, LOSER = (0.0, 0.3), (0.4, 0.85), (0.5, 0.9)
+else:
+    PF, EXTRA, LOSER = (0.55, 0.9), (0.0, 0.15), (0.05, 0.25)
 
 
 def make_board(rng):
@@ -63,7 +69,7 @@ def gt_of(b, winner):
 
 
 def main():
-    os.makedirs("data/arme", exist_ok=True)
+    os.makedirs(OUTDIR, exist_ok=True)
     rng = random.Random(20260810)
     seen = set()
     rows = []
@@ -83,7 +89,7 @@ def main():
     rng.shuffle(rows)
     test, train = rows[:N_TEST], rows[N_TEST:]
     for name, rs in [("train", train), ("test", test)]:
-        with open(f"data/arme/pool_{name}.jsonl", "w") as f:
+        with open(f"{OUTDIR}/pool_{name}.jsonl", "w") as f:
             for r in rs:
                 f.write(json.dumps(r) + "\n")
     # quick stats: mean empties, winner balance
