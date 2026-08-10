@@ -13,6 +13,7 @@ EXP=${1:-arme_r4_cost}
 MODEL_PATH_IN=${2:-checkpoints/arme_r3/hf_merged}
 STEPS_IN=${3:-50}
 
+export ARME_EVAL=${ARME_EVAL:-E}
 MODEL_PATH="$MODEL_PATH_IN" \
 DATA_DIR=data/arme/rl \
 RESP_LEN=560 BATCH=32 GROUP_N=16 STEPS="$STEPS_IN" SAVE_FREQ=999 \
