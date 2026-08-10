@@ -19,14 +19,21 @@ Tasks:
 from __future__ import annotations
 
 import json
+import os
 from collections import deque
 
 from .board import Board, EMPTY, BLACK, WHITE, cell_name
 from .render import render_ascii
 
 TASKS = ["A", "B", "C", "D", "E"]
-EVALUATED = "C"
-SELECTABLE = ["A", "B", "D", "E"]  # the model selects among these (not C)
+# Evaluated task is env-configurable. C (empties) is board-derivable so helper
+# content is ignored (no differential); E (connected-to-neither) is
+# connectivity-bound so its useful helper D supplies the missing computation.
+# See RESEARCH_LOG 2026-08-10.
+EVALUATED = os.environ.get("ARME_EVAL", "E")
+SELECTABLE = [t for t in TASKS if t != EVALUATED]  # the model selects among these
+# the designed-useful helper for each evaluated task (for differential labeling)
+USEFUL_HELPER = {"C": "A", "E": "D", "A": "C", "D": "A", "B": "A"}[EVALUATED]
 
 
 # ---------------------------------------------------------------- geometry --

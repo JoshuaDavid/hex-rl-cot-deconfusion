@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from hexenv.arme import (board_from_gt, gold_answer_str, r1_prompt, select_prompt,
                          solo_prompt, grade, extract_tag, parse_json_payload,
-                         SELECTABLE, EVALUATED)
+                         SELECTABLE, EVALUATED, USEFUL_HELPER)
 
 MODEL = "Qwen/Qwen3-1.7B"
 
@@ -146,12 +146,16 @@ def main():
             report[f"helper_{x}_acc"] = hacc
         htxt = f"  helper_{x}_perfect {hacc:.3f}" if hacc is not None else ""
         print(f"  helper={x}:  C_perfect {cacc:.3f}{htxt}  (n={len(c_by_helper[x])})")
-    # differential: A vs mean(others)
-    if all(f"C_acc_given_{x}" in report for x in ["A", "B", "D", "E"]):
-        others = [report[f"C_acc_given_{x}"] for x in ["B", "D", "E"]]
-        delta = report["C_acc_given_A"] - sum(others) / len(others)
-        report["delta_A_vs_mean_others"] = delta
-        print(f"  DIFFERENTIAL delta = C(A) - mean C(B,D,E) = {delta:+.3f}")
+    # differential: useful helper vs mean(other helpers)
+    if all(f"C_acc_given_{x}" in report for x in helpers):
+        u = USEFUL_HELPER
+        others_k = [x for x in helpers if x != u]
+        others = [report[f"C_acc_given_{x}"] for x in others_k]
+        delta = report[f"C_acc_given_{u}"] - sum(others) / len(others)
+        report["delta_useful_vs_mean_others"] = delta
+        report["useful_helper"] = u
+        print(f"  DIFFERENTIAL delta = {EVALUATED}({u}) - mean {EVALUATED}"
+              f"({','.join(others_k)}) = {delta:+.3f}")
     with open(args.out + "_report.json", "w") as f:
         json.dump(report, f, indent=2)
     with open(args.out + "_samples.jsonl", "w") as f:
