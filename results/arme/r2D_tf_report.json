@@ -1,0 +1,11 @@
+{
+  "mode": "select_tf",
+  "lora": "checkpoints/arme_r2/adapter",
+  "n_boards": 400,
+  "C_acc_given_A": 0.8775,
+  "C_acc_given_B": 0.825,
+  "C_acc_given_C": 0.825,
+  "C_acc_given_D": 0.74,
+  "delta_useful_vs_mean_others": -0.10249999999999992,
+  "useful_helper": "D"
+}

@@ -2052,3 +2052,39 @@ self-generated helpers, which is exactly what R4 rolls out.
 
 Prediction: R2-dense gold-D differential >= +0.15 @70%.
 Next: R2-dense (gold-D upper bound) -> R3-dense (own-helper) -> R4-dense selection RL.
+
+## 2026-08-10 ~04:40 — R2-dense: the premise FAILS cleanly — no helper is instrumentally useful
+
+R2-dense (select format, gradient on E only, gold helper in ctx). Clean measures:
+  select_tf (GOLD helper, no generation cost):
+    E | gold A 0.877  B 0.825  C 0.825  D 0.740   -> delta(D vs ABC) = -0.102
+    i.e. a PERFECT connectivity helper D does NOT help E; it slightly HURTS.
+  select_own (model generates own helper):
+    E | own  A 0.792  B 0.203  C 0.825  D 0.310   -> delta = -0.297
+    helper own-acc ~0 for ALL (A .000 C .007 B .025 D .003)
+
+Two mechanisms, from reading samples:
+1. CONTENT IGNORED: on board gi=0, gold-A-ctx and gold-D-ctx yield the IDENTICAL
+   E answer -> the model re-derives E from the board and ignores helper content
+   (same as the C finding). So gold-D can't help; its longer context slightly
+   hurts (0.74 vs 0.88).
+2. GENERATION-COST CONFOUND: R2 gradients on E only, with helper GOLD in ctx ->
+   it never trains helper GENERATION in the select format. So own-helpers are
+   garbage; generating a HARD helper (B/D connectivity) derails the subsequent E
+   (0.20-0.31), while easy helpers (A/C perception) leave E intact (0.79-0.83).
+
+=> The instrumental differential is <= 0. NO helper is useful: the eval is
+board-re-derivable (content ignored), and the only useful content (connectivity)
+is (a) ignored when given and (b) costly to generate. The user's gate "if R2/R3
+work out" is NOT met. RL-select-useful-task has no positive gradient here; the
+ONLY exploitable reward signal is "avoid hard-to-generate helpers" (a generation
+artifact), which RL would ride toward A/C, not the 'useful' D.
+
+Robustness: null confirmed across C-sparse (+.003), E-sparse-gold (+.035),
+E-dense-gold (-.102), E-dense-own (-.297). The r1-format own-D +0.098 earlier
+was a format artifact (r1 trains helper-gen+eval jointly; select format does not).
+
+STRUCTURAL CONCLUSION: in a family where every task is a deterministic function
+of a fully-visible board, SFT makes the eval directly solvable, so no auxiliary
+task is instrumentally necessary; and the one hard skill (connectivity) cannot be
+outsourced to an easy helper. "Select the useful sub-task" has no referent here.
