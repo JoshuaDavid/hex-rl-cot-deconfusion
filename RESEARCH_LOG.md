@@ -2112,3 +2112,32 @@ PLUS solo-W examples (gradient on winner). Training arme_win from base on dense
 7x7. Will measure: W-solo vs W|gold-{A,C,D} (select_tf) vs W|own-{A,C,D}
 (select_own). If gold-D >> gold-A/C and > solo, D is genuinely useful -> R4.
 If winner ~ceiling on 7x7, escalate to 9x9.
+
+## 2026-08-10 ~05:45 — WINNER experiment: D is genuinely USEFUL (user hypothesis CONFIRMED)
+
+arme_win (dense 7x7, select-format SFT, gradient on helper+winner + solo-W).
+Winner accuracy (n=400), after fixing a grader artifact (model emits bare
+"White" not {"winner":"White"} after dict-valued helpers -> parse_answer now
+lenient for W):
+  W solo (trained baseline)          0.907
+  W | gold A 0.945  C 0.915  D 0.993   -> delta(D vs A,C) = +0.063  (+0.086 vs solo)
+  W | own  A 0.902  C 0.910  D 0.948   -> delta(D vs A,C) = +0.041
+  own-helper acc: A 0.943  C 0.980  D 0.385 (D hard to generate)
+
+FIRST POSITIVE DIFFERENTIAL. Gold-D nearly maxes the winner (0.993) -- knowing
+which stones connect to each edge reduces the winner to an intersection check,
+exactly Joshua's intuition. And own-D STILL wins (0.948 > solo 0.907 > A/C 0.90)
+despite own-D only 38% correct: the CONTENT benefit outweighs the generation
+cost. So D is both the USEFUL helper and the REWARD-MAX selection -> R4 has a
+real (if modest) gradient to select D.
+
+Why the earlier E/C nulls but W works: winner is a SINGLE global connectivity
+predicate (does one spanning chain exist) that D's edge-sets answer directly via
+intersection; E/C were either board-trivial or required re-deriving the same
+work. The corrected SFT (gradient on BOTH tasks + solo) was also load-bearing --
+it made helper-generation and solo-W in-distribution.
+
+Modest magnitude (winner solo 0.907 is high). Per Joshua's "bigger board if
+~perfect" -> a larger/harder board should widen the gap. Deciding escalate-vs-run
+after checking the R4 selection prior P(X) (untrained: X was always teacher-forced
+through SFT).

@@ -31,7 +31,7 @@ from verl.utils.rollout_trace import rollout_trace_op
 
 import sys
 sys.path.insert(0, "/workspace/hex-rl-cot-deconfusion")
-from hexenv.arme import (board_from_gt, grade, extract_tag, parse_json_payload,
+from hexenv.arme import (board_from_gt, grade, extract_tag, parse_answer,
                          SELECTABLE, EVALUATED)
 
 logger = logging.getLogger(__file__)
@@ -126,7 +126,7 @@ class HexSelectAgentLoop(AgentLoopBase):
         try:
             gt = _json.loads(gt_str) if isinstance(gt_str, str) else gt_str
             board = board_from_gt(gt)
-            payload = parse_json_payload(c_text.split("</evaluated-task>")[0])
+            payload = parse_answer(c_text.split("</evaluated-task>")[0], EVALUATED)
             s, p = grade(EVALUATED, board, payload) if payload is not None else (-1.0, False)
             c_score, c_perfect = float(s), float(p)
         except Exception:

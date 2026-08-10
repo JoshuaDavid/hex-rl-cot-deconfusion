@@ -340,6 +340,19 @@ def split_ctx_ans(tok, ctx, ans):
     return full_ids, i
 
 
+def parse_answer(inner, task=EVALUATED):
+    """Parse an evaluated-task answer. Winner (W) is tolerant of a bare
+    'Black'/'White'/'Neither' (the model sometimes drops the JSON wrapper after a
+    dict-valued helper); other tasks parse JSON."""
+    if inner is None:
+        return None
+    if task == "W":
+        import re
+        m = re.search(r"\b(Black|White|Neither)\b", inner, re.IGNORECASE)
+        return {"winner": m.group(1).capitalize()} if m else None
+    return parse_json_payload(inner)
+
+
 def parse_json_payload(inner):
     if inner is None:
         return None

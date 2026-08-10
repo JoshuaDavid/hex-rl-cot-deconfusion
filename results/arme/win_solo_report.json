@@ -1,0 +1,6 @@
+{
+  "mode": "solo",
+  "lora": "checkpoints/arme_win/adapter",
+  "n_boards": 400,
+  "C_acc_solo": 0.9075
+}

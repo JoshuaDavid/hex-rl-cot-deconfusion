@@ -1,0 +1,13 @@
+{
+  "mode": "select_own",
+  "lora": "checkpoints/arme_win/adapter",
+  "n_boards": 400,
+  "C_acc_given_A": 0.9025,
+  "helper_A_acc": 0.9425,
+  "C_acc_given_C": 0.91,
+  "helper_C_acc": 0.98,
+  "C_acc_given_D": 0.9475,
+  "helper_D_acc": 0.385,
+  "delta_useful_vs_mean_others": 0.04125000000000001,
+  "useful_helper": "D"
+}

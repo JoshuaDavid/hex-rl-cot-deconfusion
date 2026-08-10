@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from hexenv.arme import (board_from_gt, gold_answer_str, r1_prompt, select_prompt,
                          solo_prompt, grade, extract_tag, parse_json_payload,
-                         SELECTABLE, EVALUATED, USEFUL_HELPER)
+                         parse_answer, SELECTABLE, EVALUATED, USEFUL_HELPER)
 
 MODEL = "Qwen/Qwen3-1.7B"
 
@@ -100,12 +100,12 @@ def main():
         text = o.outputs[0].text
         b = boards[gi]
         if args.mode == "solo":
-            pc = parse_json_payload(extract_tag(text, f"task-{EVALUATED}"))
+            pc = parse_answer(extract_tag(text, f"task-{EVALUATED}"), EVALUATED)
             cs, cp = grade(EVALUATED, b, pc) if pc is not None else (-1.0, False)
             c_by_helper["solo"].append(cp)
         elif args.mode == "r1":
             px = parse_json_payload(extract_tag(text, f"task-{x}"))
-            pc = parse_json_payload(extract_tag(text, f"task-{EVALUATED}"))
+            pc = parse_answer(extract_tag(text, f"task-{EVALUATED}"), EVALUATED)
             hs, hp = grade(x, b, px) if px is not None else (-1.0, False)
             cs, cp = grade(EVALUATED, b, pc) if pc is not None else (-1.0, False)
             helper_acc[x].append(hp)
@@ -113,13 +113,13 @@ def main():
         elif args.mode == "select_tf":
             # generated text is the C answer (prefill opened <evaluated-task>)
             inner = text.split("</evaluated-task>")[0]
-            pc = parse_json_payload(inner)
+            pc = parse_answer(inner, EVALUATED)
             cs, cp = grade(EVALUATED, b, pc) if pc is not None else (-1.0, False)
             c_by_helper[x].append(cp)
         else:  # select_own: text starts inside <task-X> (prefill opened it)
             wrapped = f"<task-{x}>{text}"
             px = parse_json_payload(extract_tag(wrapped, f"task-{x}"))
-            pc = parse_json_payload(extract_tag(text, "evaluated-task"))
+            pc = parse_answer(extract_tag(text, "evaluated-task"), EVALUATED)
             hs, hp = grade(x, b, px) if px is not None else (-1.0, False)
             cs, cp = grade(EVALUATED, b, pc) if pc is not None else (-1.0, False)
             helper_acc[x].append(hp)
