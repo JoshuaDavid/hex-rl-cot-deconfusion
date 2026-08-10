@@ -1,2 +1,4 @@
 - name: hex_forced_close
   _target_: hexenv.hex_agent_loop.HexForcedCloseAgentLoop
+- name: hex_select
+  _target_: hexenv.hex_select_loop.HexSelectAgentLoop
