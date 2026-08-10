@@ -1,0 +1,15 @@
+{
+  "mode": "r1",
+  "lora": "checkpoints/arme_r1/adapter",
+  "n_boards": 300,
+  "C_acc_given_A": 0.5266666666666666,
+  "helper_A_acc": 0.9666666666666667,
+  "C_acc_given_B": 0.5433333333333333,
+  "helper_B_acc": 0.7666666666666667,
+  "C_acc_given_C": 0.5066666666666667,
+  "helper_C_acc": 0.9666666666666667,
+  "C_acc_given_D": 0.6233333333333333,
+  "helper_D_acc": 0.5366666666666666,
+  "delta_useful_vs_mean_others": 0.09777777777777774,
+  "useful_helper": "D"
+}

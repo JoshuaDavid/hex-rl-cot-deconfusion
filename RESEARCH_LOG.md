@@ -2032,3 +2032,23 @@ pool ARME_FILL=dense (mean ~24 stones, tangled multi-chains, E-size ~7), retrain
 re-measure gold-D differential. If dense also gives a small gap, the
 non-outsourceable-difficulty null is complete and R4 becomes a test of RL's
 sensitivity to a sub-0.05 edge (expected: no selection).
+
+## 2026-08-10 ~04:00 — DENSE boards create a REAL differential: E-solo 0.42, own-D helps +0.098
+
+R1-dense (1 epoch). E (connected-to-neither) on DENSE tangled 7x7:
+  E solo 0.423  (HARD now; was 0.777 sparse -> dense connectivity is genuinely hard)
+  E after OWN helper: A 0.527  B 0.543  C 0.507  D 0.623   delta(D vs ABC)=+0.098
+  helper own-acc: A 0.967 C 0.967 (easy perception) | B 0.767 | D 0.537 (D now HARD)
+So on dense boards D helps E by +0.098 EVEN with the model's own D only 53.7%
+correct. This validates the premise: when the evaluated task is beyond direct
+competence (E-solo 0.42) and a helper supplies the missing computation
+(connectivity), the helper is genuinely useful — and A/C (easy perception, no
+connectivity) don't help beyond warmup. GOLD-D differential expected LARGER
+(own-D is badly muddied at 0.54). This is the regime R4 needs.
+
+Note for R4: the differential the model EXPERIENCES with its own helper is
++0.098 (D vs A,B,C) — ~3x the sparse gold gap and, crucially, present with
+self-generated helpers, which is exactly what R4 rolls out.
+
+Prediction: R2-dense gold-D differential >= +0.15 @70%.
+Next: R2-dense (gold-D upper bound) -> R3-dense (own-helper) -> R4-dense selection RL.
