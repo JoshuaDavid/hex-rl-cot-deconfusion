@@ -31,8 +31,8 @@ from verl.utils.rollout_trace import rollout_trace_op
 
 import sys
 sys.path.insert(0, "/workspace/hex-rl-cot-deconfusion")
-from hexenv.arme import (board_from_gt, grade, extract_tag, parse_answer,
-                         SELECTABLE, EVALUATED)
+from hexenv.arme import (board_from_gt, gold_answer_str, grade, extract_tag,
+                         parse_answer, SELECTABLE, EVALUATED)
 
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
@@ -46,6 +46,12 @@ ANSWER_BUDGET = int(os.getenv("ARME_ANSWER_BUDGET", "120"))
 # survives into the reward. Without this, high-temp helper generation erases the
 # differential (D's edge is at temp 0). See RESEARCH_LOG 2026-08-10.
 GEN_TEMP = float(os.getenv("ARME_GEN_TEMP", "0.0"))
+# ARME_GOLD_HELPER=1: teacher-force the GOLD helper (from the board) instead of
+# generating it. Isolates the selection's USEFULNESS from the model's ability to
+# generate the helper -> a clean test of "select the most useful helper" (the
+# useful helper D is hard to generate, so own-helper confounds usefulness with
+# generation cost). See RESEARCH_LOG 2026-08-10.
+GOLD_HELPER = os.getenv("ARME_GOLD_HELPER") == "1"
 
 
 @register("hex_select")
@@ -99,17 +105,32 @@ class HexSelectAgentLoop(AgentLoopBase):
         # forced </selected-task>\n<task-X>
         add(self._enc(f"</selected-task>\n<task-{x}>"), False)
 
-        # === helper generation (untrained env step) ===
-        sp_h = dict(sampling_params)
-        sp_h["n"] = 1
-        sp_h["temperature"] = GEN_TEMP
-        sp_h["max_tokens"] = HELPER_BUDGET
-        sp_h["stop"] = [f"</task-{x}>", "</evaluated-task>"]
-        sp_h.pop("stop_token_ids", None)
-        out_h = await self.server_manager.generate(
-            request_id=uuid4().hex, prompt_ids=prompt_ids + resp_ids,
-            sampling_params=sp_h, priority=priority)
-        add(list(out_h.token_ids), False, None)
+        gt_str = kwargs.get("reward_model", {}).get("ground_truth") \
+            if isinstance(kwargs.get("reward_model"), dict) else None
+        board = None
+        try:
+            gt = _json.loads(gt_str) if isinstance(gt_str, str) else gt_str
+            board = board_from_gt(gt)
+        except Exception:
+            logger.exception("arme board parse failed")
+
+        # === helper: teacher-forced gold (GOLD_HELPER) or generated (env step) ===
+        helper_txt = ""
+        if GOLD_HELPER and board is not None:
+            helper_txt = gold_answer_str(x, board)
+            add(self._enc(helper_txt), False)
+        else:
+            sp_h = dict(sampling_params)
+            sp_h["n"] = 1
+            sp_h["temperature"] = GEN_TEMP
+            sp_h["max_tokens"] = HELPER_BUDGET
+            sp_h["stop"] = [f"</task-{x}>", "</evaluated-task>"]
+            sp_h.pop("stop_token_ids", None)
+            out_h = await self.server_manager.generate(
+                request_id=uuid4().hex, prompt_ids=prompt_ids + resp_ids,
+                sampling_params=sp_h, priority=priority)
+            add(list(out_h.token_ids), False, None)
+            helper_txt = tok.decode(list(out_h.token_ids))
 
         # forced </task-X>\n<evaluated-task>
         add(self._enc(f"</task-{x}>\n<evaluated-task>"), False)
@@ -128,15 +149,11 @@ class HexSelectAgentLoop(AgentLoopBase):
         add(list(out_c.token_ids), False, None)
         add(self._enc("</evaluated-task>"), False)
 
-        # === reward: grade the model's own Task-C answer ===
-        gt_str = kwargs.get("reward_model", {}).get("ground_truth") \
-            if isinstance(kwargs.get("reward_model"), dict) else None
+        # === reward: grade the model's own evaluated answer ===
         c_score, c_perfect = -1.0, 0.0
         try:
-            gt = _json.loads(gt_str) if isinstance(gt_str, str) else gt_str
-            board = board_from_gt(gt)
             payload = parse_answer(c_text.split("</evaluated-task>")[0], EVALUATED)
-            s, p = grade(EVALUATED, board, payload) if payload is not None else (-1.0, False)
+            s, p = grade(EVALUATED, board, payload) if (payload is not None and board is not None) else (-1.0, False)
             c_score, c_perfect = float(s), float(p)
         except Exception:
             logger.exception("arme reward failed")
@@ -148,15 +165,13 @@ class HexSelectAgentLoop(AgentLoopBase):
                     f.write(_json.dumps({
                         "selected": x, "score": c_score, "perfect": c_perfect,
                         "kind": "win" if c_perfect else "lose",
-                        "helper_text": tok.decode(list(out_h.token_ids))[:200],
-                        "c_text": c_text[:200],
+                        "helper_text": helper_txt[:200], "c_text": c_text[:200],
                     }) + "\n")
             except OSError:
                 pass
 
         extra_fields = dict(out_sel.extra_fields)
-        for o in (out_h, out_c):
-            extra_fields.update(o.extra_fields)
+        extra_fields.update(out_c.extra_fields)
         extra_fields.update({"turn_scores": [], "tool_rewards": [],
                              "selected_task": x})
 
