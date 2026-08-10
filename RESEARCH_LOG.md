@@ -1924,3 +1924,16 @@ Design locked: evaluated=C; selectable helpers {A,B,D,E}; A=designed-useful
 full-completion loss (feasibility). R2/R3 reuse the same SFT harness
 (ArmDWitnessSFTDataset float masks) with loss masked to the evaluated C span
 only. Adapters chain base->R1->R2->R3; R4 RL from R3-merged.
+
+## 2026-08-10 ~01:00 — Arm E pipeline built; R1 SFT running
+
+All staged machinery committed before any gate: pool (5000/600 disjoint),
+R1/R2/R3 SFT builders (R2/R3 mask gradient to the evaluated-C span only),
+eval_arme (r1/select_tf/select_own -> acc(C|helper=X) differential),
+hex_select_loop (R4: response_mask=1 on ONLY the selection token; selection
+constrained to {A,B,D,E} via vLLM allowed_token_ids), R4 launcher+dataset,
+P(select=X) trend analysis. Derisked R4: verl splats sampling_params into
+vLLM SamplingParams (vllm_async_server.py:587), so allowed_token_ids + string
+stop pass through. Adapters chain base->R1->R2->R3; R4 RL from R3-merged.
+R1 (feasibility) fitting fast (loss ~0.03 in epoch 1); will eval epoch-1
+checkpoint for gate G1 rather than wait 3 epochs.
