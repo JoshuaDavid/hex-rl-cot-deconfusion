@@ -2088,3 +2088,27 @@ STRUCTURAL CONCLUSION: in a family where every task is a deterministic function
 of a fully-visible board, SFT makes the eval directly solvable, so no auxiliary
 task is instrumentally necessary; and the one hard skill (connectivity) cannot be
 outsourced to an easy helper. "Select the useful sub-task" has no referent here.
+
+## 2026-08-10 ~05:10 — User redirect: winner task + gradient-on-both-tasks (helper useful, not necessary)
+
+Joshua's redirect after the premise-failure report:
+ - Find a helper that is USEFUL even if not strictly necessary. His intuition:
+   evaluated = WINNER should benefit from helper D (which stones connect to
+   left/right, top/bottom) -> winner is an intersection check on D's lists
+   (Black wins iff a stone is in black_top AND black_bottom; White iff in
+   white_left AND white_right).
+ - KEY FIX he flagged: the two-task SFT should put gradient on BOTH tasks (not
+   just the evaluated one) so the model is trained to do the eval with NO helper
+   too -> makes W-solo a fair in-distribution baseline. (My R2/R3 gradient-on-
+   eval-only left helper-generation untrained and solo OOD -- the confound behind
+   the garbage own-helpers.)
+ - If everything is ~ceiling, move to a bigger board.
+ - Note: witness (task B) already contains winner as a subtask.
+
+New setup: added task W (winner) to arme.py; EVALUATED=W, ARME_HELPERS=A,C,D
+(D useful; A=stones, C=empties decoys; B excluded as it trivially contains the
+winner). SFT (build_arme_winner.py): select-format, gradient on helper+winner,
+PLUS solo-W examples (gradient on winner). Training arme_win from base on dense
+7x7. Will measure: W-solo vs W|gold-{A,C,D} (select_tf) vs W|own-{A,C,D}
+(select_own). If gold-D >> gold-A/C and > solo, D is genuinely useful -> R4.
+If winner ~ceiling on 7x7, escalate to 9x9.

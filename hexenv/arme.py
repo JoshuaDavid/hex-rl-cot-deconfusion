@@ -25,15 +25,23 @@ from collections import deque
 from .board import Board, EMPTY, BLACK, WHITE, cell_name
 from .render import render_ascii
 
-TASKS = ["A", "B", "C", "D", "E"]
-# Evaluated task is env-configurable. C (empties) is board-derivable so helper
-# content is ignored (no differential); E (connected-to-neither) is
-# connectivity-bound so its useful helper D supplies the missing computation.
+TASKS = ["A", "B", "C", "D", "E", "W"]
+# Evaluated task is env-configurable.
+#   C (empties)  -> board-derivable, helper content ignored (no differential)
+#   E (neither)  -> connectivity-bound but the model still re-derives it (null)
+#   W (winner)   -> connectivity-bound; useful helper D supplies edge-connected
+#                   sets, so winner = an intersection check on D's lists.
 # See RESEARCH_LOG 2026-08-10.
-EVALUATED = os.environ.get("ARME_EVAL", "E")
-SELECTABLE = [t for t in TASKS if t != EVALUATED]  # the model selects among these
+EVALUATED = os.environ.get("ARME_EVAL", "W")
+# selectable helpers: all non-evaluated tasks, or an explicit ARME_HELPERS list
+# (e.g. "A,C,D" to focus the winner test on D-useful vs A/C-decoy, excluding B
+# which trivially contains the winner).
+if os.environ.get("ARME_HELPERS"):
+    SELECTABLE = os.environ["ARME_HELPERS"].split(",")
+else:
+    SELECTABLE = [t for t in TASKS if t != EVALUATED]
 # the designed-useful helper for each evaluated task (for differential labeling)
-USEFUL_HELPER = {"C": "A", "E": "D", "A": "C", "D": "A", "B": "A"}[EVALUATED]
+USEFUL_HELPER = {"C": "A", "E": "D", "W": "D", "A": "C", "D": "A", "B": "A"}[EVALUATED]
 
 
 # ---------------------------------------------------------------- geometry --
@@ -110,6 +118,9 @@ def gold_payload(task, board):
         occ = _stones(board, BLACK) | _stones(board, WHITE)
         empties = {(x, y) for y in range(n) for x in range(n)} - occ
         return reading_order(empties)
+    if task == "W":
+        w = board.winner()
+        return {"winner": "Neither" if w == EMPTY else ("Black" if w == BLACK else "White")}
     if task == "D":
         return {
             "black_top": reading_order(_connected_to(board, BLACK, lambda x, y: y == 0)),
@@ -159,6 +170,11 @@ def grade(task, board, payload):
     Multi-list tasks: mean of sub-list scores; perfect iff all sub-lists exact."""
     gold = gold_payload(task, board)
     try:
+        if task == "W":
+            if not isinstance(payload, dict):
+                return -1.0, False
+            ok = str(payload.get("winner", "")).capitalize() == gold["winner"]
+            return (1.0, True) if ok else (-1.0, False)
         if task in ("A", "D", "E"):
             keys = list(gold.keys())
             if not isinstance(payload, dict):
@@ -244,6 +260,9 @@ black connected to the BOTTOM, white connected to the LEFT, and white connected 
 Task E: Using the same definition of "connected", list black stones connected to NEITHER the top nor \
 the bottom, and white stones connected to NEITHER the left nor the right.
   Format: {{"black_neither": [...], "white_neither": [...]}}
+Task W: Identify the winner: Black wins iff some Black stone is connected to BOTH the top and the \
+bottom; White wins iff some White stone is connected to BOTH the left and the right; otherwise Neither.
+  Format: {{"winner": "Black"|"White"|"Neither"}}
 """
 
 R1_SUFFIX = """
@@ -253,7 +272,7 @@ Answer Task {x}, then Task {y}, in that order. Output exactly:
 """
 
 SELECT_SUFFIX = """
-You will first CHOOSE one task (A, B, D, or E) to complete as a warm-up (it will NOT be scored), \
+You will first CHOOSE one task ({choices}) to complete as a warm-up (it will NOT be scored), \
 and then you will answer Task {ev} (which IS scored). Output exactly:
 <selected-task>X</selected-task>
 <task-X>...</task-X>
@@ -281,7 +300,9 @@ def r1_prompt(board, x, y):
 
 
 def select_prompt(board, ev=EVALUATED):
-    return preamble(board) + SELECT_SUFFIX.format(ev=ev)
+    return preamble(board) + SELECT_SUFFIX.format(
+        ev=ev, choices=", ".join(SELECTABLE[:-1]) + " or " + SELECTABLE[-1]
+        if len(SELECTABLE) > 1 else SELECTABLE[0])
 
 
 SOLO_SUFFIX = """
