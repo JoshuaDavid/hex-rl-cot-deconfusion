@@ -2013,3 +2013,22 @@ select_tf) is unmeasured; own-D was only 0.82 correct, so gold-D (perfect
 edge-connectivity in context) could lift E more than +0.04. Waiting on R2.
 If gold-D differential is real (>~+0.15), R4 selection RL is a clean test; if
 tiny, R4 tests RL's sensitivity to a sub-0.05 instrumental edge (marker analog).
+
+## 2026-08-10 ~03:15 — Gate G2 (gold-helper differential) NULL on sparse: +0.035; pivot to dense boards
+
+R2(E) SFT (continue from R1, gradient on E only, 1 epoch). Clean GOLD-helper
+differential (select_tf, gold helper X in context, generate E):
+  E | gold A 0.930  B 0.912  C 0.910  D 0.953   ->  delta(D vs A,B,C) = +0.035
+Even a PERFECT helper D lifts E only +0.035; all helpers put E at 0.91-0.95.
+Confirms: sparse 7x7 -> E easy (0.91 after a useless helper) -> no headroom.
+(Note gold-helper 0.91 > own-helper 0.80 > solo 0.78: format/warmup lifts E to
+~0.91 regardless of helper; gold-D adds a marginal +0.035 on top.)
+
+Mechanism recap: E|gold-D difficulty = the SUBTRACTION E=stones-D_edge; E|board
+difficulty = CONNECTIVITY. On sparse both are easy -> tiny gap. To get a real
+gap I need connectivity HARD but subtraction manageable -> DENSE tangled boards
+(near-miss stones whose chains almost-but-don't reach an edge). Pivot: regenerate
+pool ARME_FILL=dense (mean ~24 stones, tangled multi-chains, E-size ~7), retrain,
+re-measure gold-D differential. If dense also gives a small gap, the
+non-outsourceable-difficulty null is complete and R4 becomes a test of RL's
+sensitivity to a sub-0.05 edge (expected: no selection).
