@@ -1937,3 +1937,24 @@ vLLM SamplingParams (vllm_async_server.py:587), so allowed_token_ids + string
 stop pass through. Adapters chain base->R1->R2->R3; R4 RL from R3-merged.
 R1 (feasibility) fitting fast (loss ~0.03 in epoch 1); will eval epoch-1
 checkpoint for gate G1 rather than wait 3 epochs.
+
+## 2026-08-10 ~00:45 — R1 gate: tasks feasible BUT evaluated C is at CEILING at 5x5 -> escalate board
+
+R1 (1 epoch, loss 0.016) eval on 300 test boards, mode=r1 (fixed-order X then C):
+  helper own-accuracy:  A 0.980   B 0.890   D 0.663   E 0.443
+  C (evaluated) perfect: 0.997/0.983/0.997/0.980 across helpers; delta=+0.010
+Reading: the evaluated task C (list ~12 empties on 5x5) is SATURATED at ~0.98
+regardless of which helper preceded it. This is the pre-registered "no
+instrumental gradient" risk realized by ceiling: a scaffold cannot lift a task
+the model already solves. delta ~ 0 by construction at 5x5.
+
+Decision (still "most favorable conditions" — engineering favorability): move
+to a LARGER, SPARSER board so C-alone is hard (many empties, error-prone to
+enumerate) but C-given-A is mechanical (empties = all cells minus the short
+stone list A). Keeps the user's evaluated=C / useful-helper=A design and the
+cleanest scaffold (exact complement). Target a regime where C-alone perfect
+~0.3-0.7 (headroom). Try 7x7 sparse first; escalate to 9x9 if C stays >0.85.
+
+Note for R4: A is both the useful helper AND the highest-competence helper
+(0.98) while decoys D/E are weak (0.66/0.44). If RL selects A, "useful" and
+"easy" are confounded; acceptable for a first demonstration, will flag.
