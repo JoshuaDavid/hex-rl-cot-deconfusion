@@ -2141,3 +2141,24 @@ Modest magnitude (winner solo 0.907 is high). Per Joshua's "bigger board if
 ~perfect" -> a larger/harder board should widen the gap. Deciding escalate-vs-run
 after checking the R4 selection prior P(X) (untrained: X was always teacher-forced
 through SFT).
+
+## 2026-08-10 ~06:40 — R4 machinery validated; 3 fixes; 7x7 winner too easy (warmup swamps D) -> escalate
+
+Built + debugged the selection RL (hex_select loop) to WORKING (GROUP_N=8):
+loop samples selection (allowed A/C/D), generates helper+winner, grades, logs.
+Three fixes:
+ - FIX 1 (exploration): SFT selection prior was degenerate P(D)=100% (accident of
+   untrained prior). Trained the X token with X~uniform in win SFT -> prior ~uniform
+   (A .31/C .35/D .34), like the marker 50/50 init.
+ - FIX 2 (gen temp): at rollout temp 1.0 per-helper winner reward was A .74/C .74/
+   D .71 (D NOT advantaged -- generating hard D at high temp derails the winner).
+   Decoupled: selection at rollout temp (explore), helper+winner GREEDY
+   (ARME_GEN_TEMP=0) so D's content survives.
+ - FIX 3 (OOM): GROUP_N=16 (512 rollouts x3 generates) OOM-killed raylet
+   (pids/cgroup). GROUP_N=8 (256, marker-proven) stable.
+
+Greedy-gen per-helper winner reward (7x7, smoke): A .866 / C .930 / D .917.
+C(decoy) ~= D(useful) > A: winner is EASY on 7x7 (solo .907) so ANY helper warms
+it to ~.9 and D's connectivity edge (+.04) is swamped by C's warmup. No clean D
+preference. Need winner HARD (solo ~.5-.6) so warmup != solution. Escalating to
+9x9 dense. Tension noted: own-D generation degrades on bigger boards.
