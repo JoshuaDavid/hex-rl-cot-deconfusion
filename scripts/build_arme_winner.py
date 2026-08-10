@@ -29,17 +29,32 @@ VAL_BOARDS = 120
 
 
 def select_row(tok, b, x):
+    """Context ends with '<selected-task>' so X is generated as a standalone
+    token (matches the R4 loop). Gradient on: the X token (X assigned uniformly
+    over SELECTABLE -> installs an explorable ~uniform selection prior, like the
+    marker 50/50 init), the helper content, and the winner. Structure tokens are
+    mask 0. Char spans -> token mask via offset mapping (robust to merges)."""
     gx = gold_answer_str(x, b)
     gw = gold_answer_str(EVALUATED, b)
-    ctx0 = f"<selected-task>{x}</selected-task>\n"
-    grad = (f"<task-{x}>{gx}</task-{x}>\n"
-            f"<evaluated-task>{gw}</evaluated-task>{IM_END}")
-    pids = tok.apply_chat_template(
+    base = tok.apply_chat_template(
         [{"role": "user", "content": select_prompt(b)}],
-        add_generation_prompt=True, enable_thinking=False, tokenize=True)["input_ids"]
-    full_ids, astart = split_ctx_ans(tok, ctx0, grad)
-    ids = list(pids) + list(full_ids)
-    mask = [0.0] * (len(pids) + astart) + [1.0] * (len(full_ids) - astart)
+        add_generation_prompt=True, enable_thinking=False, tokenize=False)
+    ctx_ids = tok(base + "<selected-task>", add_special_tokens=False)["input_ids"]
+    # build completion string and record char-spans to train
+    comp = ""
+    xs = len(comp); comp += x; xe = len(comp)                 # selection token
+    comp += f"</selected-task>\n<task-{x}>"
+    hs = len(comp); comp += gx; he = len(comp)                # helper content
+    comp += f"</task-{x}>\n<evaluated-task>"
+    ws = len(comp); comp += gw + "</evaluated-task>" + IM_END
+    we = len(comp)                                            # winner + close
+    train = [(xs, xe), (hs, he), (ws, we)]
+    enc = tok(comp, add_special_tokens=False, return_offsets_mapping=True)
+    cids, offs = enc["input_ids"], enc["offset_mapping"]
+    cmask = [1.0 if any(o[0] < r[1] and o[1] > r[0] for r in train) else 0.0
+             for o in offs]
+    ids = list(ctx_ids) + list(cids)
+    mask = [0.0] * len(ctx_ids) + cmask
     return ids, mask
 
 
