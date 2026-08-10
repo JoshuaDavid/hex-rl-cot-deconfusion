@@ -76,6 +76,7 @@ class HexSelectAgentLoop(AgentLoopBase):
 
         # === the ONE trained token: pick X in {A,B,D,E} ===
         sp_sel = dict(sampling_params)
+        sp_sel["n"] = 1
         sp_sel["max_tokens"] = 1
         sp_sel["allowed_token_ids"] = self._allowed
         sp_sel.pop("stop", None)
@@ -93,6 +94,7 @@ class HexSelectAgentLoop(AgentLoopBase):
 
         # === helper generation (untrained env step) ===
         sp_h = dict(sampling_params)
+        sp_h["n"] = 1
         sp_h["max_tokens"] = HELPER_BUDGET
         sp_h["stop"] = [f"</task-{x}>", "</evaluated-task>"]
         sp_h.pop("stop_token_ids", None)
@@ -106,6 +108,7 @@ class HexSelectAgentLoop(AgentLoopBase):
 
         # === evaluated (Task C) generation (untrained env step) ===
         sp_c = dict(sampling_params)
+        sp_c["n"] = 1
         sp_c["max_tokens"] = ANSWER_BUDGET
         sp_c["stop"] = ["</evaluated-task>", "<|im_end|>"]
         sp_c.pop("stop_token_ids", None)

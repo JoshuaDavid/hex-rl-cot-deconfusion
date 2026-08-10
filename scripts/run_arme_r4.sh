@@ -22,4 +22,6 @@ ARME_HELPER_BUDGET=160 ARME_ANSWER_BUDGET=120 \
 bash scripts/run_pilot.sh \
   data.max_prompt_length=896 \
   actor_rollout_ref.rollout.agent.default_agent_loop=hex_select \
+  trainer.val_before_train=False \
+  trainer.test_freq=999 \
   > "results/arme/${EXP}.log" 2>&1
