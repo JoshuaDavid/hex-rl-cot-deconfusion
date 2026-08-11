@@ -19,12 +19,13 @@ export ARME_GOLD_HELPER=${ARME_GOLD_HELPER:-0}
 export ARME_GEN_TEMP=${ARME_GEN_TEMP:-0.0}
 MODEL_PATH="$MODEL_PATH_IN" \
 DATA_DIR=data/arme/rl \
-RESP_LEN=256 BATCH=32 GROUP_N=8 STEPS="$STEPS_IN" SAVE_FREQ=999 \
+RESP_LEN=256 BATCH=16 GROUP_N=8 STEPS="$STEPS_IN" SAVE_FREQ=999 \
 KL_COEF=0.001 USE_KL=True \
 EXP_NAME="$EXP" \
 ARME_HELPER_BUDGET=200 ARME_ANSWER_BUDGET=16 \
 bash scripts/run_pilot.sh \
   data.max_prompt_length=896 \
+  actor_rollout_ref.actor.optim.lr=${ARME_LR:-4e-6} \
   actor_rollout_ref.rollout.agent.default_agent_loop=hex_select \
   trainer.val_before_train=False \
   trainer.test_freq=999 \
