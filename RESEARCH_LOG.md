@@ -2235,3 +2235,29 @@ response tokens / a tiny SFT-anchor on the eval. The demonstration stands (RL
 selects D by step 5, competence intact); the collapse is over-optimization, not a
 failure of the selection mechanism. lr=4e-6 was aggressive -- for a clean full
 run use lr~1-2e-6 and stop by ~step 10.
+
+## 2026-08-11 ~01:25 — Own-helper R4 CONTRAST: RL does NOT select D (drifts to easy decoy C)
+
+Own-helper selection RL (ARME_GOLD_HELPER=0: model generates its OWN helper, greedy;
+lr=2e-6, 14 steps, BATCH16). Same winner reward, same model.
+P(select) trajectory:  step0 A.22 C.41 D.37 | step8 A.24 C.45 D.31 | step13 A.03 C.56 D.41
+Net: P(A) .22->.03 (RL drops the WORST helper hard), P(C) .41->.56 (rising), P(D)
+.37->.41 (flat). Per-helper reward NOISY, roughly C>=D>A, C and D trading the top --
+no consistent D advantage. RL mildly prefers the EASY DECOY C, NOT the useful D.
+
+Contrast with gold-helper (P(D)->.98): when the model GENERATES its own helper, the
+useful helper D (edge-connectivity) is the HARDEST to generate (own-D ~.38), so its
+content edge is erased -- own-D winner ~= own-C winner. C is easy AND a good warmup,
+so it is the net-reward-max. RL rides the actual reward; usefulness isn't in it once
+you must pay to generate D.
+
+ARM-E CONCLUSION (both regimes):
+ RL reliably SELECTS the reward-max task-token (P ~1/3 -> arg-max in a few steps).
+ Whether that == the USEFUL helper depends on the setup:
+  - usefulness ISOLATED (gold helper): reward-max == useful D -> RL selects D (.35->.98).
+  - NOT isolated (own helper): useful D is costliest to produce -> reward-max == easy
+    decoy C -> RL selects C, not D.
+ "Can RL learn to select the most useful sub-task?" It selects on the REWARD; "useful"
+ wins only when the environment makes the useful action the rewarded one. Same
+ selection-not-creation throughline: RL redistributes probability toward reward; it
+ neither creates usefulness nor sees human intent.
