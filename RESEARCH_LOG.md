@@ -2162,3 +2162,50 @@ C(decoy) ~= D(useful) > A: winner is EASY on 7x7 (solo .907) so ANY helper warms
 it to ~.9 and D's connectivity edge (+.04) is swamped by C's warmup. No clean D
 preference. Need winner HARD (solo ~.5-.6) so warmup != solution. Escalating to
 9x9 dense. Tension noted: own-D generation degrades on bigger boards.
+
+## 2026-08-11 ~00:50 — R4 PAYOFF: RL learns to SELECT the useful helper (P(D) 0.35 -> 0.99)
+
+Gold-helper selection RL (evaluated=W winner, helpers A/C/D, useful=D; only the
+1-token selection is trained; helper teacher-forced gold; winner greedy; reward =
+winner score). From the uniform-X win model. BATCH=16 GROUP_N=8 (128 rollouts/step),
+lr=4e-6, KL=0.001.
+
+Per-helper winner reward (constant across steps): sel D:+1.00  C:+0.6..0.9  A:+0.4..0.8.
+P(select) trajectory:
+  step 0: A .24  C .41  D .35   (uniform-ish prior)
+  step 5: A .00  C .03  D .97
+  step10: A .00  C .01  D .99   (converged, holding)
+So RL drives the single selection token from ~1/3 to ~0.99 on D in ~5-10 steps,
+monotone -- MARKER-SCALE. This is the arm-E positive result:
+
+  RL CAN be trained to select the most instrumentally-useful auxiliary task,
+  when (a) a helper is genuinely useful (gold-D makes the winner a trivial
+  intersection -> reward 1.0 vs 0.5-0.9 for decoys), and (b) usefulness is
+  isolated from the model's ability to GENERATE the helper (teacher-forced gold).
+
+What it took (each a real obstacle, logged above):
+  - a useful helper to EXIST: winner<-D (connectivity), after C/E gave nulls
+    (board-derivable, content ignored). Difficulty must be non-board-derivable
+    AND suppliable by the helper.
+  - SFT gradient on BOTH tasks + solo (Joshua's fix) so helper-gen and solo-eval
+    are in-distribution.
+  - uniform selection prior (was degenerate P(D)=1.0 by accident) via training the
+    X token uniformly -- the marker 50/50 analog; without it, no exploration.
+  - greedy helper/eval generation (decoupled from selection temp) OR gold helper,
+    else high-temp derailing of the hard helper D erases its edge.
+  - memory: RESP_LEN 256, BATCH 16 (worker-OOM hang at 512/560).
+
+Caveat (the honest boundary): this is the GOLD-helper regime -- usefulness
+isolated. In the OWN-helper regime (model generates its own D) the differential
+is muddied because D is BOTH the useful AND the hardest-to-generate helper
+(own-D ~0.38 acc), so RL would chase the net-best (easy decoy C ~= D). Running
+that contrast next.
+
+Prediction grades (original C-design, graded in spirit after the pivot):
+  P2 gold-helper differential >=+0.15: NO numerically (winner gold-D +0.06-0.08),
+     but D reaches 0.99->1.0 and is decisively best -> the SELECTION differential
+     is huge even if the accuracy gap is modest.
+  P3 own-helper >=+0.10: NO (muddied by generation cost).
+  P4 RL moves P(useful) >=+0.2 in <=40 steps: YES emphatically (+0.64 to 0.99 by
+     step 10) -- in the gold regime.
+  Meta "at least one null": YES (C and E both null).
