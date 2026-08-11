@@ -22,7 +22,7 @@ DATA_DIR=data/arme/rl \
 RESP_LEN=256 BATCH=16 GROUP_N=8 STEPS="$STEPS_IN" SAVE_FREQ=999 \
 KL_COEF=0.001 USE_KL=True \
 EXP_NAME="$EXP" \
-ARME_HELPER_BUDGET=200 ARME_ANSWER_BUDGET=16 \
+ARME_HELPER_BUDGET=140 ARME_ANSWER_BUDGET=16 \
 bash scripts/run_pilot.sh \
   data.max_prompt_length=896 \
   actor_rollout_ref.actor.optim.lr=${ARME_LR:-4e-6} \
