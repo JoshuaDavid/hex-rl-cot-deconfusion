@@ -2209,3 +2209,29 @@ Prediction grades (original C-design, graded in spirit after the pivot):
   P4 RL moves P(useful) >=+0.2 in <=40 steps: YES emphatically (+0.64 to 0.99 by
      step 10) -- in the gold regime.
   Meta "at least one null": YES (C and E both null).
+
+## 2026-08-11 ~01:05 — R4 correction: clean win is steps 4-7; then over-optimization collapses competence
+
+Full 12-step gold trajectory (128/step) — correcting the "converged/holding" note:
+  step  P(A)  P(C)  P(D)   Rperf  meanR_by_sel
+   0    .22   .41   .37    .95    D:+1.00
+   2    .06   .34   .61    .84    D:+1.00
+   4    .00   .03   .97    .93    D:+0.87
+   5    .00   .02   .98   1.00    D:+1.00   <- CLEAN: P(D)~.98, winner reward +1.0
+   7    .00   .09   .91   1.00    D:+1.00
+   8    .00   .79   .21    .94             (a wobble)
+   9    .00   .01   .99    .62    D:+0.24
+  10    .00   .00  1.00    .20    D:-0.61   <- competence COLLAPSING
+  11    .00   .00  1.00    .06    D:-0.88
+
+So the SELECTION result is real and clean in steps 4-7 (P(D) .35->.98, winner
+reward still +1.0). AFTER that, competence collapses: once P(D)~1 the group loses
+selection contrast (advantage->0), and because ONLY the selection token is
+trained/KL-anchored (winner tokens are mask-0, no gradient AND no KL), the shared
+LoRA weights drift and BREAK winner generation (Rperf .06 by step 11). This is an
+inherent artifact of "gradient on ONE token only" on a shared adapter -- nothing
+maintains the eval competence. Mitigations: fewer steps / lower lr / KL on ALL
+response tokens / a tiny SFT-anchor on the eval. The demonstration stands (RL
+selects D by step 5, competence intact); the collapse is over-optimization, not a
+failure of the selection mechanism. lr=4e-6 was aggressive -- for a clean full
+run use lr~1-2e-6 and stop by ~step 10.
