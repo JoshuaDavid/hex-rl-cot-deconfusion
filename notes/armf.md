@@ -70,6 +70,35 @@ survives almost intact despite no LM loss.
    exactly one game. P5 (randinit-init FT control loses at equal steps, 70%)
    — see RESEARCH_LOG for grading.
 
+## r2: moves format (denser supervision) — findings
+
+Sequence = preamble + move list (cut at random ply) + ONE render; 3 streams
+(`train_moves.py`): CNN column of the played cell at each move token, whitened
+PCA-128 of the full map at each move token, full per-cell map at render cells.
+9000 steps: col .623 / pca .482 / render .610 (all below r1's .773; P6-P8 NO).
+
+6. **Move tokens beat render cells** (col > render) despite being causally
+   BLIND to the render (they precede it) — Qwen simulates board state
+   internally from the move list. This de-risked render-free r3.
+7. **Moves-format stitch is worse and depth-INVERTED** (`eval_stitch_moves.py`,
+   P9 NO): vs CNN cut0 7/40, cut9 16/40, cut18 21/40 (parity!). Shallow z-hat
+   errors amplify through the remaining CNN tail; at k=18 errors hit only the
+   policy head.
+8. **One token ≠ whole board** (`train_movesonly_z0.py`): render-free full z0
+   map from each move token caps at R² .379 (own-cell column: .786; 121
+   render tokens: .760). Depth sweep (`train_movesonly_sweep.py`, adapters at
+   hs[1..23]): FLAT ~.38 plateau — no depth assembles the board; NOT an
+   aggregation-depth problem.
+9. **Parity hypothesis (Joshua's)**: stone color = list-position parity, and
+   the canonical frame flips with total-count parity; LLMs are bad at parity.
+   Numbered+colored records ("\n1. g1 X") @1000 steps: .446 vs plain .379,
+   still climbing when plain had plateaued (P13/P14 NO by the letter,
+   direction confirmed). 3000-step A/B (P15/P16) pending → decides r3 format.
+
+r3 plan (user-approved): render-free, per-layer Linear(2048→7744) full-map
+adapters at move tokens (~301M params), no cuts — every move token supervises
+its own prefix (~73 prefixes/seq, ~147k scalars/token).
+
 ## Gotchas for reruns
 
 - Randinit control MUST warm-start adapters from `probe_frozen_randinit.pt`
