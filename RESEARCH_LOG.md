@@ -2696,3 +2696,28 @@ My predictions (registered before running):
   the query move's cell get ≥1.5× the per-record mass of non-adjacent records
   in a majority of layers. (Genuinely unsure: spatial neighborhood compute
   may live in MLPs on the residual, not in attention.)
+
+## 2026-08-12 ~16:45 — Arm F finger D registered: can ONE transformer MLP block emulate ONE conv skip layer?
+
+Joshua's side question: z2 -> Linear(7744->2048) -> Qwen3-style MLP block
+(RMSNorm + SwiGLU 2048->6144->2048 + residual, no attention — single token, so
+attention is a no-op) -> Linear(2048->7744) -> target z3. All params trained
+(random init), MSE in per-dim-normalized space, data = 76,210 dedup selfplay
+positions (armF/data/positions.pt), z from 11_2w4_2000 CNN.
+
+Key deconfusion hazard flagged before building: the target map
+z3 = swish(z2 + BN(conv(z2))) is affine-plus-one-swish, so a LINEAR map may
+already score high. Controls: (a) identity baseline (per-dim scalar OLS,
+closed form), (b) lin2048 = D·U no MLP (rank-2048 linear, equal budget),
+(c) linfull = unconstrained Linear 7744->7744 (linear ceiling, no rank
+constraint). The interesting number is MLP minus lin2048, not MLP alone.
+Functional eval: stitch emulator in place of skiplayers[2], top1/spearman
+agreement + paired-opening play vs pure CNN (same harness conventions as r1-r3).
+
+Predictions (before any training):
+- PD1 identity baseline per-dim R2 >= 0.60: 55%
+- PD2 lin2048 val R2 >= 0.95: 45% (>= 0.90: 70%)
+- PD3a mlp val R2 >= 0.99 ("identical output" operationalized): 35%
+- PD3b mlp beats lin2048 by >= 0.02 R2 at equal steps: 75%
+- PD4a mlp-stitched CNN vs pure CNN >= 40% paired-opening wins: 70%
+- PD4b mlp-stitched top1 agreement >= 0.90: 50%
