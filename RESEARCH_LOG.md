@@ -2438,3 +2438,35 @@ Predictions registered BEFORE launch (run armF_moves_r2, 9000 steps, batch 12):
  P8 pca-stream final mean R2 > 0.5: 55%.
  P9 stitched play from render cells at parity (>=40% pooled vs CNN, paired
     4-ply openings, cuts 0/9/18): 70%.
+
+## 2026-08-12 ~10:35 — r2 FINAL + P6-P8 graded; r3 (render-free) planned; P10 registered
+
+r2 (armF_moves_r2, 9000 steps) final val R2: col 0.6232, pca 0.4820, render
+0.6097. Per-layer: col z0 .786 z9 .527 z18 .582; pca z0 .094 z9 .609 z18 .403;
+render z0 .760 z9 .525 z18 .684.
+ P6 (render within 0.05 of r1 0.773, 60%): NO — 0.610. Single-copy render +
+    moves context is materially worse than r1's two-copy render.
+ P7 (col < render, 70%): NO — col BEAT render. The interesting miss: move
+    tokens are causally blind to the render (they precede it), so 0.623 there
+    is pure internal simulation from the move list. Render-free readout is not
+    the handicap I assumed.
+ P8 (pca > 0.5, 55%): NO — 0.482, close. pca z0 .094 is a whitening artifact:
+    equal weight on tiny-variance directions; per-dim-normalized targets don't
+    have this pathology.
+Stitch (moves format) partial: cut0 7/40 vs CNN, cut9 16/40 (cut18 pending) —
+well below r1 parity; render cells in moves format are causally weaker, in line
+with lower render R2.
+
+r3 plan (user): render-free. Input = preamble + move list ONLY; at each move
+token, per-layer Linear(2048->7744) reconstructs the FULL normalized CNN map
+after that move. No cuts needed: every move token is a supervised prefix (one
+seq per game, ~73 prefixes/seq, ~147k scalars/move token). ~301M adapter params
+(19 x 2048x7744) — user approved. Hex favors this: append-only state, no
+removals; hard parts are the per-ply canonical flip and whether DEEP features
+(not just stones) are linearly exposed.
+
+Mini falsifier first (user-requested): z0 only, 1000 steps, joint FT
+(train_movesonly_z0.py). Prediction registered BEFORE launch:
+ P10 render-free z0 full-map pooled val R2 at step 1000 >= 0.70: 65%.
+    (col-z0 hit .786 for the played-cell column; full map includes all 121
+    cells incl. empty; z0 is post-first-conv i.e. mostly local stone features.)
