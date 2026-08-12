@@ -3094,3 +3094,29 @@ val KL:
   the constraint surface, not optimization pace, is what's binding.
 Artifacts: fingerE_release_{kl,soft}.{json,log},
 checkpoints/armF_fingerE/bottleneck_{kl_only_release,anchored_soft}.pt.
+
+## 2026-08-12 — armF side question: HexHex Elo vs sampling temperature
+
+Joshua asked how HexHex-11 strength scales with softmax temperature, anchoring
+t=1.0 at Elo 1500. Round-robin tournament, 8 temps x 28 pairs x 40 games
+(paired random openings, both colors — cancels first-move advantage), 1120
+games total; Bradley-Terry MLE with a 0.25-virtual-win-per-direction prior
+(keeps undefeated argmax finite). Script armF/elo_temp.py; results
+armF/results/elo_temp.{json,log}.
+
+Registered prediction: monotone decrease (YES — strict dominance in all 28
+pairings); t=0 at +300-500 over t=1.0 (NO — +754, underestimated how sharp
+the policy is); t=2.0 several hundred below (YES, -464).
+
+  temp  0.00   0.25   0.50   0.75   1.00   1.25   1.50   2.00
+  Elo   2254   2158   2022   1698   1500   1407   1171   1036
+
+- Curve is ~flat 0->0.25 (-96) then steepens: biggest single drop 0.50->0.75
+  (-324). ~1220 Elo total range over t in [0,2].
+- Compression at the top too: t=0 only beats t=0.25 26-14 — the policy is
+  peaked enough that t=0.25 rarely leaves argmax.
+- High end compresses because both players approach noise (1.5 vs 2.0 just
+  26-14).
+- Caveat: Elo for 40-0 pairs is prior-sensitive, but the ladder is pinned by
+  informative adjacent matchups; single seed, 40 games/pair (+-~120 Elo per
+  rung at the extremes).
