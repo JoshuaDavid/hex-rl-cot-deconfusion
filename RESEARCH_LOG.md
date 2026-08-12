@@ -3189,3 +3189,24 @@ features -> global low-rank is what works; frozen compression dies by
 compounding; anchoring to teacher activations is load-bearing regularization
 (monotone dose-response); packing = locally-shared, distantly-orthogonalized
 (PCA-discovered). Rank-1024 state holds recognizably-skilled hex. CLOSED.
+
+## 2026-08-12 ~20:55 — finger D2 registered: transformer MLP block vs the DISTILLED (rank-1024) CNN's layer transition
+
+Joshua's follow-up: finger D's binding constraint was the 7744->2048 bottleneck,
+so retry against the finger E distilled artifact (bottleneck_anchored_ext.pt),
+whose NATIVE state is c_l = enc_l(z_l) in R^1024. Target map: c2 -> c3 =
+enc3(skiplayer2(dec2(c2))), 1024->1024 — same depth as finger D. Now the Qwen
+block (2048 wide) EXPANDS, and the D·U skip can be full rank-1024, so the
+finger D confound vanishes structurally. Data: positions.pt + positions2.pt
+(229k, val 4096). Variants (equal 8k-step budget): identity OLS / linfull
+Linear(1024^2, 1.05M) / mlp Lin(1024->2048)->QwenMLP->Lin(2048->1024) (~44M) /
+linfull+mlp bypass. Stitch eval: substitute into distilled CNN, agreement +
+paired-opening play vs the UNMODIFIED distilled net (flattening caveat on
+record; this mirrors finger D protocol).
+
+Predictions (before caching anything):
+- PF1 identity per-dim OLS R2 >= 0.4 (are trained enc2/enc3 bases aligned?): 45%
+- PF2 linfull R2 >= 0.95: 50%
+- PF3 mlp >= linfull + 0.02 (headline: MLP wins once unbottlenecked): 60%
+- PF4 mlp R2 >= 0.99 ("reproduces the layer"): 40%
+- PF5 mlp-substituted distilled vs distilled >= 24/60 paired openings: 70%
