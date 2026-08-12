@@ -1,0 +1,36 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<01:59,  2.59it/s]Loading weights:  22%|██▏       | 69/310 [00:00<00:01, 182.21it/s]Loading weights:  35%|███▍      | 107/310 [00:00<00:01, 188.01it/s]Loading weights:  44%|████▍     | 137/310 [00:00<00:00, 174.70it/s]Loading weights:  52%|█████▏    | 161/310 [00:00<00:00, 187.88it/s]Loading weights:  60%|█████▉    | 185/310 [00:01<00:00, 197.40it/s]Loading weights:  67%|██████▋   | 209/310 [00:01<00:00, 204.39it/s]Loading weights:  75%|███████▌  | 233/310 [00:01<00:00, 213.28it/s]Loading weights:  83%|████████▎ | 257/310 [00:01<00:00, 174.35it/s]Loading weights:  93%|█████████▎| 289/310 [00:01<00:00, 172.31it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 182.01it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+loaded checkpoints/armF_movesfull_r3ext/best.pt (step 9000, ckpt r2 0.6388)
+baseline mean R2 0.6387
+sinkself L 0: mean -0.5266 (d -1.1653) | z0 -1.364 z9 -0.497 z18 -0.313
+sinkself L 1: mean -0.3140 (d -0.9527) | z0 -0.769 z9 -0.135 z18 -1.029
+sinkself L 2: mean 0.0196 (d -0.6191) | z0 -0.698 z9 0.045 z18 0.347
+sinkself L 3: mean -0.2416 (d -0.8803) | z0 -0.603 z9 -0.009 z18 -2.047
+sinkself L 4: mean 0.1008 (d -0.5379) | z0 -0.821 z9 0.172 z18 0.421
+sinkself L 5: mean 0.5362 (d -0.1024) | z0 0.913 z9 0.461 z18 0.627
+sinkself L 6: mean 0.5351 (d -0.1036) | z0 0.913 z9 0.447 z18 0.624
+sinkself L 7: mean 0.5079 (d -0.1308) | z0 0.913 z9 0.390 z18 0.578
+sinkself L 8: mean 0.5087 (d -0.1300) | z0 0.913 z9 0.376 z18 0.572
+sinkself L 9: mean 0.4247 (d -0.2140) | z0 0.913 z9 0.215 z18 0.474
+sinkself L10: mean 0.3682 (d -0.2705) | z0 0.913 z9 0.148 z18 0.213
+sinkself L11: mean 0.4328 (d -0.2059) | z0 0.913 z9 0.167 z18 0.384
+sinkself L12: mean 0.4636 (d -0.1750) | z0 0.913 z9 0.223 z18 0.386
+sinkself L13: mean 0.4551 (d -0.1836) | z0 0.913 z9 0.283 z18 0.187
+sinkself L14: mean 0.3868 (d -0.2519) | z0 0.913 z9 0.554 z18 -1.157
+sinkself L15: mean -0.3025 (d -0.9412) | z0 0.913 z9 0.554 z18 -10.695
+sinkself L16: mean -10.2496 (d -10.8883) | z0 0.913 z9 0.554 z18 -78.109
+sinkself L17: mean -1.8777 (d -2.5164) | z0 0.913 z9 0.554 z18 -30.142
+sinkself L18: mean 0.5909 (d -0.0478) | z0 0.913 z9 0.554 z18 0.427
+sinkself L19: mean 0.4383 (d -0.2004) | z0 0.913 z9 0.554 z18 -1.192
+sinkself L20: mean 0.6305 (d -0.0081) | z0 0.913 z9 0.554 z18 0.611
+sinkself L21: mean 0.6372 (d -0.0015) | z0 0.913 z9 0.554 z18 0.660
+sinkself L22: mean 0.6384 (d -0.0003) | z0 0.913 z9 0.554 z18 0.678
+wrote armF/results/attn_ablate_sinkself.json

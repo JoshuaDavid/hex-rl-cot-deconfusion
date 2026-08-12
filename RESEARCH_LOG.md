@@ -2735,3 +2735,50 @@ mixing killed).
 **P28 (60%)**: under sinkself, every single-layer ablation at layers 12–22
 costs ≤ 0.05 mean val R² — i.e. once the sink bias is preserved, no deep
 layer's content mixing is individually critical. (Registered before running.)
+
+## 2026-08-12 — attn anatomy results: P25 YES, P26/P27b/P28 NO, P27a YES; Joshua's prediction graded
+
+Joshua's committed prediction (hash verified): "Attention is influential up to
+the hs[5] input (so layers 0-4 attn), and then attends to bos or other constant
+tokens at further layers." **Half right — the pattern half. The influence half
+is falsified.**
+
+Patterns (8 val seqs, eager, color-token queries; `attn_patterns.json`):
+- L0–L2 = gather layers: broad content-directed mass over the move list
+  (cell .20–.36, num up to .24, sink ~.00). At L0, 54% of mass on the query's
+  OWN record (local binding of "n. cell color").
+- From L3 on the sink takes over (L3 .71, mid-stack .32–.66, L20–22 .95–.97).
+  Joshua's pattern claim correct (transition at L3, not L5).
+- BUT the non-sink remainder is structured, not constant: previous-record mass
+  exceeds the average older record's per-record mass in **23/23 layers**
+  (ratios 3–30x; dedicated heads L5H10 .68, L9H0 .44, L12H1/H9 ~.22) —
+  incremental state-passing, prefix t = prefix t−1 + one stone. **P27a YES
+  (70%)**. Hex-adjacent past moves get more per-record mass than non-adjacent
+  in 23/23 layers but only ~1.01–1.5x, never ≥1.5x: **P27b NO (45%)** by the
+  letter, direction universal.
+
+Ablations (60-seq val, baseline reproduces ckpt at .6387; `attn_ablate.json`,
+`attn_ablate_sinkself.json`):
+- zero: L0 catastrophic (−52); L1–L4 −.31…−.70; L5–L16 −.04…−.13; second
+  catastrophic band L17–L20 (z18 → −89 at L17, −34 at L19). **P25 YES (65%)**
+  (most damaging in 0–4; mean damage 0–4 ≈ 10.8 > 3× mean 12–22 ≈ 0.78).
+- selfonly: uniformly worse, deep catastrophic (L18 −15.4 mean). **P26 NO
+  (55%)**. Confound diagnosed: deep attn output ≈ o_proj(v_sink) = a learned
+  per-layer bias; zero deletes it, selfonly swaps in OOD o_proj(v_self).
+- sinkself (mask → keys {0, self}; bias preserved, content mixing killed) is
+  the clean test: L0–4 still −.54…−1.17 (assembly is real mixing); L5–L13
+  −.10…−.27 each (recency channel does distributed real work; L12: z9
+  .55→.22); L14–L17 severe for deep maps (L16 −10.9 mean, z18 −78; L15 −.94,
+  L17 −2.5); L18–L22 ≈ free (−.0003…−.20, L20/21/22 ≤ .008). **P28 NO
+  (60%)** — deep mixing is individually important through L17.
+- The zero-catastrophes at L17/L19 mostly vanish under sinkself → they were
+  bias-removal artifacts; the L15–L17 sinkself damage is genuine mixing.
+
+Story: three-phase program. (1) L0–L2 assemble the board from the move list
+by broad attention; (2) L3–L17 park most mass on the sink (attention as
+per-layer bias) while a persistent prev-record channel incrementally passes
+board state forward — functionally load-bearing, not vestigial; (3) L18–L22
+mixing is dispensable. Attention "importance" and "where it looks" dissociate:
+sink-dominated layers still carry critical mixing in their small non-sink
+remainder. Method lesson: zero-ablation of attention is confounded wherever
+sinks dominate — use sink-preserving masks.
