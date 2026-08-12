@@ -2891,3 +2891,28 @@ paired games/variant):
   compression errors rather than eat them layer-by-layer.
 Artifacts: armF/fingerE_pca.py, armF/results/fingerE_pca.{json,log},
 rank_check_1024.json (var@{512,1024,1536,2048} per layer).
+
+## 2026-08-12 ~17:50 — finger E phase 2 registered: jointly trained rank-1024 student (anchored + policy-only)
+
+Design (fingerE_distill.py): student = E_in Linear(338->1024) from flat board
+(z0 is linear in the board and rank<=226, so no information bottleneck at
+entry) -> 18 transition blocks T_l(h) = Linear(1024->1024) + QwenMLP-delta
+(1024->3072->1024, native-width-skip per finger D) -> policy.
+Two variants, equal budget (8000 steps, batch 512, on-the-fly CNN teacher):
+- anchored: 19 decoders D_l Linear(1024->7744); loss = mean_l per-dim-norm
+  MSE(D_l(h_l), z_l) + KL(teacher || policyhead(D_18(h_18))), frozen CNN
+  policy head. Stays affinely mapped to HexHex's activations = embeddable
+  in Qwen the arm-F way.
+- policy_only: trained Linear(1024->121) head, KL only. Existence proof for
+  "a rank-1024 agent", correspondence severed.
+The comparison prices the representational rent of anchoring at rank 1024.
+
+Predictions (registered before running):
+- PE6 (60%): anchored student mean decoded val R2 (over 19 layers) >= 0.80
+  (frozen chained PCA managed 0.70 at k=1024; joint training routes around).
+- PE7 (55%): anchored student play vs pure CNN >= 40% (>=24/60). The crux —
+  chained k=2048 PCA had mean R2 .80 and still played 4/60, but it had no
+  policy loss and adversarially compounded truncation errors.
+- PE8 (75%): policy-only student play vs pure CNN >= 40%.
+- PE9 (55%): representational rent is small: (policy_only wins - anchored
+  wins) <= 10 games out of 60.
