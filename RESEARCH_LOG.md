@@ -2644,3 +2644,22 @@ a third projects ~+.02. Render-free containment looks asymptotic around
 Running stitch eval on r3ext (does z0 .82→.91 move play strength at all?).
 Prediction **P24**: r3ext pooled vs CNN (cuts 0/9/18, paired openings)
 improves over r3's 8/120 but stays <25% — **55%**.
+
+## 2026-08-12 ~16:20 — r3ext stitch eval: P24 YES (16/120); r3 program closed
+
+r3ext stitch (`eval_stitch_full.py --ckpt .../r3ext/best.pt`): agreement top1
+.48/.30/.30 at cuts 0/9/18 (r3: .39/.32/.28), spearman .88 shallow → .82 deep.
+Play vs random 54/60; vs pure CNN cut0 4/40, cut9 5/40, cut18 7/40 =
+**16/120 = 13.3%** (r3: 8/120).
+
+- **P24 YES** (improves over 8/120 but <25%, @55%): 13.3%.
+- Read: the extension's R² gains were shallow-concentrated (z0 +.09) and the
+  play gains are correspondingly modest. Render-free stitch is a real player
+  (beats random ~90%) but ~1.5 OOM in win-odds below the render-based r1
+  stitch (94/200). The render isn't just convenience — reconstructing the
+  full board from the move list burns model capacity that the CNN-tail
+  computation then can't use.
+
+Arm F r3 program CLOSED. Ladder (pooled vs CNN, paired openings):
+r1 render 47% ≈ parity | r2 moves+1 render 36.7% | r3 render-free 6.7% |
+r3ext (2x steps+data) 13.3%. Mean val R²: .773 | .61 (streams) | .597 | .639.
