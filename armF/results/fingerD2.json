@@ -1,0 +1,45 @@
+{
+ "n_train": 225009,
+ "n_val": 4096,
+ "steps": 8000,
+ "ckpt": "checkpoints/armF_fingerE/bottleneck_anchored_ext.pt",
+ "identity": {
+  "r2": 0.01522852387279272
+ },
+ "linfull": {
+  "params_M": 1.0,
+  "r2": 0.8280996680259705,
+  "agreement": {
+   "top1": 0.916015625,
+   "top3": 0.998046875,
+   "spearman": 0.9800424092100002
+  },
+  "vs_random": "9/10",
+  "vs_distilled_openings": "25/60",
+  "illegal_argmax": 0
+ },
+ "mlp": {
+  "params_M": 41.9,
+  "r2": 0.9848105907440186,
+  "agreement": {
+   "top1": 0.962890625,
+   "top3": 1.0,
+   "spearman": 0.9838000242598355
+  },
+  "vs_random": "10/10",
+  "vs_distilled_openings": "29/60",
+  "illegal_argmax": 0
+ },
+ "lin_mlp": {
+  "params_M": 43.0,
+  "r2": 0.9843342304229736,
+  "agreement": {
+   "top1": 0.96484375,
+   "top3": 0.9990234375,
+   "spearman": 0.9837907080654986
+  },
+  "vs_random": "10/10",
+  "vs_distilled_openings": "31/60",
+  "illegal_argmax": 0
+ }
+}

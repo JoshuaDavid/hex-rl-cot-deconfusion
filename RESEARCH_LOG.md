@@ -3210,3 +3210,30 @@ Predictions (before caching anything):
 - PF3 mlp >= linfull + 0.02 (headline: MLP wins once unbottlenecked): 60%
 - PF4 mlp R2 >= 0.99 ("reproduces the layer"): 40%
 - PF5 mlp-substituted distilled vs distilled >= 24/60 paired openings: 70%
+
+## 2026-08-12 ~21:15 — finger D2 graded: MLP block DOES imitate the distilled net's transition; finger D story inverts
+
+Results (229k pos, 8k steps each, c2->c3 of bottleneck_anchored_ext):
+identity 0.015 | linfull 0.828 | mlp 0.985 | lin_mlp 0.984.
+Agreement top1 .916/.963/.965; play vs unmodified distilled 25/29/31 per 60.
+
+- PF1 NO (identity >=.4 @45%): 0.015 — enc2/enc3 bases unaligned per-dim.
+- PF2 NO (linfull >=.95 @50%): 0.828 — the native-space transition is MUCH
+  more nonlinear than the raw conv layer looked in z-space (.957 there).
+  Finger D's "96% linear" was mostly the full-rank residual passthrough,
+  which the c-basis change strips out.
+- PF3 YES (mlp >= linfull+.02 @60%): +0.157. The SwiGLU block does real
+  nonlinear work once the state fits its width.
+- PF4 NO (mlp >=.99 @40%): 0.9848.
+- PF5 YES (>=24/60 @70%): 29/60 (bypass 31/60) — substitution parity.
+- lin_mlp == mlp (.9843 vs .9848): bypass adds nothing -> no residual
+  bottleneck constraint; MLP subsumes the linear path.
+
+Combined finger D+D2 story: a transformer MLP block CAN do one conv layer's
+work, but only in a state space its width can hold. 7744-dim raw acts through
+2048: bottleneck tax dominates, plain linear wins. 1024-dim distilled state
+into 2048: R2 .985, top1 .96, parity on substitution — and the map is
+genuinely nonlinear (linear floor .83). Width-relative-to-state-rank, not
+MLP expressivity, is the binding constraint both times.
+Artifacts: armF/fingerD2_distilled.py, armF/results/fingerD2.{json,log},
+checkpoints/armF_fingerD2/. Finger D2 CLOSED.

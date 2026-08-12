@@ -1,0 +1,39 @@
+positions: 229105
+cache: c2 (229105, 1024) c3 (229105, 1024) | c2 mean -0.003 std 0.977 | c3 mean 0.005 std 1.132
+sanity anchor (true-c3 stitch vs distilled) max|diff| = 0.00e+00
+identity baseline val R2 = 0.0152
+
+=== linfull (1.0M params) ===
+  step 1000/8000 loss 0.1771 val R2 0.8228 (2s)
+  step 2000/8000 loss 0.1746 val R2 0.8227 (3s)
+  step 3000/8000 loss 0.1755 val R2 0.8238 (4s)
+  step 4000/8000 loss 0.1730 val R2 0.8249 (5s)
+  step 5000/8000 loss 0.1709 val R2 0.8260 (6s)
+  step 6000/8000 loss 0.1691 val R2 0.8273 (7s)
+  step 7000/8000 loss 0.1687 val R2 0.8279 (9s)
+  step 8000/8000 loss 0.1723 val R2 0.8281 (10s)
+linfull: R2 0.8281 top1 0.916 top3 0.998 sp 0.980 | vs random 9/10 | vs distilled 25/60 | illegal 0
+
+=== mlp (41.9M params) ===
+  step 1000/8000 loss 0.0392 val R2 0.9546 (5s)
+  step 2000/8000 loss 0.0272 val R2 0.9672 (9s)
+  step 3000/8000 loss 0.0220 val R2 0.9734 (14s)
+  step 4000/8000 loss 0.0181 val R2 0.9777 (18s)
+  step 5000/8000 loss 0.0152 val R2 0.9809 (23s)
+  step 6000/8000 loss 0.0129 val R2 0.9832 (27s)
+  step 7000/8000 loss 0.0118 val R2 0.9845 (32s)
+  step 8000/8000 loss 0.0114 val R2 0.9848 (37s)
+mlp: R2 0.9848 top1 0.963 top3 1.000 sp 0.984 | vs random 10/10 | vs distilled 29/60 | illegal 0
+
+=== lin_mlp (43.0M params) ===
+  step 1000/8000 loss 0.0407 val R2 0.9521 (5s)
+  step 2000/8000 loss 0.0289 val R2 0.9651 (9s)
+  step 3000/8000 loss 0.0236 val R2 0.9718 (14s)
+  step 4000/8000 loss 0.0195 val R2 0.9765 (19s)
+  step 5000/8000 loss 0.0160 val R2 0.9800 (23s)
+  step 6000/8000 loss 0.0137 val R2 0.9825 (28s)
+  step 7000/8000 loss 0.0121 val R2 0.9839 (33s)
+  step 8000/8000 loss 0.0117 val R2 0.9843 (38s)
+lin_mlp: R2 0.9843 top1 0.965 top3 0.999 sp 0.984 | vs random 10/10 | vs distilled 31/60 | illegal 0
+
+wrote armF/results/fingerD2.json
