@@ -93,6 +93,10 @@ def main():
     ap.add_argument("--eval-every", type=int, default=500)
     ap.add_argument("--n-val", type=int, default=60)
     ap.add_argument("--run-name", default="armF_movesfull_r3")
+    ap.add_argument("--init-ckpt", default=None,
+                    help="warm-start backbone+ads from a best.pt (weights only)")
+    ap.add_argument("--extra-games", default=None,
+                    help="second games.pt to concatenate (fresh data)")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
     out_dir = Path(f"checkpoints/{args.run_name}")
@@ -101,6 +105,9 @@ def main():
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained("Qwen/Qwen3-1.7B")
     games = torch.load("armF/data/games.pt", weights_only=False)["games"]
+    if args.extra_games:
+        games = games + torch.load(args.extra_games,
+                                   weights_only=False)["games"]
     recs = Z.build_seqs(tok, games, "numbered")
     print(f"{len(recs)} seqs, maxlen {max(len(r['ids']) for r in recs)}")
     for r in random.Random(0).sample(recs, 3):
@@ -114,6 +121,15 @@ def main():
     d = torch.load("armF/results/probe_frozen.pt", weights_only=False)
     mu, sd = d["mu"].to(DEV), d["sd"].to(DEV)
     ads = nn.ModuleList([nn.Linear(2048, 7744) for _ in range(L)]).to(DEV)
+    if args.init_ckpt:
+        ck = torch.load(args.init_ckpt, map_location="cpu",
+                        weights_only=False)
+        missing, _ = backbone.load_state_dict(
+            {k: v.float() for k, v in ck["backbone"].items()}, strict=False)
+        assert not [m for m in missing if "rotary" not in m], missing
+        ads.load_state_dict({k: v.float() for k, v in ck["ads"].items()})
+        print(f"warm-started from {args.init_ckpt} (step {ck.get('step')}, "
+              f"r2 {sum(ck['r2'])/len(ck['r2']):.4f})")
     backbone.train()
 
     qwen_params = [p for p in backbone.parameters() if p.requires_grad]
