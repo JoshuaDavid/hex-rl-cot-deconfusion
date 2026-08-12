@@ -1,0 +1,29 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+loaded ckpt step 9000
+cut | top1 | top3 | spearman
+  0 | 0.892 | 0.998 | 0.981
+  1 | 0.814 | 0.984 | 0.974
+  2 | 0.752 | 0.950 | 0.963
+  3 | 0.704 | 0.938 | 0.950
+  4 | 0.672 | 0.896 | 0.943
+  5 | 0.650 | 0.896 | 0.937
+  6 | 0.640 | 0.868 | 0.931
+  7 | 0.606 | 0.864 | 0.927
+  8 | 0.620 | 0.862 | 0.923
+  9 | 0.584 | 0.844 | 0.920
+ 10 | 0.576 | 0.846 | 0.914
+ 11 | 0.570 | 0.830 | 0.909
+ 12 | 0.562 | 0.818 | 0.909
+ 13 | 0.562 | 0.826 | 0.905
+ 14 | 0.558 | 0.816 | 0.902
+ 15 | 0.538 | 0.816 | 0.901
+ 16 | 0.510 | 0.782 | 0.896
+ 17 | 0.490 | 0.752 | 0.891
+ 18 | 0.452 | 0.714 | 0.878
+cut 0: vs random 20/20, vs pure CNN (4-ply openings) 21/40
+cut 4: vs random 20/20, vs pure CNN (4-ply openings) 15/40
+cut 9: vs random 20/20, vs pure CNN (4-ply openings) 18/40
+cut 14: vs random 19/20, vs pure CNN (4-ply openings) 22/40
+cut 18: vs random 20/20, vs pure CNN (4-ply openings) 18/40
+wrote armF/results/stitch_eval.json

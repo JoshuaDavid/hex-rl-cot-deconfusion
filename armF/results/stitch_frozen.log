@@ -1,0 +1,37 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<00:31,  9.66it/s]Loading weights:  14%|█▍        | 44/310 [00:00<00:01, 250.24it/s]Loading weights:  23%|██▎       | 70/310 [00:00<00:00, 248.92it/s]Loading weights:  31%|███       | 95/310 [00:00<00:00, 248.21it/s]Loading weights:  39%|███▊      | 120/310 [00:00<00:01, 189.40it/s]Loading weights:  45%|████▌     | 141/310 [00:00<00:00, 194.24it/s]Loading weights:  53%|█████▎    | 163/310 [00:00<00:00, 200.87it/s]Loading weights:  60%|█████▉    | 185/310 [00:00<00:00, 204.49it/s]Loading weights:  67%|██████▋   | 207/310 [00:01<00:00, 207.15it/s]Loading weights:  74%|███████▍  | 229/310 [00:01<00:00, 210.08it/s]Loading weights:  81%|████████  | 251/310 [00:01<00:00, 208.39it/s]Loading weights:  88%|████████▊ | 273/310 [00:01<00:00, 171.13it/s]Loading weights:  96%|█████████▌| 297/310 [00:01<00:00, 188.11it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 205.46it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+loaded ckpt step frozen-baseline
+cut | top1 | top3 | spearman
+  0 | 0.196 | 0.416 | 0.642
+  1 | 0.232 | 0.408 | 0.663
+  2 | 0.202 | 0.412 | 0.666
+  3 | 0.188 | 0.378 | 0.635
+  4 | 0.214 | 0.418 | 0.678
+  5 | 0.230 | 0.392 | 0.632
+  6 | 0.166 | 0.328 | 0.636
+  7 | 0.194 | 0.356 | 0.659
+  8 | 0.174 | 0.358 | 0.668
+  9 | 0.136 | 0.322 | 0.635
+ 10 | 0.120 | 0.276 | 0.608
+ 11 | 0.132 | 0.302 | 0.628
+ 12 | 0.146 | 0.312 | 0.666
+ 13 | 0.142 | 0.292 | 0.657
+ 14 | 0.106 | 0.250 | 0.643
+ 15 | 0.162 | 0.318 | 0.663
+ 16 | 0.132 | 0.274 | 0.643
+ 17 | 0.110 | 0.226 | 0.615
+ 18 | 0.080 | 0.204 | 0.567
+cut 0: vs random 20/20, vs pure CNN (4-ply openings) 1/40
+cut 4: vs random 19/20, vs pure CNN (4-ply openings) 1/40
+cut 9: vs random 20/20, vs pure CNN (4-ply openings) 0/40
+cut 14: vs random 16/20, vs pure CNN (4-ply openings) 0/40
+cut 18: vs random 7/20, vs pure CNN (4-ply openings) 2/40
+wrote armF/results/stitch_eval_frozen.json

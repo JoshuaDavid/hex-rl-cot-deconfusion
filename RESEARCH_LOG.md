@@ -2330,3 +2330,44 @@ P5 registered (before r1 finishes): a from-scratch random-init backbone trained 
 the same recipe reaches LOWER val R2 than pretrained-init at equal steps: 70%.
 (If wrong -> Qwen's pretraining contributes ~nothing to learning containment, and
 the arm-F result is about transformer capacity, not universal representations.)
+
+## 2026-08-12 ~05:00 — ARM F stitching eval: play strength survives full-trunk replacement; P3/P4 graded
+
+Stitched network = Qwen(trained r1, step 9000) -> A_k -> CNN skiplayers[k:] ->
+policy head. First vs-CNN play eval was degenerate (both players deterministic +
+color alternation = 2 distinct games x10); fixed with shared random 4-ply openings
+per game pair (paired comparison, 40 games/cut).
+
+Agreement vs pure CNN (500 val positions, top1/top3/spearman on legal moves):
+ cut 0: .892/.998/.981   cut 4: .672/.896/.943   cut 9: .584/.844/.920
+ cut 14: .558/.816/.902  cut 18: .452/.714/.878  (smooth monotone decline)
+
+Play strength (the headline): vs random 19-20/20 at every cut; vs pure CNN with
+4-ply openings: cut0 21/40, cut4 15/40, cut9 18/40, cut14 22/40, cut18 18/40 =
+94/200 = 47% overall. The stitched player is at PARITY with the pure CNN at every
+cut -- including cut 18, where Qwen+A_18 does the ENTIRE trunk and only the linear
+policy head remains. Top1 agreement 0.45 but no measurable strength loss: the
+disagreements are ~equivalued moves (top3 .71, spearman .88), not blunders.
+
+FROZEN baseline contrast (pretrained backbone + probe adapters, no FT), same eval:
+ top1 .20 (cut0) -> .08 (cut18); vs CNN: 1/40, 1/40, 0/40, 0/40, 2/40 = 4/200.
+ vs random: 20,19,20/20 at cuts 0-9 but degrades to 16/20 (cut14), 7/20 (cut18).
+So the probe-only stitch is categorically broken as a player at depth, while FT
+containment plays at teacher level. The FT didn't just improve R2 from .37 to .77;
+it crossed the threshold from "noise player" to "full-strength teacher clone".
+
+P3 graded (stitch top1 at k=18 >= 60%, registered 40%): NO -- .452. My 40% lean
+against was right, but for the wrong texture: I expected agreement failure to mean
+strength failure. It doesn't.
+P4 graded (every cut beats random 20/20, registered 50%): NO by one game (19/20 at
+cut 14); all other cuts 20/20. Effectively at ceiling.
+
+DECONFUSION NOTE (the real finding): move-match is the wrong metric for
+containment quality -- play-strength parity at 47% top1-disagreement means the
+containment preserved the *decision-relevant* structure of the CNN's activations
+even where per-channel MSE/R2 (.70-.76 deep) looks mediocre. Affine containment of
+an 18-layer superhuman CNN trunk inside a fine-tuned 1.7B LM's residual stream is
+REAL by the causal (stitching) standard, not just the correlational (probe) one.
+
+Artifacts: armF/results/stitch_eval.json, stitch_eval_frozen.json,
+stitch_r1.log, stitch_frozen.log.

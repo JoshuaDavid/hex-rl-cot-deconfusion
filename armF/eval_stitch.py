@@ -33,18 +33,25 @@ DEV = "cuda"
 
 
 def load_trained(ckpt_path):
-    ck = torch.load(ckpt_path, map_location="cpu", weights_only=False)
-    backbone = T.load_backbone(random_init=True)  # arch only; weights overwritten
-    sd = {k: v.float() for k, v in ck["backbone"].items()}
-    missing, unexpected = backbone.load_state_dict(sd, strict=False)
-    assert not [m for m in missing if "rotary" not in m], missing
-    adapters = T.Adapters().to(DEV)
-    adapters.load_state_dict(ck["adapters"])
+    d = torch.load("armF/results/probe_frozen.pt", weights_only=False)
+    if ckpt_path == "FROZEN":
+        backbone = T.load_backbone()
+        adapters = T.Adapters().to(DEV)
+        adapters.warm_start("armF/results/probe_frozen.pt")
+        step = "frozen-baseline"
+    else:
+        ck = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+        backbone = T.load_backbone(random_init=True)  # arch only; overwritten
+        sd = {k: v.float() for k, v in ck["backbone"].items()}
+        missing, unexpected = backbone.load_state_dict(sd, strict=False)
+        assert not [m for m in missing if "rotary" not in m], missing
+        adapters = T.Adapters().to(DEV)
+        adapters.load_state_dict(ck["adapters"])
+        step = ck.get("step")
     backbone.eval()
     for p in backbone.parameters():
         p.requires_grad_(False)
-    d = torch.load("armF/results/probe_frozen.pt", weights_only=False)
-    return backbone, adapters, d["mu"].to(DEV), d["sd"].to(DEV), ck.get("step")
+    return backbone, adapters, d["mu"].to(DEV), d["sd"].to(DEV), step
 
 
 @torch.no_grad()
@@ -109,11 +116,28 @@ def agreement_eval(backbone, adapters, tok, cnn, boards, n, mu, sd, batch=32):
     return out
 
 
-def play_games(move_fn_a, move_fn_b, n_games):
-    """a plays player0 in even games. Returns wins for a."""
+def play_games(move_fn_a, move_fn_b, n_games, opening_plies=0):
+    """a plays player0 in even games; optional shared random opening per game
+    pair (both colorings see the same opening -> paired comparison).
+    Returns wins for a."""
     wins = 0
     for g in range(n_games):
+        if opening_plies and g % 2 == 0:
+            rng = random.Random(1000 + g)
+            opening = None
+            while opening is None:
+                b = Board(11, switch_allowed=False)
+                mvs = []
+                for _ in range(opening_plies):
+                    mv = rng.choice(sorted(b.legal_moves))
+                    mvs.append(mv)
+                    b.set_stone(mv)
+                if not b.winner:
+                    opening = mvs
         b = Board(11, switch_allowed=False)
+        if opening_plies:
+            for mv in opening:
+                b.set_stone(mv)
         a_is = g % 2
         while not b.winner:
             fn = move_fn_a if b.player == a_is else move_fn_b
@@ -177,10 +201,12 @@ def main():
     for k in [int(c) for c in args.cuts_play.split(",")]:
         sp = make_stitched_player(backbone, adapters, tok, cnn, k, mu, sd)
         w_rand = play_games(sp, make_random_player(), args.games)
-        w_cnn = play_games(sp, make_cnn_player(cnn), args.games)
+        w_cnn = play_games(sp, make_cnn_player(cnn), args.games * 2,
+                           opening_plies=4)
         play[k] = {"vs_random": f"{w_rand}/{args.games}",
-                   "vs_cnn": f"{w_cnn}/{args.games}"}
-        print(f"cut {k}: vs random {w_rand}/{args.games}, vs pure CNN {w_cnn}/{args.games}")
+                   "vs_cnn_openings": f"{w_cnn}/{args.games*2}"}
+        print(f"cut {k}: vs random {w_rand}/{args.games}, "
+              f"vs pure CNN (4-ply openings) {w_cnn}/{args.games*2}", flush=True)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
