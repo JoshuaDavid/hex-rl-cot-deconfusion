@@ -1,0 +1,44 @@
+positions: 76210 train 72114 val 4096
+PCA basis built
+
+=== kl_only (302.2M params) ===
+  init (chained-PCA): kl 0.6681 top1 0.438 R2 mean 0.6984
+  step 500/8000 kl 0.7716 act 0.0000 val_kl 0.8510 (30s)
+  step 1000/8000 kl 0.8027 act 0.0000 val_kl 0.7939 (60s)
+  step 1500/8000 kl 0.7339 act 0.0000 val_kl 0.7961 (91s)
+  step 2000/8000 kl 0.7262 act 0.0000 val_kl 0.7596 (121s)
+  step 2500/8000 kl 0.6613 act 0.0000 val_kl 0.7098 (151s)
+  step 3000/8000 kl 0.5408 act 0.0000 val_kl 0.6480 (181s)
+  step 3500/8000 kl 0.5210 act 0.0000 val_kl 0.5965 (211s)
+  step 4000/8000 kl 0.4309 act 0.0000 val_kl 0.5306 (242s)
+  step 4500/8000 kl 0.3782 act 0.0000 val_kl 0.4916 (272s)
+  step 5000/8000 kl 0.2838 act 0.0000 val_kl 0.4413 (302s)
+  step 5500/8000 kl 0.2329 act 0.0000 val_kl 0.4041 (332s)
+  step 6000/8000 kl 0.1865 act 0.0000 val_kl 0.3678 (363s)
+  step 6500/8000 kl 0.1473 act 0.0000 val_kl 0.3505 (393s)
+  step 7000/8000 kl 0.1300 act 0.0000 val_kl 0.3402 (423s)
+  step 7500/8000 kl 0.1270 act 0.0000 val_kl 0.3382 (453s)
+  step 8000/8000 kl 0.1189 act 0.0000 val_kl 0.3365 (484s)
+kl_only: kl 0.3551 top1 0.600 top3 0.837 sp 0.842 | R2 mean -24.3531 | vs random 20 | vs CNN 2/60 | illegal 0
+
+=== anchored (302.2M params) ===
+  init (chained-PCA): kl 0.6681 top1 0.438 R2 mean 0.6984
+  step 500/8000 kl 0.7742 act 0.5732 val_kl 0.7638 (32s)
+  step 1000/8000 kl 0.7646 act 0.5803 val_kl 0.7197 (65s)
+  step 1500/8000 kl 0.5652 act 0.5466 val_kl 0.6868 (97s)
+  step 2000/8000 kl 0.5512 act 0.5381 val_kl 0.5997 (130s)
+  step 2500/8000 kl 0.4533 act 0.5004 val_kl 0.5645 (162s)
+  step 3000/8000 kl 0.3786 act 0.4820 val_kl 0.5421 (195s)
+  step 3500/8000 kl 0.3303 act 0.4612 val_kl 0.4527 (227s)
+  step 4000/8000 kl 0.3289 act 0.4170 val_kl 0.4166 (260s)
+  step 4500/8000 kl 0.2445 act 0.3822 val_kl 0.3728 (293s)
+  step 5000/8000 kl 0.1806 act 0.3644 val_kl 0.3109 (325s)
+  step 5500/8000 kl 0.1649 act 0.3369 val_kl 0.2933 (358s)
+  step 6000/8000 kl 0.1245 act 0.3251 val_kl 0.2533 (390s)
+  step 6500/8000 kl 0.0983 act 0.3034 val_kl 0.2199 (423s)
+  step 7000/8000 kl 0.0706 act 0.2980 val_kl 0.2073 (456s)
+  step 7500/8000 kl 0.0674 act 0.2946 val_kl 0.2020 (488s)
+  step 8000/8000 kl 0.0641 act 0.2965 val_kl 0.2003 (521s)
+anchored: kl 0.2183 top1 0.678 top3 0.888 sp 0.901 | R2 mean 0.6945 | vs random 20 | vs CNN 12/60 | illegal 0
+
+wrote armF/results/fingerE_bottleneck.json

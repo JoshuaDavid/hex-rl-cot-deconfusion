@@ -2976,3 +2976,42 @@ Predictions (registered before running):
 - PE15 (70%): in the trained (anchored) bottlenecks, mean subspace overlap
   (mean sq cos principal angles, 64-dim write blocks of D_l) between
   hex-ADJACENT cell pairs exceeds non-adjacent pairs in >= 15/19 layers.
+
+## 2026-08-12 ~19:20 — phase 3 graded: PE12/PE13 NO, PE14 NO (in the GOOD direction); anchoring breaks the val-KL floor
+
+Bottlenecked-CNN finetune (k=1024 at all 19 points, warm-start PCA, 8000
+steps, init = chained-PCA player kl .67/.72 top1 .438):
+  kl_only:  val kl .336 (SAME floor as all MLP students) | top1 .600 |
+            R2 mean -24.4 (abandoned teacher representation) | vs CNN 2/60
+  anchored: val kl .218->.200 still falling at budget end | top1 .678 |
+            R2 mean .694 | vs CNN 12/60 (20%) — best student so far
+- PE12 NO (@65%), PE13 NO (@45%): no parity yet.
+- PE14 NO (@70%) but inverted: anchored beat kl_only by 10 games and by
+  .12 val KL. Anchoring is not rent — it's a REGULARIZER. With KL-only
+  loss every architecture (MLP w512/1024/2048, conv+bottleneck) hits the
+  same val-KL floor ~.33-.37 by memorizing 72k positions; tying the student
+  to teacher activations is the only thing so far that generalizes past it.
+- Architecture-invariance of the kl_only floor + anchored breaking it +
+  val_kl still falling => binding constraint ranking: (1) training signal
+  density/data, (2) NOT state rank (rank-1024 conv student with anchor is
+  the best player yet and unconverged).
+
+## 2026-08-12 ~19:35 — PE15 YES (19/19): the rank-1024 packing is locally-shared, distantly-orthogonalized
+
+Subspace geometry of the trained anchored bottlenecks (fingerE_subspaces.py;
+overlap = mean sq cos principal angles between 64-dim per-cell write blocks
+of D_l in R^1024; random baseline 64/1024 = .0625):
+- hex-adjacent cell pairs: .24-.30 (4x random) at every layer;
+- non-adjacent pairs: .052-.056 — BELOW the random baseline, i.e. actively
+  orthogonalized, not just unaligned. PE15 YES (@70%), 19/19 layers.
+- Verdict on Joshua's original "121 almost-orthogonal rank-64 subspaces"
+  picture: half right. Distant cells ARE packed more orthogonally than
+  chance (interference management, the superposition-flavored part);
+  adjacent cells share ~25% of their subspace (the correlation-exploitation
+  part that near-orthogonality would forbid). Both are needed to fit 121
+  cells x 64ch into 1024 dims.
+- Caveat: trained overlaps ~= PCA-init overlaps (training at lr 1e-4 barely
+  moved the geometry). This structure is discovered by PCA on the activation
+  covariance, not by the finetune.
+Artifacts: fingerE_subspaces.py, fingerE_subspaces.json,
+fingerE_bottleneck.{py,json,log}, checkpoints/armF_fingerE/.
