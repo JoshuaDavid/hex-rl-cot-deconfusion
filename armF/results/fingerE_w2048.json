@@ -1,0 +1,16 @@
+{
+ "n_train": 72114,
+ "n_val": 4096,
+ "steps": 8000,
+ "width": 2048,
+ "policy_only": {
+  "params_M": 756.0,
+  "kl": 0.3562518209218979,
+  "top1": 0.61328125,
+  "top3": 0.8466796875,
+  "spearman": 0.8590009989202372,
+  "vs_random": "20/20",
+  "vs_cnn_openings": "2/60",
+  "illegal_argmax": 0
+ }
+}

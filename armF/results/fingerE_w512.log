@@ -1,0 +1,22 @@
+positions: 76210 train 72114 val 4096
+
+=== policy_only (47.4M params) ===
+  step 500/8000 act 0.0000 kl 0.4895 val_kl 0.6543 (17s)
+  step 1000/8000 act 0.0000 kl 0.3739 val_kl 0.5461 (34s)
+  step 1500/8000 act 0.0000 kl 0.2854 val_kl 0.4877 (51s)
+  step 2000/8000 act 0.0000 kl 0.2212 val_kl 0.4697 (68s)
+  step 2500/8000 act 0.0000 kl 0.1798 val_kl 0.4211 (85s)
+  step 3000/8000 act 0.0000 kl 0.1246 val_kl 0.3894 (101s)
+  step 3500/8000 act 0.0000 kl 0.1060 val_kl 0.3790 (118s)
+  step 4000/8000 act 0.0000 kl 0.0788 val_kl 0.3533 (135s)
+  step 4500/8000 act 0.0000 kl 0.0536 val_kl 0.3470 (152s)
+  step 5000/8000 act 0.0000 kl 0.0355 val_kl 0.3372 (169s)
+  step 5500/8000 act 0.0000 kl 0.0296 val_kl 0.3339 (186s)
+  step 6000/8000 act 0.0000 kl 0.0177 val_kl 0.3347 (202s)
+  step 6500/8000 act 0.0000 kl 0.0136 val_kl 0.3346 (219s)
+  step 7000/8000 act 0.0000 kl 0.0108 val_kl 0.3377 (236s)
+  step 7500/8000 act 0.0000 kl 0.0103 val_kl 0.3376 (253s)
+  step 8000/8000 act 0.0000 kl 0.0098 val_kl 0.3380 (270s)
+policy_only: kl 0.3694 top1 0.619 top3 0.843 sp 0.879 | vs random 19 | vs CNN 6/60 | illegal 0
+
+wrote armF/results/fingerE_w512.json

@@ -2945,3 +2945,34 @@ h + Lin(norm(h)) + MLPdelta(h) + grad clip 1.0 is stable.
   [amendment, ~18:25: D_H=4096 is infeasible — 3.0B params (MLPDelta scales
   as 9*w^2), AdamW state alone > 40GB. Sweep is {512, 2048}; PE11 restated:
   even D_H=2048 policy_only plays < 40% vs CNN, 50%.]
+
+## 2026-08-12 ~18:50 — width control graded: PE10 NO, PE11 YES — recipe-bound, not rank-bound; phase 3 (bottlenecked-CNN finetune) registered
+
+Width sweep, policy_only, equal budget (8000 steps):
+  w512 val kl .369 top1 .619 vs CNN 6/60 | w1024 .348/.610/3/60 |
+  w2048 .356/.613/2/60
+- PE10 NO (@65%): val KL flat (~.35) across 4x width — no capacity ordering.
+  w512 val-kl trajectory plateaus from step ~5000 (floor, not runaway
+  overfit). PE11 YES (@50% restated): w2048 plays 2/60.
+- Read: the MLP-student recipe is binding (loss of conv inductive bias +
+  72k positions), NOT the state rank. Phase 2's failure is uninformative
+  about whether rank-1024 suffices. D_H=4096 infeasible (3B params).
+
+Phase 3 (fingerE_bottleneck.py): the minimal-perturbation version of
+Joshua's question — take the CNN ITSELF, insert trainable rank-1024
+bottlenecks (Linear 7744->1024->7744) at all 19 capture points, warm-start
+E/D from the PCA basis (init = the chained-PCA player, 4/60), fine-tune
+bottlenecks + conv weights jointly vs frozen teacher. Variants: kl_only,
+anchored (+ per-layer decoded-z MSE, keeps HexHex correspondence). If this
+reaches parity, a rank-1024-state HexHex exists; the learned per-cell write
+subspaces D_l[cell i] then directly test the "121 almost-orthogonal rank-64
+subspaces" picture (bet: overlapping, correlation-aligned, not orthogonal).
+
+Predictions (registered before running):
+- PE12 (65%): kl_only bottlenecked-CNN reaches >= 40% vs pure CNN (>=24/60).
+- PE13 (45%): >= 45% (>=27/60).
+- PE14 (70%): anchored variant within 8 games of kl_only (correspondence
+  nearly free when the substrate is the CNN itself).
+- PE15 (70%): in the trained (anchored) bottlenecks, mean subspace overlap
+  (mean sq cos principal angles, 64-dim write blocks of D_l) between
+  hex-ADJACENT cell pairs exceeds non-adjacent pairs in >= 15/19 layers.
