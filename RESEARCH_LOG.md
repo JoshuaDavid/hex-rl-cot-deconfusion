@@ -2560,3 +2560,17 @@ binding constraint on render-free containment, not attention aggregation
 (flat depth sweep) and not capacity (rank check).
 Decision: r3 uses numbered format ("\nN. <move> <X|O>", readout at color
 token), z_l <-> hs[5+l] depth alignment as user specced.
+
+## 2026-08-12 ~14:50 — r3 launch (armF_movesfull_r3): render-free full-stack containment
+
+train_movesfull.py: numbered move list only; at each color token, 19x
+Linear(2048->7744) predict all normalized CNN maps (z_l <-> hs[5+l]); ~301M
+adapter params; no cuts (every move token supervises its prefix); joint FT
+(1e-5/1e-3), batch 8, 9000 steps. Smoke: 25.4GB peak incl. Adam. This is the
+densest configuration of the arm: ~147k supervised scalars per move token.
+Predictions registered BEFORE launch:
+ P17 final mean val R2 (19 layers) >= 0.60: 55%.
+ P18 z0 final >= 0.85 (mini hit .774 @3000 single-target, still climbing): 60%.
+ P19 z18 final >= 0.50: 50%.
+ P20 render-free stitch (z_k-hat from LAST move token -> CNN tail) at parity,
+     >=40% pooled vs CNN, paired openings, cuts 0/9/18: 40%.
