@@ -2916,3 +2916,32 @@ Predictions (registered before running):
 - PE8 (75%): policy-only student play vs pure CNN >= 40%.
 - PE9 (55%): representational rent is small: (policy_only wins - anchored
   wins) <= 10 games out of 60.
+
+## 2026-08-12 ~18:15 — finger E phase 2 graded: PE6-PE8 NO, PE9 vacuous; both students broken; width control launched
+
+Results (8000 steps, batch 512, val = 1024 held-out boards, 60 paired games):
+  anchored (340M):    train kl .035 val kl .305 | top1 .630 | R2 mean .6433
+                      (z18 decoded .371 — pulled between recon and KL) | vs CNN 4/60
+  policy_only (189M): train kl .019 val kl .348 | top1 .610 | vs CNN 3/60
+Both beat random (20/20, 18/20). Smoke-run lesson folded in: 18 stacked
+UNnormalized Linear(1024) blocks diverge at lr 1e-3; pre-norm residual
+h + Lin(norm(h)) + MLPdelta(h) + grad clip 1.0 is stable.
+
+- PE6 NO (@60%): .643 < .80 — and barely above frozen chained PCA's .70/.64
+  band. Joint training did NOT route around compounding as expected.
+- PE7 NO (@55%), PE8 NO (@75% — the big miss): BOTH variants are broken
+  players. PE9 YES-but-vacuous (-1 <= 10; both broken so rent unmeasurable).
+- Diagnosis before blaming rank-1024, two live confounds:
+  (a) overfitting: 10-18x train->val KL gap (72k positions, 190-340M params);
+  (b) rank-specificity unknown: nothing shows a WIDER student would succeed.
+  Anomaly worth keeping: r1 Qwen-stitch played 47% parity at top1 .45; these
+  students break at top1 .61. Which positions you err on >> how often.
+  Move-match dissociates from play in BOTH directions.
+- Next (registered): width control, policy_only at D_H 512/2048/4096, equal
+  budget, with mid-train val-KL logging (overfit trajectory visible).
+  PE10 (65%): val-KL orders by width (4096 < 2048 < 1024) at equal steps.
+  PE11 (50%): even D_H=4096 policy_only plays < 40% vs CNN (i.e. the recipe,
+  not the rank, is binding — data/off-distribution, not capacity).
+  [amendment, ~18:25: D_H=4096 is infeasible — 3.0B params (MLPDelta scales
+  as 9*w^2), AdamW state alone > 40GB. Sweep is {512, 2048}; PE11 restated:
+  even D_H=2048 policy_only plays < 40% vs CNN, 50%.]

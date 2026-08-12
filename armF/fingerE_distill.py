@@ -38,6 +38,11 @@ D_IN = 2 * 13 * 13  # 338
 N_LAYERS = 19  # capture points; 18 transitions
 
 
+def set_width(w):
+    global D_H, D_INTER
+    D_H, D_INTER = w, 3 * w
+
+
 class MLPDelta(nn.Module):
     def __init__(self):
         super().__init__()
@@ -115,6 +120,17 @@ def masked(logits, xflat):
 # ---------------------------------------------------------------- training
 def train(student, cnn, boards_u8, val_idx0, mu, sd, steps, lr=1e-3,
           batch=512, log_every=500):
+    n_all = len(boards_u8)
+
+    @torch.no_grad()
+    def quick_val_kl():
+        idx = torch.arange(val_idx0, min(val_idx0 + 512, n_all))
+        xflat, tlogits, _ = teacher_batch(cnn, boards_u8, idx, mu, sd, False)
+        slog = masked(student_logits(student, cnn, xflat, mu, sd).float(), xflat)
+        tp = F.softmax(tlogits, -1)
+        return (tp * (F.log_softmax(tlogits, -1)
+                      - F.log_softmax(slog, -1))).sum(-1).mean().item()
+
     student.to(DEV)
     opt = torch.optim.AdamW(student.parameters(), lr=lr, weight_decay=0.0)
     warmup = 100
@@ -156,7 +172,8 @@ def train(student, cnn, boards_u8, val_idx0, mu, sd, steps, lr=1e-3,
         opt.step()
         if (s + 1) % log_every == 0 or s + 1 == steps:
             print(f"  step {s+1}/{steps} act {act_loss.item():.4f} "
-                  f"kl {kl.item():.4f} ({time.time()-t0:.0f}s)", flush=True)
+                  f"kl {kl.item():.4f} val_kl {quick_val_kl():.4f} "
+                  f"({time.time()-t0:.0f}s)", flush=True)
 
 
 # ---------------------------------------------------------------- eval
@@ -224,8 +241,10 @@ def main():
     ap.add_argument("--n-val", type=int, default=4096)
     ap.add_argument("--games", type=int, default=30)
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--width", type=int, default=1024)
     ap.add_argument("--out", default="armF/results/fingerE_distill.json")
     args = ap.parse_args()
+    set_width(args.width)
     if args.smoke:
         args.steps, args.games = 200, 2
 
@@ -251,7 +270,8 @@ def main():
         mu = ssum / 10000
         sd = (ssq / 10000 - mu.pow(2)).clamp_min(1e-8).sqrt().clamp_min(1e-4)
 
-    results = {"n_train": n_train, "n_val": args.n_val, "steps": args.steps}
+    results = {"n_train": n_train, "n_val": args.n_val, "steps": args.steps,
+               "width": D_H}
     ckdir = Path("checkpoints/armF_fingerE")
     ckdir.mkdir(parents=True, exist_ok=True)
     val_boards = boards[n_train:]
@@ -262,8 +282,8 @@ def main():
         print(f"\n=== {variant} ({n_par/1e6:.1f}M params) ===", flush=True)
         train(student, cnn, boards, n_train, mu, sd, args.steps)
         torch.save({"state_dict": student.state_dict(), "mu": mu.cpu(),
-                    "sd": sd.cpu(), "variant": variant},
-                   ckdir / f"{variant}.pt")
+                    "sd": sd.cpu(), "variant": variant, "width": D_H},
+                   ckdir / f"{variant}_w{D_H}.pt")
         student.eval()
         ev = eval_val(student, cnn, eval_boards, mu, sd)
         random.seed(0)

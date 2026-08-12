@@ -1,0 +1,42 @@
+positions: 76210 train 72114 val 4096
+
+=== anchored (340.0M params) ===
+  step 500/8000 act 1.9405 kl 18.7559 (31s)
+  step 1000/8000 act 0.8210 kl 1.1942 (61s)
+  step 1500/8000 act 0.6340 kl 0.8292 (91s)
+  step 2000/8000 act 0.5743 kl 0.6406 (120s)
+  step 2500/8000 act 0.5200 kl 0.4601 (150s)
+  step 3000/8000 act 0.4928 kl 0.3793 (180s)
+  step 3500/8000 act 0.4686 kl 0.2783 (210s)
+  step 4000/8000 act 0.4406 kl 0.2252 (241s)
+  step 4500/8000 act 0.4300 kl 0.2198 (271s)
+  step 5000/8000 act 0.4022 kl 0.1516 (300s)
+  step 5500/8000 act 0.3720 kl 0.0988 (330s)
+  step 6000/8000 act 0.3597 kl 0.0747 (360s)
+  step 6500/8000 act 0.3507 kl 0.0541 (390s)
+  step 7000/8000 act 0.3408 kl 0.0398 (420s)
+  step 7500/8000 act 0.3417 kl 0.0368 (451s)
+  step 8000/8000 act 0.3430 kl 0.0352 (481s)
+  decoded R2: 1.000 0.746 0.685 0.673 0.652 0.648 0.640 0.633 0.624 0.614 0.610 0.609 0.603 0.616 0.614 0.623 0.629 0.635 0.371
+anchored: kl 0.3050 top1 0.630 top3 0.854 sp 0.885 | R2 mean 0.6433 | vs random 20 | vs CNN 4/60 | illegal 0
+
+=== policy_only (189.3M params) ===
+  step 500/8000 act 0.0000 kl 3.8125 (21s)
+  step 1000/8000 act 0.0000 kl 0.7245 (41s)
+  step 1500/8000 act 0.0000 kl 0.4538 (62s)
+  step 2000/8000 act 0.0000 kl 0.3332 (83s)
+  step 2500/8000 act 0.0000 kl 0.2826 (103s)
+  step 3000/8000 act 0.0000 kl 0.2370 (124s)
+  step 3500/8000 act 0.0000 kl 0.2113 (144s)
+  step 4000/8000 act 0.0000 kl 0.1767 (165s)
+  step 4500/8000 act 0.0000 kl 0.1188 (186s)
+  step 5000/8000 act 0.0000 kl 0.0951 (206s)
+  step 5500/8000 act 0.0000 kl 0.0738 (227s)
+  step 6000/8000 act 0.0000 kl 0.0454 (248s)
+  step 6500/8000 act 0.0000 kl 0.0293 (268s)
+  step 7000/8000 act 0.0000 kl 0.0214 (289s)
+  step 7500/8000 act 0.0000 kl 0.0190 (309s)
+  step 8000/8000 act 0.0000 kl 0.0186 (330s)
+policy_only: kl 0.3476 top1 0.610 top3 0.854 sp 0.879 | vs random 18 | vs CNN 3/60 | illegal 0
+
+wrote armF/results/fingerE_distill.json
