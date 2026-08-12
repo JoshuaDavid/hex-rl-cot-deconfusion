@@ -2663,3 +2663,36 @@ Play vs random 54/60; vs pure CNN cut0 4/40, cut9 5/40, cut18 7/40 =
 Arm F r3 program CLOSED. Ladder (pooled vs CNN, paired openings):
 r1 render 47% ≈ parity | r2 moves+1 render 36.7% | r3 render-free 6.7% |
 r3ext (2x steps+data) 13.3%. Mean val R²: .773 | .61 (streams) | .597 | .639.
+
+## 2026-08-12 (morning) — attention anatomy of the r3ext model: P25–P27 registered
+
+Joshua asks: how important is attention at each layer of the trained r3ext
+transformer, and what does each layer's attention attend to? His prediction is
+committed as sha256 cba53da7c3ff5801958dd331082bd2dcbc7c0042c6f39f035182f19dcc2cf926
+(to be revealed after results).
+
+Design (`armF/attn_analysis.py`, r3ext best.pt, training val set of 60 seqs):
+- Per-layer ablation, two variants: **zero** (attn sublayer output → 0) and
+  **selfonly** (output → o_proj(v_self): per-token write survives, cross-token
+  mixing dies). Metric: mean val R² damage vs baseline (0.6388 expected).
+- Patterns: eager attention on 8 val seqs; from color-token queries, mass by
+  key class (sink/preamble/self/newline/number/cell/color), by record recency
+  (own/prev/older bins), and by hex-adjacency of attended move's cell to the
+  query move's cell.
+
+My predictions (registered before running):
+- **P25 (65%)**: importance is front-loaded — the single most damaging zero
+  ablation is in layers 0–4 (pre-first-readout), and mean zero-damage over
+  layers 0–4 > 3× mean over layers 12–22. Rationale: board assembly must be
+  ~complete by hs[5] (z0 R²=.91 read there); deep layers then run the
+  CNN-tail-like compute largely per-token.
+- **P26 (55%)**: no single deep layer's mixing is critical — every selfonly
+  ablation at layers 12–22 costs ≤ 0.02 mean R² (redundancy across deep
+  layers even if incremental copying exists).
+- **P27a (70%)**: recency structure — per-token mass on the *previous* move
+  record exceeds the average older record in ≥16/23 layers (incremental
+  state-passing: prefix t = prefix t−1 + one stone).
+- **P27b (45%)**: spatial structure — records whose cell is hex-adjacent to
+  the query move's cell get ≥1.5× the per-record mass of non-adjacent records
+  in a majority of layers. (Genuinely unsure: spatial neighborhood compute
+  may live in MLPs on the residual, not in attention.)
