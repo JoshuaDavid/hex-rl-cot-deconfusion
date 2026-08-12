@@ -3048,3 +3048,24 @@ warm restart, lr 5e-5, 12000 steps):
   (4x data, longer schedule) plausibly lands in the parity band but with
   ~1/3-decay per window; declining by default per the agreed rule unless
   Joshua wants one final bigger swing.
+
+## 2026-08-12 ~20:45 — finger E anchor-release registered: scaffold or rent?
+
+Joshua's question: relax the intermediate-layer geometry constraint ON the
+already-trained ext artifact — does KL improve? Framing: phase 3 showed the
+anchor is what breaks the memorization floor (scaffold); but at ext-end it
+is a competing gradient (act .32 plateau vs KL .178) — possibly now rent.
+Design: resume bottleneck_anchored_ext.pt, 8000 steps, lr 5e-5, 225k train
+pool, two arms: (a) kl_only (anchor dropped), (b) anchored --act-weight 0.1
+(soft). Early stopping: restore best-val-KL weights before play eval
+(legitimate here — the question is best achievable KL, and late drift is
+expected without the anchor).
+
+Predictions (registered before running):
+- PE19 (65%): kl_only-resumed reaches val KL <= .15 at some logged point.
+- PE20 (45%): kl_only val KL at 8000 steps is still <= .15 (no late
+  overfit rise past it) — i.e. the good basin is self-sustaining.
+- PE21 (55%): soft anchor (0.1) ends with better (lower) final val KL than
+  the full drop.
+- PE22 (50%): best arm (early-stopped) plays >= 24/60 vs pure CNN (parity
+  band) — releasing the constraint converts KL gains into play.

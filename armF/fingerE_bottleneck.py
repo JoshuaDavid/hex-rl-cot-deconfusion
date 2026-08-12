@@ -109,10 +109,11 @@ def dedup_extra(old_boards, extra_boards):
 
 
 def train(student, cnn, boards_u8, n_train, sd, steps, variant, lr=1e-4,
-          batch=256, log_every=500):
+          batch=256, log_every=500, act_weight=1.0, early_stop=False):
     opt = torch.optim.AdamW(student.parameters(), lr=lr, weight_decay=0.0)
     warmup = 100
     anchored = variant == "anchored"
+    best_kl, best_state = float("inf"), None
 
     def lr_at(s):
         if s < warmup:
@@ -148,15 +149,23 @@ def train(student, cnn, boards_u8, n_train, sd, steps, variant, lr=1e-4,
                  / sd[l]).pow(2).mean() for l in range(N_LAYERS)) / N_LAYERS
         else:
             act_loss = torch.zeros((), device=DEV)
-        loss = kl + act_loss
+        loss = kl + act_weight * act_loss
         opt.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(student.parameters(), 1.0)
         opt.step()
         if (s + 1) % log_every == 0 or s + 1 == steps:
+            vk = quick_val_kl()
+            if early_stop and vk < best_kl:
+                best_kl = vk
+                best_state = {k: v.detach().cpu().clone()
+                              for k, v in student.state_dict().items()}
             print(f"  step {s+1}/{steps} kl {kl.item():.4f} act "
-                  f"{act_loss.item():.4f} val_kl {quick_val_kl():.4f} "
+                  f"{act_loss.item():.4f} val_kl {vk:.4f} "
                   f"({time.time()-t0:.0f}s)", flush=True)
+    if early_stop and best_state is not None:
+        student.load_state_dict(best_state)
+        print(f"  early stop: restored best val_kl {best_kl:.4f}", flush=True)
 
 
 @torch.no_grad()
@@ -218,6 +227,8 @@ def main():
     ap.add_argument("--extra-data", default=None,
                     help="extra positions .pt merged into the train pool")
     ap.add_argument("--lr", type=float, default=1e-4)
+    ap.add_argument("--act-weight", type=float, default=1.0)
+    ap.add_argument("--early-stop", action="store_true")
     ap.add_argument("--tag", default="")
     ap.add_argument("--out", default="armF/results/fingerE_bottleneck.json")
     args = ap.parse_args()
@@ -261,7 +272,8 @@ def main():
         print(f"  init: kl {ev0['kl']:.4f} top1 {ev0['top1']:.3f} "
               f"R2 mean {ev0['r2_mean']:.4f}", flush=True)
         train(student, cnn, boards, n_train, sd, args.steps, variant,
-              lr=args.lr)
+              lr=args.lr, act_weight=args.act_weight,
+              early_stop=args.early_stop)
         torch.save({"state_dict": student.state_dict(), "variant": variant},
                    ckdir / f"bottleneck_{variant}{args.tag}.pt")
         student.eval()
