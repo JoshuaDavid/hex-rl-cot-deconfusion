@@ -2515,3 +2515,18 @@ newline-separated; readout at last token of each record). Registered BEFORE
 launch:
  P13 numbered+colored format lifts z0 R2 by >=0.10 (to >=0.48): 70%.
  P14 reaches >=0.65: 35%.
+
+## 2026-08-12 ~12:00 — Depth sweep final: P11 NO, P12 vacuous (plateau, not peak)
+
+FINAL per-depth z0 R2 (render-free, one adapter per hs[1..23], joint FT 1000
+steps): 0.310 @ hs1 rising to 0.383 @ hs11, then FLAT (+-0.004) through hs23.
+ P11 (peak >= 0.55, 60%): NO — peak 0.383.
+ P12 (argmax >= hs10, 70%): letter-YES (argmax hs12) but the spirit is a
+    plateau: NO depth assembles the board. Depth-of-aggregation is falsified
+    as the binding constraint; a uniform ~0.38 ceiling at every depth is the
+    signature of an information deficit in the input encoding — consistent
+    with the user's parity hypothesis (stone color = list-position parity;
+    canonical frame = total-count parity).
+Launched numbered-format A/B (--fmt numbered: "\n1. g1 X\n2. d4 O ...",
+readout at the color token; maxlen 311->~690). Grading P13 (>= 0.48, 70%) and
+P14 (>= 0.65, 35%) against plain baseline 0.379.

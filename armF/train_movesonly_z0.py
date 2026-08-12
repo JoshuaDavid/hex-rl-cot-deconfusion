@@ -24,14 +24,17 @@ import render_moves as RM  # noqa: E402
 DEV = "cuda"
 
 
-def build_seqs(tok, games):
+def build_seqs(tok, games, fmt="plain"):
     recs = []
     for gi, g in enumerate(games):
         parts = [RM.PREAMBLE_M]
         pos = len(RM.PREAMBLE_M)
         spans = []
-        for mv in g["moves"].tolist():
-            s = " " + RM.move_str(mv)
+        for t, mv in enumerate(g["moves"].tolist()):
+            if fmt == "numbered":
+                s = f"\n{t + 1}. {RM.move_str(mv)} {'X' if t % 2 == 0 else 'O'}"
+            else:
+                s = " " + RM.move_str(mv)
             parts.append(s)
             spans.append((pos + 1, pos + len(s)))
             pos += len(s)
@@ -100,12 +103,14 @@ def main():
     ap.add_argument("--warmup", type=int, default=50)
     ap.add_argument("--eval-every", type=int, default=200)
     ap.add_argument("--n-val", type=int, default=60)
+    ap.add_argument("--fmt", default="plain", choices=["plain", "numbered"])
+    ap.add_argument("--out", default="armF/results/movesonly_z0.json")
     args = ap.parse_args()
 
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained("Qwen/Qwen3-1.7B")
     games = torch.load("armF/data/games.pt", weights_only=False)["games"]
-    recs = build_seqs(tok, games)
+    recs = build_seqs(tok, games, args.fmt)
     print(f"{len(recs)} seqs, maxlen {max(len(r['ids']) for r in recs)}")
     for r in random.Random(0).sample(recs, 3):
         print("--- sample ---")
@@ -156,8 +161,7 @@ def main():
             print(f"step {step} val R2 {r2:.4f}", flush=True)
             hist.append((step, r2))
 
-    Path("armF/results/movesonly_z0.json").write_text(json.dumps(
-        {"hist": hist, "args": vars(args)}))
+    Path(args.out).write_text(json.dumps({"hist": hist, "args": vars(args)}))
     print(f"FINAL z0 render-free R2 {hist[-1][1]:.4f}")
 
 
