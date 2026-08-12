@@ -2543,3 +2543,20 @@ for numbered, information is the binder for plain. Extending A/B to 3000 steps
 each (both arms, fair cosine schedules). Predictions BEFORE launch:
  P15 numbered@3000 >= 0.55: 60%.
  P16 numbered@3000 - plain@3000 >= 0.10: 55%.
+
+## 2026-08-12 ~14:20 — 3000-step A/B: PARITY HYPOTHESIS CONFIRMED. P15 YES, P16 YES
+
+plain@3000: 0.436 (so plain's 1000-step "plateau" at .379 was cosine-annealing
+artifact, not an information ceiling — correction to the ~12:30 reading).
+numbered@3000: **0.7744** (curve .561 @1000, .736 @2000, still climbing).
+ P15 (numbered@3000 >= 0.55, 60%): YES — by +0.22.
+ P16 (gap >= 0.10, 55%): YES — gap +0.338, 3x the bar.
+Numbered format at 1000 steps (.446) already beat plain at 3000 (.436): ~3x
+compute equivalent. And 0.774 ~= own-column .786 ~= 121-render-token .760:
+with explicit move numbers + colors, ONE move token's state linearly contains
+the full z0 map as well as per-cell readout geometries do. Joshua's parity
+hypothesis (stone color = list-position parity; LLMs bad at parity) is the
+binding constraint on render-free containment, not attention aggregation
+(flat depth sweep) and not capacity (rank check).
+Decision: r3 uses numbered format ("\nN. <move> <X|O>", readout at color
+token), z_l <-> hs[5+l] depth alignment as user specced.

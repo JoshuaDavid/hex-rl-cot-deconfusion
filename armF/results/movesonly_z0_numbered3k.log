@@ -1,0 +1,168 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2200 seqs, maxlen 928
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:
+
+1. e9 X
+2. k11 O
+3. d4 X
+4. f6 O
+5. h9 X
+6. d8 O
+7. h2 X
+8. h3 O
+9. f7 X
+10. g9 O
+11. f4 X
+12. a8 O
+13. j1 X
+14. e6 O
+15. d3 X
+16. j6 O
+17. j2 X
+18. d1 O
+19. i6 X
+20. a1 O
+21. e4 X
+22. a3 O
+23. f3 X
+2
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:
+
+1. b8 X
+2. c4 O
+3. i10 X
+4. i8 O
+5. d10 X
+6. e9 O
+7. d3 X
+8. e5 O
+9. h4 X
+10. d8 O
+11. d7 X
+12. f6 O
+13. e4 X
+14. f4 O
+15. e10 X
+16. c8 O
+17. a5 X
+18. h10 O
+19. f9 X
+20. b10 O
+21. h11 X
+22. c7 O
+23. h
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:
+
+1. f4 X
+2. h5 O
+3. h8 X
+4. e7 O
+5. b9 X
+6. i3 O
+7. j1 X
+8. h2 O
+9. c10 X
+10. d9 O
+11. f9 X
+12. g8 O
+13. g7 X
+14. c9 O
+15. h1 X
+16. h7 O
+17. h6 X
+18. f6 O
+19. i1 X
+20. c3 O
+21. g2 X
+22. d5 O
+23. d6 X
+2
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<00:31,  9.83it/s]Loading weights:  14%|█▍        | 44/310 [00:00<00:01, 252.69it/s]Loading weights:  23%|██▎       | 70/310 [00:00<00:00, 253.23it/s]Loading weights:  31%|███▏      | 97/310 [00:00<00:00, 256.89it/s]Loading weights:  40%|████      | 124/310 [00:00<00:00, 198.97it/s]Loading weights:  49%|████▉     | 153/310 [00:00<00:00, 224.31it/s]Loading weights:  57%|█████▋    | 178/310 [00:00<00:00, 229.72it/s]Loading weights:  65%|██████▌   | 203/310 [00:00<00:00, 229.91it/s]Loading weights:  73%|███████▎  | 227/310 [00:01<00:00, 232.13it/s]Loading weights:  81%|████████  | 251/310 [00:01<00:00, 231.89it/s]Loading weights:  90%|████████▉ | 278/310 [00:01<00:00, 195.92it/s]Loading weights:  97%|█████████▋| 301/310 [00:01<00:00, 204.29it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 221.57it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+step 0 val R2 -0.2312
+step 50 loss 0.7954 (0.32s/step)
+step 100 loss 0.8178 (0.32s/step)
+step 150 loss 0.7382 (0.32s/step)
+step 200 loss 0.6501 (0.32s/step)
+step 200 val R2 0.3455
+step 250 loss 0.5986 (0.32s/step)
+step 300 loss 0.6739 (0.32s/step)
+step 350 loss 0.5425 (0.32s/step)
+step 400 loss 0.6061 (0.32s/step)
+step 400 val R2 0.3785
+step 450 loss 0.7045 (0.32s/step)
+step 500 loss 0.6797 (0.32s/step)
+step 550 loss 0.5967 (0.32s/step)
+step 600 loss 0.5711 (0.32s/step)
+step 600 val R2 0.4252
+step 650 loss 0.6477 (0.32s/step)
+step 700 loss 0.6064 (0.32s/step)
+step 750 loss 0.5729 (0.32s/step)
+step 800 loss 0.5739 (0.32s/step)
+step 800 val R2 0.4913
+step 850 loss 0.5581 (0.32s/step)
+step 900 loss 0.5199 (0.32s/step)
+step 950 loss 0.4743 (0.32s/step)
+step 1000 loss 0.5146 (0.32s/step)
+step 1000 val R2 0.5614
+step 1050 loss 0.4165 (0.32s/step)
+step 1100 loss 0.4065 (0.32s/step)
+step 1150 loss 0.4499 (0.32s/step)
+step 1200 loss 0.4391 (0.32s/step)
+step 1200 val R2 0.6105
+step 1250 loss 0.4118 (0.32s/step)
+step 1300 loss 0.3187 (0.32s/step)
+step 1350 loss 0.3966 (0.32s/step)
+step 1400 loss 0.2900 (0.32s/step)
+step 1400 val R2 0.6532
+step 1450 loss 0.3228 (0.32s/step)
+step 1500 loss 0.4014 (0.32s/step)
+step 1550 loss 0.3418 (0.32s/step)
+step 1600 loss 0.3815 (0.32s/step)
+step 1600 val R2 0.6853
+step 1650 loss 0.3084 (0.32s/step)
+step 1700 loss 0.3421 (0.32s/step)
+step 1750 loss 0.3313 (0.32s/step)
+step 1800 loss 0.2938 (0.32s/step)
+step 1800 val R2 0.7138
+step 1850 loss 0.2922 (0.32s/step)
+step 1900 loss 0.3045 (0.32s/step)
+step 1950 loss 0.3000 (0.32s/step)
+step 2000 loss 0.2853 (0.32s/step)
+step 2000 val R2 0.7360
+step 2050 loss 0.2334 (0.32s/step)
+step 2100 loss 0.2626 (0.32s/step)
+step 2150 loss 0.2585 (0.32s/step)
+step 2200 loss 0.2622 (0.32s/step)
+step 2200 val R2 0.7528
+step 2250 loss 0.2838 (0.32s/step)
+step 2300 loss 0.2739 (0.32s/step)
+step 2350 loss 0.1951 (0.32s/step)
+step 2400 loss 0.2180 (0.32s/step)
+step 2400 val R2 0.7641
+step 2450 loss 0.2678 (0.32s/step)
+step 2500 loss 0.2832 (0.32s/step)
+step 2550 loss 0.2287 (0.32s/step)
+step 2600 loss 0.3004 (0.32s/step)
+step 2600 val R2 0.7711
+step 2650 loss 0.1970 (0.32s/step)
+step 2700 loss 0.2590 (0.32s/step)
+step 2750 loss 0.2543 (0.32s/step)
+step 2800 loss 0.1780 (0.32s/step)
+step 2800 val R2 0.7740
+step 2850 loss 0.2275 (0.32s/step)
+step 2900 loss 0.2434 (0.32s/step)
+step 2950 loss 0.2069 (0.32s/step)
+step 3000 loss 0.2265 (0.32s/step)
+step 3000 val R2 0.7744
+FINAL z0 render-free R2 0.7744
