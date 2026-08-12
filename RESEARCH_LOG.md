@@ -3147,3 +3147,31 @@ Predictions (registered before the full run; a 24-game smoke ran first):
   compression at t=2).
 - PE26 (70%): in-tournament orig ladder reproduces the published one within
   max |delta| <= 120 Elo across all 8 temps.
+
+## 2026-08-12 ~22:20 — Elo ladder graded: PE24 YES, PE23/PE25/PE26 NO; distilled ~= orig-at-t0.5; protocol flattery exposed
+
+Joint 16-entity RR (2400 games), anchor orig t=1.0 = 1500:
+  temp    0.00  0.25  0.50  0.75  1.00  1.25  1.50  2.00
+  orig    2234  2099  1861  1650  1500  1354  1184   977
+  pub     2254  2158  2022  1698  1500  1407  1171  1036
+  dist    1867  1734  1578  1380  1215  1073   926   837
+  gap      368   365   283   270   285   281   258   140
+- PE26 NO by the letter (@70%): orig reproduction max |delta| = 161 at
+  t=0.5; but 7/8 entries within 60 and ordering exact — harness is sound,
+  t=0.5 discrepancy is within joint two-run noise.
+- PE24 YES (@85%): dist ladder strictly monotone in temp.
+- PE23 NO (@60%): dist t=0 = 1867, far below [2030, 2230]. Head-to-head
+  orig-t0 vs dist-t0: 19-1. The 20/60 (33%) from our 4-ply-opening evals
+  DOES NOT transfer: random 4-ply paired openings flatten skill (decided
+  openings convert either way); single-move openings measure sustained
+  precision. All finger E "parity band" numbers are protocol-flattered —
+  eval-protocol caveat now on record for arm F.
+- PE25 NO (@45%): gap is ~flat-to-DECREASING in temp (368 at t=0 -> 140 at
+  t=2), not mid-peaked. Sharp play exposes the distillation gap most;
+  temperature noise blurs both models toward the same floor.
+- Headline: the rank-1024 distilled artifact at t=0 plays at 1867 — almost
+  exactly original-at-t=0.5 (1861 in-harness). Compression cost at current
+  training ~= injecting t=0.5 sampling noise into the original. Measured
+  directly off the artifact's own logits — no policy-head training needed
+  (PE-question answered in design note above).
+Artifacts: elo_temp_distilled.{py,json,log}.
