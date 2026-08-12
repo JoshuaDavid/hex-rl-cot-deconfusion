@@ -3175,3 +3175,17 @@ Joint 16-entity RR (2400 games), anchor orig t=1.0 = 1500:
   directly off the artifact's own logits — no policy-head training needed
   (PE-question answered in design note above).
 Artifacts: elo_temp_distilled.{py,json,log}.
+
+## 2026-08-12 ~22:35 — finger E CLOSED: artifact accepted
+
+Joshua accepts the distilled rank-1024 artifact as good enough — "it'll play
+recognizably skilled hex" (1867 Elo at t=0 on the orig-anchored scale, ~orig
+t=0.5). Parity not required; the last ~300 Elo not worth chasing. Artifact:
+checkpoints/armF_fingerE/bottleneck_anchored_ext.pt (BottleneckedCNN, k=1024
+at all 19 capture points; load via fingerE_bottleneck.py + PCA basis, see
+elo_temp_distilled.load_distilled for the canonical loading recipe).
+Finger E summary: near-orthogonal superposition incoherent for dense
+features -> global low-rank is what works; frozen compression dies by
+compounding; anchoring to teacher activations is load-bearing regularization
+(monotone dose-response); packing = locally-shared, distantly-orthogonalized
+(PCA-discovered). Rank-1024 state holds recognizably-skilled hex. CLOSED.
