@@ -2721,3 +2721,17 @@ Predictions (before any training):
 - PD3b mlp beats lin2048 by >= 0.02 R2 at equal steps: 75%
 - PD4a mlp-stitched CNN vs pure CNN >= 40% paired-opening wins: 70%
 - PD4b mlp-stitched top1 agreement >= 0.90: 50%
+
+## 2026-08-12 — attn anatomy interim: selfonly confounded; P28 registered
+
+Zero + selfonly sweeps done (details in next entry). Realization: BOTH remove
+the sink bias — deep layers park 60–97% of attention on token 0, so the attn
+sublayer output there is ≈ o_proj(v_sink), a learned bias; zero deletes it,
+selfonly replaces it with an OOD o_proj(v_self) injection. Neither cleanly
+isolates *content mixing*. Adding a third variant: **sinkself** = attention
+mask restricted to key 0 + self (bias-delivery preserved, cross-token content
+mixing killed).
+
+**P28 (60%)**: under sinkself, every single-layer ablation at layers 12–22
+costs ≤ 0.05 mean val R² — i.e. once the sink bias is preserved, no deep
+layer's content mixing is individually critical. (Registered before running.)

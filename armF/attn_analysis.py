@@ -67,14 +67,33 @@ def selfonly_hook(module, args, kwargs, output):
     return (module.o_proj(v),) + tuple(output[1:])
 
 
-def run_ablate(backbone, ads, cnn, games, recs, val, mu, sd, out):
+def sinkself_prehook(module, args, kwargs):
+    """Restrict attention to key 0 (sink) + self: keeps the parked-bias
+    behavior, kills all cross-token content mixing."""
+    h = kwargs["hidden_states"]
+    B, Tn, _ = h.shape
+    m = torch.full((Tn, Tn), torch.finfo(h.dtype).min,
+                   device=h.device, dtype=h.dtype)
+    m[:, 0] = 0
+    m.fill_diagonal_(0)
+    kwargs["attention_mask"] = m[None, None].expand(B, 1, Tn, Tn)
+    return args, kwargs
+
+
+def run_ablate(backbone, ads, cnn, games, recs, val, mu, sd, out,
+               variants=("zero", "selfonly")):
     base = F.evaluate(backbone, ads, cnn, games, recs, val, mu, sd)
     print(f"baseline mean R2 {base.mean().item():.4f}", flush=True)
-    res = {"baseline": base.tolist(), "zero": {}, "selfonly": {}}
-    for variant, hook in [("zero", zero_hook), ("selfonly", selfonly_hook)]:
+    res = {"baseline": base.tolist()} | {v: {} for v in variants}
+    for variant in variants:
         for j in range(NB):
-            hnd = backbone.layers[j].self_attn.register_forward_hook(
-                hook, with_kwargs=True)
+            if variant == "sinkself":
+                hnd = backbone.layers[j].self_attn.register_forward_pre_hook(
+                    sinkself_prehook, with_kwargs=True)
+            else:
+                hook = zero_hook if variant == "zero" else selfonly_hook
+                hnd = backbone.layers[j].self_attn.register_forward_hook(
+                    hook, with_kwargs=True)
             r2 = F.evaluate(backbone, ads, cnn, games, recs, val, mu, sd)
             hnd.remove()
             res[variant][j] = r2.tolist()
@@ -103,6 +122,7 @@ def char_labels(moves):
 
 @torch.no_grad()
 def run_patterns(backbone, tok, games, recs, val, out, n_seqs=8, min_t=4):
+    prev_impl = backbone.config._attn_implementation
     backbone.config._attn_implementation = "eager"
     backbone.eval()
     CLS = ["sink", "pre", "self", "nl", "num", "cell", "color"]
@@ -127,32 +147,41 @@ def run_patterns(backbone, tok, games, recs, val, out, n_seqs=8, min_t=4):
         att = torch.stack([a[0].float().cpu() for a in o.attentions])
         # (NB, 16, T, T)
         mt = r["mt"].tolist()
+        cidx = torch.tensor([CLS.index(c) for c, _ in toklab])
+        rec = torch.tensor([rr for _, rr in toklab])
         for t in range(min_t, len(mt)):
             q = mt[t]
-            aq = att[:, :, q, :]           # (NB, 16, T)
-            am = aq.mean(dim=1)            # (NB, T) head-avg
-            for k in range(q + 1):
-                cls, rec = toklab[k]
-                c = ("sink" if k == 0 else
-                     "self" if k == q else cls)
-                cls_mass[:, CLS.index(c)] += am[:, k]
-                if rec >= 0:
-                    dt = t - rec
-                    d = ("own" if dt == 0 else "prev" if dt == 1 else
-                         "d2" if dt == 2 else "d3_5" if dt <= 5 else
-                         "d6_10" if dt <= 10 else "d11p")
-                    dl_mass[:, DELTA.index(d)] += am[:, k]
-                    if dt == 1:
-                        head_prev += aq[:, :, k]
+            aq = att[:, :, q, :q + 1]      # (NB, 16, q+1)
+            am = aq.mean(dim=1)            # (NB, q+1) head-avg
+            ci = cidx[:q + 1].clone()
+            ci[0] = CLS.index("sink")
+            ci[q] = CLS.index("self")
+            cls_mass.index_add_(1, ci, am)
+            rk = rec[:q + 1]
+            dt = t - rk
+            di = torch.full_like(rk, -1)
+            di[dt == 0] = 0
+            di[dt == 1] = 1
+            di[dt == 2] = 2
+            di[(dt >= 3) & (dt <= 5)] = 3
+            di[(dt >= 6) & (dt <= 10)] = 4
+            di[dt >= 11] = 5
+            m = (rk >= 0)
+            dl_mass.index_add_(1, di[m], am[:, m])
+            head_prev += aq[:, :, (dt == 1) & m].sum(dim=2)
             # adjacency: mass per past record, split by hex adjacency
+            rec_mass = torch.zeros(NB, len(mt))
+            mm = m & (rk < t)
+            rec_mass.index_add_(1, rk[mm], am[:, mm])
             qx, qy = moves[t]
-            for s in range(t):
-                sx, sy = moves[s]
-                a01 = 0 if (sx - qx, sy - qy) in HEX_NBRS else 1
-                ktoks = [k for k in range(q) if toklab[k][1] == s]
-                adj[:, a01] += am[:, ktoks].sum(dim=1)
-                adj_n[a01] += 1
+            adjmask = torch.tensor(
+                [(sx - qx, sy - qy) in HEX_NBRS for sx, sy in moves[:t]])
+            adj[:, 0] += rec_mass[:, :t][:, adjmask].sum(dim=1)
+            adj[:, 1] += rec_mass[:, :t][:, ~adjmask].sum(dim=1)
+            adj_n[0] += adjmask.sum()
+            adj_n[1] += (~adjmask).sum()
             nq += 1
+    backbone.config._attn_implementation = prev_impl
     res = {"n_queries": nq, "classes": CLS,
            "cls_mass": (cls_mass / nq).tolist(),
            "delta_bins": DELTA, "delta_mass": (dl_mass / nq).tolist(),
@@ -179,7 +208,7 @@ def main():
     ap.add_argument("--ckpt",
                     default="checkpoints/armF_movesfull_r3ext/best.pt")
     ap.add_argument("--mode", default="all",
-                    choices=["ablate", "patterns", "all"])
+                    choices=["ablate", "patterns", "all", "sinkself"])
     args = ap.parse_args()
     tok, games, recs, val, cnn, backbone, ads, mu, sd = load_all(args.ckpt)
     if args.mode in ("patterns", "all"):
@@ -188,6 +217,10 @@ def main():
     if args.mode in ("ablate", "all"):
         run_ablate(backbone, ads, cnn, games, recs, val, mu, sd,
                    "armF/results/attn_ablate.json")
+    if args.mode == "sinkself":
+        run_ablate(backbone, ads, cnn, games, recs, val, mu, sd,
+                   "armF/results/attn_ablate_sinkself.json",
+                   variants=("sinkself",))
 
 
 if __name__ == "__main__":
