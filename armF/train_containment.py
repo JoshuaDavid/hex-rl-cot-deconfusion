@@ -47,6 +47,7 @@ def load_backbone(train_blocks=23, random_init=False):
     m.config.num_hidden_layers = train_blocks
     m.norm = nn.Identity()
     m.embed_tokens.weight.requires_grad_(False)
+    m.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     m.to(DEV)
     return m
 
@@ -66,7 +67,8 @@ class Adapters(nn.Module):
 
 
 def forward_hiddens(backbone, ids, am):
-    out = backbone(input_ids=ids, attention_mask=am, output_hidden_states=True)
+    out = backbone(input_ids=ids, attention_mask=am, output_hidden_states=True,
+                   use_cache=False)
     return out.hidden_states  # tuple
 
 
@@ -75,7 +77,7 @@ def gather_cells(h, cell):
 
 
 @torch.no_grad()
-def evaluate(backbone, adapters, cnn, tokens, boards, idx, mu, sd, batch=64):
+def evaluate(backbone, adapters, cnn, tokens, boards, idx, mu, sd, batch=32):
     backbone.eval()
     sse = torch.zeros(L, device=DEV)
     ssum = torch.zeros(L, 64, device=DEV)
@@ -108,8 +110,8 @@ def evaluate(backbone, adapters, cnn, tokens, boards, idx, mu, sd, batch=64):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--steps", type=int, default=4700)
-    ap.add_argument("--batch", type=int, default=32)
+    ap.add_argument("--steps", type=int, default=9000)
+    ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--lr", type=float, default=1e-5)
     ap.add_argument("--adapter-lr", type=float, default=1e-3)
     ap.add_argument("--warmup", type=int, default=100)

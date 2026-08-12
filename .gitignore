@@ -8,3 +8,4 @@ outputs/
 default.log
 __pycache__/
 *.pyc
+armF/data/

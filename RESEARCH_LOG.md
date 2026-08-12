@@ -2315,3 +2315,18 @@ question is now purely about the TRAINED version.
 Design note (caught before any training): causal attention makes single-copy
 cell-token readout impossible even for z0 (cell can't attend to the row below).
 All probes/training use a TWO-COPY board render; readout at copy-2 cell tokens.
+
+## 2026-08-12 ~02:40 — ARM F r1 launched + P5 registered
+
+armF_containment_r1 launched: 9000 steps, batch 16, lr 1e-5 (backbone blocks 0-22,
+embeddings frozen), 1e-3 adapters (warm-started from probe ridge solution -- step-0
+val R2 reproduced the frozen-probe numbers exactly, pipeline verified end to end).
+0.62 s/step, 26.5GB, ~1.6h. Loss = mean over 19 layers of MSE on normalized acts.
+Truncated-backbone gotcha caught in smoke: HF applies final RMSNorm to the last
+hidden_states entry -> truncate to 23 blocks and replace norm with Identity so all
+read points (out4..out22) stay raw.
+
+P5 registered (before r1 finishes): a from-scratch random-init backbone trained with
+the same recipe reaches LOWER val R2 than pretrained-init at equal steps: 70%.
+(If wrong -> Qwen's pretraining contributes ~nothing to learning containment, and
+the arm-F result is about transformer capacity, not universal representations.)

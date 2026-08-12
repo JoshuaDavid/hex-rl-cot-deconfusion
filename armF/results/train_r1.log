@@ -1,0 +1,30 @@
+N 76210 train 75210 val 1000
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<01:32,  3.35it/s]Loading weights:  22%|██▏       | 69/310 [00:00<00:01, 219.61it/s]Loading weights:  35%|███▍      | 108/310 [00:00<00:00, 209.82it/s]Loading weights:  45%|████▍     | 139/310 [00:00<00:00, 228.52it/s]Loading weights:  55%|█████▍    | 169/310 [00:00<00:00, 240.95it/s]Loading weights:  65%|██████▍   | 201/310 [00:00<00:00, 219.50it/s]Loading weights:  75%|███████▌  | 234/310 [00:01<00:00, 245.16it/s]Loading weights:  85%|████████▍ | 262/310 [00:01<00:00, 253.20it/s]Loading weights:  94%|█████████▎| 290/310 [00:01<00:00, 258.49it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 234.30it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: joshuadavid to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run 0vj72imq
+wandb: Tracking run with wandb version 0.28.1
+wandb: Run data is saved locally in /workspace/hex-rl-cot-deconfusion/wandb/run-20260812_023103-0vj72imq
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run armF_containment_r1
+wandb: ⭐️ View project at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: 🚀 View run at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/0vj72imq
+step 0 val R2 (should ~match frozen probe): [0.57, 0.533, 0.474, 0.418, 0.374, 0.335, 0.318, 0.298, 0.288, 0.276, 0.282, 0.286, 0.308, 0.32, 0.333, 0.338, 0.359, 0.357, 0.37]
+step 25 loss 0.7038 gn 8.05 (0.62s/step)
+step 50 loss 0.7208 gn 9.11 (0.62s/step)
+step 75 loss 0.7181 gn 12.66 (0.62s/step)
+step 100 loss 0.6847 gn 19.02 (0.62s/step)
+step 125 loss 0.6164 gn 14.82 (0.62s/step)
+step 150 loss 0.6670 gn 14.66 (0.62s/step)
+step 175 loss 0.6517 gn 10.55 (0.62s/step)
+step 200 loss 0.7297 gn 15.04 (0.62s/step)
+step 225 loss 0.5674 gn 9.70 (0.62s/step)
+step 250 loss 0.6331 gn 13.42 (0.62s/step)
