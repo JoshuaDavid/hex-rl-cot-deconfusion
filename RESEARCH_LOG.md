@@ -2620,3 +2620,27 @@ Play (paired 4-ply openings): vs random 19-20/20 at every cut, illegal argmax
   CNN" — the reconstruction is real but not decision-grade.
 - Contrast anchors: r1 render stitch 94/200 (parity); r2 moves+render stitch
   44/120; r3 render-free 8/120. Each render removed costs a regime.
+
+## 2026-08-12 ~15:50 — r3ext complete: P21-P23 graded; no third cycle
+
+Warm restart worked exactly as designed: step-0 val R² 0.5969 reproduced the
+r3 checkpoint (pipeline check passed), no restart dip, and halved peak LRs +
+2x data (4400 games) lifted the whole profile ~uniformly. Final mean val R²
+**0.6388** (r3: 0.5970). Per-layer: z0 .913, z1 .760, z3 .662, z9 .554
+(trough), z15 .634, z18 .683.
+
+- **P21 NO** (mean ≥.65 @60%): 0.6388. Overconfident.
+- **P22 YES** (z0 ≥.85 @45%): 0.913. Joshua's cascade read (z0 improving pulls
+  z1, z2, ... up) matches the trajectory: z0 gained fastest (+.09) and shallow
+  layers followed (+.06), deep layers +.03.
+- **P23 NO** (z9 ≥.58 @50%): 0.554. The mid-stack trough is the stubborn part.
+
+No third cycle: agreed headroom rule (significant per-layer improvement in the
+7000→8500 window) NOT met — mean +.0018/1500 steps, ~4x flatter than r3's
+window, every layer ≤ +.001/500. Two 9k cycles bought +.60 then +.04;
+a third projects ~+.02. Render-free containment looks asymptotic around
+~.65 mean at this data/adapter/model scale, vs r1's render-based .773.
+
+Running stitch eval on r3ext (does z0 .82→.91 move play strength at all?).
+Prediction **P24**: r3ext pooled vs CNN (cuts 0/9/18, paired openings)
+improves over r3's 8/120 but stays <25% — **55%**.
