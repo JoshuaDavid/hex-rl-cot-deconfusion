@@ -119,6 +119,8 @@ def main():
     ap.add_argument("--save-every", type=int, default=1000)
     ap.add_argument("--run-name", default="armF_containment_r1")
     ap.add_argument("--random-init", action="store_true")
+    ap.add_argument("--probe", default=None,
+                    help="warm-start probe .pt (default matches init type)")
     ap.add_argument("--freeze-qwen", action="store_true", help="adapters only (sanity)")
     ap.add_argument("--out-dir", default=None)
     args = ap.parse_args()
@@ -135,7 +137,10 @@ def main():
     cnn = W.load_model()
     backbone = load_backbone(random_init=args.random_init)
     adapters = Adapters().to(DEV)
-    mu, sd = adapters.warm_start("armF/results/probe_frozen.pt")
+    probe = args.probe or ("armF/results/probe_frozen_randinit.pt" if args.random_init
+                           else "armF/results/probe_frozen.pt")
+    print(f"warm-start probe: {probe}")
+    mu, sd = adapters.warm_start(probe)
     mu, sd = mu.to(DEV), sd.to(DEV)
     if args.freeze_qwen:
         for p in backbone.parameters():
