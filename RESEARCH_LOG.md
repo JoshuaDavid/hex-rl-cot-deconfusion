@@ -2574,3 +2574,33 @@ Predictions registered BEFORE launch:
  P19 z18 final >= 0.50: 50%.
  P20 render-free stitch (z_k-hat from LAST move token -> CNN tail) at parity,
      >=40% pooled vs CNN, paired openings, cuts 0/9/18: 40%.
+
+## 2026-08-12 ~12:10 — r3 complete (armF_movesfull_r3, 9000 steps): P17-P19 graded
+
+Final val R² mean **0.5970**. Per-layer U-shape: z0 .823, z3 .612, z6 .548,
+z9 .515 (trough), z12 .552, z15 .603, z18 **.656**. ~2.2h at 0.89s/step.
+
+- **P17 NO by 0.003** (mean ≥.60 @55%): 0.5970. Painfully calibrated.
+- **P18 NO** (z0 ≥.85 @60%): 0.823. Joint 19-layer objective costs z0 ~.05 vs
+  the z0-only mini run at equal steps (0.62 vs 0.774 @3k) — shared backbone
+  capacity, though the gap narrows by 9k.
+- **P19 YES** (z18 ≥.50 @50%): 0.656. Render-free DEEP features are the
+  best-predicted after z0 — the U-shape now mirrors r1's render-based profile
+  (trough mid-stack), not r2's.
+
+Headroom check (extension rule agreed with Joshua at ~11:00): steps 7000→8500
+mean +.004, z0 +.01, at LR ≤10% of peak — still climbing under a dying LR.
+Cosine-artifact precedent (plain z0 0.379@1k → 0.436@3k) says this understates
+true headroom. **Extension approved criteria met.**
+
+Extension plan (launching after stitch eval): warm restart from best.pt
+(weights only, fresh AdamW), +9000 steps, peak LRs HALVED (5e-6 / 5e-4) to
+soften the restart transient, and DOUBLED data — 2200 fresh seed-2 selfplay
+games (games2.pt, 168k plies) concatenated; original 60-seq val split
+preserved (gi offset), so step-0 R² must reproduce 0.5970 (pipeline check).
+
+Predictions (registered before extension launch):
+- **P21**: extension (r3ext, 9k more steps, 2x data) final mean val R² ≥ 0.65.
+  **60%**
+- **P22**: r3ext z0 ≥ 0.85 (P18 revisited with 2x budget+data). **45%**
+- **P23**: r3ext z9 (trough) ≥ 0.58. **50%**
