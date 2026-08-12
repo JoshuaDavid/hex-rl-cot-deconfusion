@@ -3015,3 +3015,17 @@ of D_l in R^1024; random baseline 64/1024 = .0625):
   covariance, not by the finetune.
 Artifacts: fingerE_subspaces.py, fingerE_subspaces.json,
 fingerE_bottleneck.{py,json,log}, checkpoints/armF_fingerE/.
+
+## 2026-08-12 ~19:50 — finger E extension registered (r3ext recipe): 2x data + warm-restart anchored bottleneck
+
+Joshua approved the push to parity. Recipe: gen_positions.py --seed 3
+--games 1800 --random-games 600 -> positions2.pt (~150k raw), dedup against
+ALL of positions.pt (train AND val — no leakage), train pool = old-train +
+new survivors; warm-restart bottleneck_anchored.pt weights-only, fresh
+AdamW, lr 5e-5 (halved), 12000 steps, same anchored loss. Val = same 4096
+held-out boards as all finger E runs.
+
+Predictions (registered before running):
+- PE16 (60%): final val KL <= 0.12 (from .200, with 2x data + 12k steps).
+- PE17 (50%): play vs pure CNN >= 40% (>=24/60) — the parity-band claim.
+- PE18 (70%): play >= 25% (>=15/60), i.e. clear improvement over 12/60.

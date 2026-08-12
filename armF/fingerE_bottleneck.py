@@ -99,6 +99,15 @@ def pca_basis(cnn, boards_u8):
     return Vs, mus, torch.stack(sds)
 
 
+def dedup_extra(old_boards, extra_boards):
+    """Drop extra boards already present in old (train OR val — no leakage)."""
+    import hashlib
+    seen = {hashlib.md5(t.numpy().tobytes()).hexdigest() for t in old_boards}
+    keep = [t for t in extra_boards
+            if hashlib.md5(t.numpy().tobytes()).hexdigest() not in seen]
+    return torch.stack(keep) if keep else extra_boards[:0]
+
+
 def train(student, cnn, boards_u8, n_train, sd, steps, variant, lr=1e-4,
           batch=256, log_every=500):
     opt = torch.optim.AdamW(student.parameters(), lr=lr, weight_decay=0.0)
@@ -204,6 +213,12 @@ def main():
     ap.add_argument("--n-val", type=int, default=4096)
     ap.add_argument("--games", type=int, default=30)
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--resume", default=None,
+                    help="checkpoint to warm-restart from (weights only)")
+    ap.add_argument("--extra-data", default=None,
+                    help="extra positions .pt merged into the train pool")
+    ap.add_argument("--lr", type=float, default=1e-4)
+    ap.add_argument("--tag", default="")
     ap.add_argument("--out", default="armF/results/fingerE_bottleneck.json")
     args = ap.parse_args()
     if args.smoke:
@@ -218,6 +233,13 @@ def main():
     perm = torch.randperm(len(boards), generator=torch.Generator().manual_seed(0))
     boards = boards[perm]
     n_train = len(boards) - args.n_val
+    if args.extra_data:
+        extra = torch.load(args.extra_data, weights_only=False)["boards"]
+        extra = dedup_extra(boards, extra)
+        # order: [old_train, extra, old_val] — val stays the same 4096 boards
+        boards = torch.cat([boards[:n_train], extra, boards[n_train:]])
+        n_train += len(extra)
+        print(f"extra: {len(extra)} new unique positions merged", flush=True)
     print(f"positions: {len(boards)} train {n_train} val {args.n_val}", flush=True)
 
     Vs, mus, sd = pca_basis(cnn, boards[:N_BASIS])
@@ -229,14 +251,19 @@ def main():
     eval_boards = boards[n_train:n_train + (1024 if not args.smoke else 128)]
     for variant in args.variants.split(","):
         student = BottleneckedCNN(cnn, Vs, mus).to(DEV)
+        if args.resume:
+            ck = torch.load(args.resume, map_location=DEV, weights_only=False)
+            student.load_state_dict(ck["state_dict"])
+            print(f"resumed weights from {args.resume}", flush=True)
         n_par = sum(p.numel() for p in student.parameters())
         print(f"\n=== {variant} ({n_par/1e6:.1f}M params) ===", flush=True)
         ev0 = eval_student(student, cnn, eval_boards[:256], sd)
-        print(f"  init (chained-PCA): kl {ev0['kl']:.4f} top1 {ev0['top1']:.3f} "
+        print(f"  init: kl {ev0['kl']:.4f} top1 {ev0['top1']:.3f} "
               f"R2 mean {ev0['r2_mean']:.4f}", flush=True)
-        train(student, cnn, boards, n_train, sd, args.steps, variant)
+        train(student, cnn, boards, n_train, sd, args.steps, variant,
+              lr=args.lr)
         torch.save({"state_dict": student.state_dict(), "variant": variant},
-                   ckdir / f"bottleneck_{variant}.pt")
+                   ckdir / f"bottleneck_{variant}{args.tag}.pt")
         student.eval()
         ev = eval_student(student, cnn, eval_boards, sd)
         random.seed(0)
