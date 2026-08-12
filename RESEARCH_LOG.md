@@ -2530,3 +2530,16 @@ steps): 0.310 @ hs1 rising to 0.383 @ hs11, then FLAT (+-0.004) through hs23.
 Launched numbered-format A/B (--fmt numbered: "\n1. g1 X\n2. d4 O ...",
 readout at the color token; maxlen 311->~690). Grading P13 (>= 0.48, 70%) and
 P14 (>= 0.65, 35%) against plain baseline 0.379.
+
+## 2026-08-12 ~12:30 — Numbered format A/B at 1000 steps: P13 NO, P14 NO — but curves diverge
+
+numbered ("\n1. g1 X ...") final z0 R2 0.4456 vs plain 0.379 (+0.067).
+ P13 (lift >= 0.10, 70%): NO — 0.067.
+ P14 (>= 0.65, 35%): NO.
+BUT: plain plateaued from step 600 (.371/.377/.379) while numbered was still
+climbing steeply when LR annealed out (.414/.438/.446, +0.008/200 at the end).
+Format helps directionally (parity hypothesis alive); 1000 steps is the binder
+for numbered, information is the binder for plain. Extending A/B to 3000 steps
+each (both arms, fair cosine schedules). Predictions BEFORE launch:
+ P15 numbered@3000 >= 0.55: 60%.
+ P16 numbered@3000 - plain@3000 >= 0.10: 55%.
