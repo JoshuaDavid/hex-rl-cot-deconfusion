@@ -3069,3 +3069,28 @@ Predictions (registered before running):
   the full drop.
 - PE22 (50%): best arm (early-stopped) plays >= 24/60 vs pure CNN (parity
   band) — releasing the constraint converts KL gains into play.
+
+## 2026-08-12 ~21:25 — anchor-release graded: PE19/PE20/PE22 NO, PE21 YES; the anchor is load-bearing, monotonically
+
+Resumed bottleneck_anchored_ext.pt, 8000 steps, lr 5e-5, early-stopped on
+val KL:
+  act-weight 1.0 (the ext artifact itself): val KL .178 | 20/60 | R2 .703
+  act-weight 0.1: best val KL .1944 | 18/60 | R2 .583
+  act-weight 0   (kl_only): best val KL .2030 | 17/60 | R2 -.518
+- Releasing the constraint IMMEDIATELY costs generalization: within 500
+  steps val KL jumps .20 -> .42, then spends the whole budget crawling back
+  to .203 — never beating the anchored starting point. Dose-response is
+  monotone: more anchor = better val KL AND better play.
+- PE19 NO (@65%), PE20 NO (@45%), PE21 YES (@55%: .194 < .203 — partial
+  anchor better than none, consistent with monotonicity), PE22 NO (@50%).
+- Read: on this artifact the anchor is not rent but the regularizer that
+  projects out memorization directions from the KL gradient. The KL-only
+  gradient at the good basin points off-distribution-destructive; matching
+  the teacher's INTERNAL geometry is (at this data scale) the cheapest
+  proxy for matching its off-distribution behavior. Answer to Joshua's
+  question: no — relaxing intermediate-layer matching buys no KL; it costs
+  .02-.03 val KL and 2-3 games. Caveat: one lr (5e-5), one budget; a much
+  gentler schedule might squeeze something, but the 500-step blowup says
+  the constraint surface, not optimization pace, is what's binding.
+Artifacts: fingerE_release_{kl,soft}.{json,log},
+checkpoints/armF_fingerE/bottleneck_{kl_only_release,anchored_soft}.pt.

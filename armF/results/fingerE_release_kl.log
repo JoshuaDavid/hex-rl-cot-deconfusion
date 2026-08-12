@@ -1,0 +1,27 @@
+extra: 152534 new unique positions merged
+positions: 228744 train 224648 val 4096
+PCA basis built
+resumed weights from checkpoints/armF_fingerE/bottleneck_anchored_ext.pt
+
+=== kl_only (302.2M params) ===
+  init: kl 0.2056 top1 0.695 R2 mean 0.7053
+  step 500/8000 kl 0.3355 act 0.0000 val_kl 0.4157 (32s)
+  step 1000/8000 kl 0.3018 act 0.0000 val_kl 0.3936 (63s)
+  step 1500/8000 kl 0.2910 act 0.0000 val_kl 0.3630 (95s)
+  step 2000/8000 kl 0.2415 act 0.0000 val_kl 0.3728 (126s)
+  step 2500/8000 kl 0.2238 act 0.0000 val_kl 0.3597 (159s)
+  step 3000/8000 kl 0.2307 act 0.0000 val_kl 0.3342 (190s)
+  step 3500/8000 kl 0.1853 act 0.0000 val_kl 0.3233 (222s)
+  step 4000/8000 kl 0.1485 act 0.0000 val_kl 0.2969 (254s)
+  step 4500/8000 kl 0.1358 act 0.0000 val_kl 0.2559 (285s)
+  step 5000/8000 kl 0.1010 act 0.0000 val_kl 0.2344 (316s)
+  step 5500/8000 kl 0.0883 act 0.0000 val_kl 0.2228 (348s)
+  step 6000/8000 kl 0.0826 act 0.0000 val_kl 0.2136 (379s)
+  step 6500/8000 kl 0.0720 act 0.0000 val_kl 0.2086 (411s)
+  step 7000/8000 kl 0.0629 act 0.0000 val_kl 0.2048 (442s)
+  step 7500/8000 kl 0.0603 act 0.0000 val_kl 0.2033 (473s)
+  step 8000/8000 kl 0.0633 act 0.0000 val_kl 0.2030 (505s)
+  early stop: restored best val_kl 0.2030
+kl_only: kl 0.2270 top1 0.693 top3 0.900 sp 0.897 | R2 mean -0.5180 | vs random 20 | vs CNN 17/60 | illegal 0
+
+wrote armF/results/fingerE_release_kl.json
