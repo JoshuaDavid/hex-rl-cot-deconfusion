@@ -2500,3 +2500,18 @@ joint FT, 1000 steps. Predictions registered BEFORE launch:
  P11 peak-depth R2 >= 0.55 (somewhere in the stack the board IS linearly
      assembled): 60%.
  P12 argmax depth >= hs[10] (aggregation needs depth; early layers can't): 70%.
+
+## 2026-08-12 ~11:40 — Parity hypothesis (user); P13-P14 registered before format A/B
+
+Depth sweep at step 500: profile FLAT (hs1 .30 -> peak ~.36 @ hs7-13 -> .33 @
+hs22). Evidence against "aggregation needs depth", for a uniform information
+deficit. User hypothesis: LLMs are bad at PARITY — the move list gives stone
+color only via list-position parity, and the canonical (to-move) target frame
+additionally flips with total-count parity; wrong parity = wrong channel for
+every stone = uniform R2 cap at all depths. Also explains col z0 .786 (own
+color is local) vs full-map .379 (needs parity of ~70 stones).
+A/B: same hs[5] -> z0 setup, input becomes numbered+colored moves ("1. e9 X"
+newline-separated; readout at last token of each record). Registered BEFORE
+launch:
+ P13 numbered+colored format lifts z0 R2 by >=0.10 (to >=0.48): 70%.
+ P14 reaches >=0.65: 35%.
