@@ -3237,3 +3237,36 @@ genuinely nonlinear (linear floor .83). Width-relative-to-state-rank, not
 MLP expressivity, is the binding constraint both times.
 Artifacts: armF/fingerD2_distilled.py, armF/results/fingerD2.{json,log},
 checkpoints/armF_fingerD2/. Finger D2 CLOSED.
+
+## 2026-08-12 ~22:05 — r4 launched: render-free containment of the DISTILLED rank-1024 net
+
+Synthesis driving r4: r3's failure mode was a width overcommit — 7744-dim z
+maps forced through a 2048-dim stream (adapters 301M, R2 ceiling ~.65,
+stitch 13%). Finger E produced a 1024-dim-native distilled net that still
+plays 1867 Elo; finger D2 showed Qwen-width blocks handle its c-space
+transitions (R2 .985, substitution parity). So: contain the DISTILLED net.
+Targets = native c_l = enc_l(z_l) in R^1024 at all 19 capture points,
+per-dim normalized; adapters 19x Linear(2048->1024) (~40M, 7.6x smaller
+than r3); input/readout identical to r3ext (numbered move list, hs[5+l] at
+move color tokens, every move token supervises its prefix); data = games.pt
++ games2.pt (4400 games, 4400 seqs, maxlen 928). 9000 steps, batch 8,
+lr 1e-5 / adapter 1e-3. Trainer armF/train_movesr4.py; stitch eval
+armF/eval_stitch_r4.py (reference player = distilled net; play at cuts
+0/9/18 with BOTH 4-ply paired openings for r1-r3 comparability AND 1-ply
+openings per the protocol-flattening caveat).
+
+Smoke checks passed: dump_c == capture-forward decode at all 19 layers;
+true-c stitch reproduces distilled forward logits exactly at k=0,9,18
+(the r4 exactness anchor); mem peak 24.6GB; samples byte-identical to r3
+format. c-stats cached (armF/results/r4_cstats.pt, 20k boards).
+
+Predictions (registered before launch):
+- P29 r4 final mean val R2 (c-space, 19 layers) >= 0.72 (r3ext was .639 in
+  z-space; targets are lower-rank and the net was TRAINED to route through
+  them): 55%
+- P30 stitch pooled vs distilled (cuts 0/9/18, 4-ply paired openings)
+  >= 40% (48/120) — the "regime recovered" bar: 45%
+- P31 frozen-backbone reservoir control (adapters only, equal steps) ends
+  >= 0.15 mean R2 below the joint-FT run: 70%
+- P32 1-ply-opening pooled win% strictly below 4-ply pooled win% (protocol
+  flattening replicates on this arm): 60%
