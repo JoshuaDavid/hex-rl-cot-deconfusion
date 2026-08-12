@@ -12,6 +12,7 @@ PREAMBLE = (
     "X to move.\n\n"
 )
 POSTAMBLE = "\nConsider the position.\n"
+MID = "\nThe same board again:\n\n"
 
 BOARD_SIZE = 11
 
@@ -43,6 +44,22 @@ def render(canonical):
                            offsets):
         assert text[off] in ".XO", (x, y, text[off])
     return text, offsets
+
+
+def render_two_copy(canonical):
+    """Board rendered twice; readout happens at the SECOND copy's cell tokens
+    (causal attention: only there can every cell see the whole board).
+    Returns (text, offsets1, offsets2)."""
+    text1, off1 = render(canonical)
+    text1 = text1[: -len(POSTAMBLE)]  # strip postamble from first copy
+    body, off_b = render(canonical)
+    # board body of the second copy starts at len(PREAMBLE) in its own text
+    shift = len(text1) + len(MID) - len(PREAMBLE)
+    text = text1 + MID + body[len(PREAMBLE):]
+    off2 = [o + shift for o in off_b]
+    for o in off2:
+        assert text[o] in ".XO"
+    return text, off1, off2
 
 
 def cell_token_indices(tok, text, offsets):

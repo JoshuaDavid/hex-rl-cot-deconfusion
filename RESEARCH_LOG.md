@@ -2289,3 +2289,29 @@ REGISTERED PREDICTIONS (before any probe/training run):
  P3 stitching argmax move-match vs pure CNN at deepest cut (k=18, Qwen does all the
     work) >= 60%: 40%.
  P4 stitched player (every cut) beats random 20/20: 50%.
+
+## 2026-08-12 ~02:50 — ARM F frozen-probe result: P1 half wrong; random-init control kills the "deep alignment"
+
+76210 unique positions generated (900 selfplay T-schedule+eps games, 300 random).
+Pipeline validated HARD: patch-affine control (r=1, shared weights, conv geometry)
+hits R2=1.000 on z0 exactly as it must (z0 IS conv(patch)) -- cell/target alignment
+is provably correct.
+
+Frozen pretrained Qwen affine probes (val R2, 6000 train / 1000 val positions):
+ z0 .57  z2 .47  z5 .33  z9 .28 (min)  z14 .33  z18 .37  -- U-shape.
+ patch3 control: .51 at z2 declining to .21 deep. Qwen > patch3 everywhere >= z2.
+P1 grading: early-layer half CORRECT (z0-z1 > .5, z2 .47 borderline). Deep-layer
+half WRONG (predicted <.2 at 70%; actual .33-.37).
+
+BUT random-init Qwen control (same arch/prompt, untrained): z18 R2 .354 vs
+pretrained .370. Deep-layer probe R2 is ~entirely random-feature kernel capacity
+(2048-dim nonlinear reservoir of the board), NOT pretrained representation.
+Pretrained-over-random advantage: z0 +.13, z5 +.08, z14+ <=.04, z18 +.016.
+DECONFUSION NOTE: naive linear probing overstates "universal representation"
+alignment; capacity-matched random-init control removes ~all of the deep signal.
+Frozen Qwen has NO privileged access to superhuman deep hex features. The arm-F
+question is now purely about the TRAINED version.
+
+Design note (caught before any training): causal attention makes single-copy
+cell-token readout impossible even for z0 (cell can't attend to the row below).
+All probes/training use a TWO-COPY board render; readout at copy-2 cell tokens.

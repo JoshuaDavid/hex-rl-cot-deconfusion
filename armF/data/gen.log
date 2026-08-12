@@ -1,0 +1,11 @@
+selfplay game 100/900, unique positions 6655
+selfplay game 200/900, unique positions 13445
+selfplay game 300/900, unique positions 20155
+selfplay game 400/900, unique positions 26828
+selfplay game 500/900, unique positions 33663
+selfplay game 600/900, unique positions 40275
+selfplay game 700/900, unique positions 47238
+selfplay game 800/900, unique positions 53853
+selfplay game 900/900, unique positions 60486
+total unique positions: 76210
+wrote armF/data/positions.pt shape (76210, 2, 13, 13)
