@@ -2261,3 +2261,31 @@ ARM-E CONCLUSION (both regimes):
  wins only when the environment makes the useful action the rewarded one. Same
  selection-not-creation throughline: RL redistributes probability toward reward; it
  neither creates usefulness nor sees human intent.
+
+## 2026-08-12 ~02:05 — ARM F KICKOFF: containment of HexHex CNN in Qwen3-1.7B (universal-representation stress test)
+
+New arm (user-initiated, "unhinged"): can Qwen3-1.7B + per-layer affine adapters be
+fine-tuned so its residual stream CONTAINS the activations of the superhuman HexHex
+CNN (18 skip-layers x 64ch, 11x11), depth-aligned: Qwen layers 5..23 <-> CNN capture
+points 0..18 (post-initial-conv + after each skip layer)? No LM loss — we don't care
+about preserving Qwen's outputs. Killer eval = STITCHING: run Qwen to layer 5+k, affine
+A_k into CNN layer k, finish in CNN, measure move-match / play strength per cut.
+
+Setup verified tonight:
+- HexHex repo cloned; pretrained 11_2w4_2000.pt loads (18 layers, 64ch, reach 1,
+  switch+rotation wrappers). 20/20 vs random. Empty-board move (3,1) = pie-rule-safe.
+- armF/hexhex_wrap.py: dump_acts (19x (B,64,11,11)), stitched_logits verified exact
+  vs inner forward at cut 0.
+- armF/render11.py: text render == canonical CNN input (always to-move perspective,
+  'X to move'); Qwen tokenizer gives exactly 121 distinct cell tokens (~175-token
+  prompt), verified via offset mapping.
+- CNN acts will be computed on the fly (CNN is tiny); dataset stores boards only.
+
+REGISTERED PREDICTIONS (before any probe/training run):
+ P1 frozen-Qwen affine probes, per-layer R2 on val: z0-z2 R2>0.5: 75%; z14-z18
+    R2<0.2: 70%. (Early layers ~= local board features Qwen must represent; deep
+    layers = superhuman win-relevant features Qwen cannot have.)
+ P2 joint FT (LoRA or full) reaches R2>0.8 on ALL 19 layers: 60%; >0.9 all: 35%.
+ P3 stitching argmax move-match vs pure CNN at deepest cut (k=18, Qwen does all the
+    work) >= 60%: 40%.
+ P4 stitched player (every cut) beats random 20/20: 50%.
