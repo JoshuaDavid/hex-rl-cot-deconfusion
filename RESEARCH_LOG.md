@@ -3029,3 +3029,22 @@ Predictions (registered before running):
 - PE16 (60%): final val KL <= 0.12 (from .200, with 2x data + 12k steps).
 - PE17 (50%): play vs pure CNN >= 40% (>=24/60) — the parity-band claim.
 - PE18 (70%): play >= 25% (>=15/60), i.e. clear improvement over 12/60.
+
+## 2026-08-12 ~20:30 — finger E extension graded: PE16/PE17 NO, PE18 YES; 12->20/60, headroom check
+
+Extension (anchored bottleneck, +152,895 seed-3 positions -> 225k train,
+warm restart, lr 5e-5, 12000 steps):
+  val KL .200 -> .178 | top1 .678 -> .698 | R2 mean .694 -> .703 |
+  vs CNN 12/60 -> 20/60 (33.3%) | vs random 20/20
+- PE16 NO (@60%): .178 > .12 — KL improves ~linearly in log-data, not the
+  hoped-for jump. PE17 NO (@50%): 33% < 40%; parity band not reached.
+  PE18 YES (@70%): clear play improvement, monotone with val KL now that
+  the student family is right (anchored conv+bottleneck).
+- Ladder so far: chained PCA 4/60 -> +joint finetune 12/60 -> +2x data
+  20/60. Every rung: same rank (1024), better training signal. Rank-1024
+  never looked like the binding constraint after phase 2.
+- Headroom (r3 rule, val-KL window deltas): 8k->10k -.025, 10k->12k -.009
+  (cosine-confounded). Play trend 12->20/60 in one cycle. A third cycle
+  (4x data, longer schedule) plausibly lands in the parity band but with
+  ~1/3-decay per window; declining by default per the agreed rule unless
+  Joshua wants one final bigger swing.
