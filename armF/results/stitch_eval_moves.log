@@ -1,0 +1,27 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+loaded ckpt step 8750
+cut | top1 | top3 | spearman
+  0 | 0.441 | 0.684 | 0.844
+  1 | 0.431 | 0.691 | 0.846
+  2 | 0.428 | 0.664 | 0.854
+  3 | 0.395 | 0.632 | 0.833
+  4 | 0.382 | 0.658 | 0.860
+  5 | 0.375 | 0.628 | 0.841
+  6 | 0.375 | 0.628 | 0.835
+  7 | 0.391 | 0.622 | 0.841
+  8 | 0.414 | 0.697 | 0.854
+  9 | 0.378 | 0.641 | 0.847
+ 10 | 0.408 | 0.661 | 0.844
+ 11 | 0.388 | 0.668 | 0.853
+ 12 | 0.375 | 0.671 | 0.853
+ 13 | 0.375 | 0.671 | 0.851
+ 14 | 0.382 | 0.622 | 0.848
+ 15 | 0.372 | 0.599 | 0.853
+ 16 | 0.345 | 0.586 | 0.849
+ 17 | 0.336 | 0.556 | 0.846
+ 18 | 0.306 | 0.536 | 0.834
+cut 0: vs random 18/20, vs pure CNN (4-ply openings) 7/40, illegal argmax 0
+cut 9: vs random 20/20, vs pure CNN (4-ply openings) 16/40, illegal argmax 0
+cut 18: vs random 19/20, vs pure CNN (4-ply openings) 21/40, illegal argmax 0
+wrote armF/results/stitch_eval_moves.json

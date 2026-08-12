@@ -2470,3 +2470,14 @@ Mini falsifier first (user-requested): z0 only, 1000 steps, joint FT
  P10 render-free z0 full-map pooled val R2 at step 1000 >= 0.70: 65%.
     (col-z0 hit .786 for the played-cell column; full map includes all 121
     cells incl. empty; z0 is post-first-conv i.e. mostly local stone features.)
+
+## 2026-08-12 ~10:50 — P9 graded NO; depth gradient in moves-format stitching
+
+Stitch (moves format, r2 best.pt step 9000): vs pure CNN with paired 4-ply
+openings: cut0 7/40, cut9 16/40, cut18 21/40 — pooled 44/120 = 36.7% < 40% →
+P9 NO (70% was too confident). But the structure is the story: PARITY at
+cut 18 (entire trunk replaced by Qwen) and near-zero at cut 0. Inverse of the
+naive difficulty ordering (z0 ~ stones). Reading: z-hat errors at shallow cuts
+get amplified through the remaining CNN layers, while at cut 18 errors feed
+straight into the policy head, and the (lower than r1) render R2 hurts shallow
+cuts most. vs random: 18-20/20 at all cuts; 0 illegal argmaxes anywhere.
