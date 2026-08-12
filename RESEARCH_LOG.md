@@ -2371,3 +2371,14 @@ REAL by the causal (stitching) standard, not just the correlational (probe) one.
 
 Artifacts: armF/results/stitch_eval.json, stitch_eval_frozen.json,
 stitch_r1.log, stitch_frozen.log.
+
+## 2026-08-12 ~05:10 — ARM F language check: hosting the CNN costs ~0.15 nats
+
+Spliced FT'd blocks 0..22 back into original Qwen3-1.7B (blocks 23-27, norms,
+embeddings, lm_head untouched). Token NLL on English sample: 2.045 -> 2.197
+(ppl 7.7 -> 9.0). Greedy generations all coherent: Paris/correct fibonacci
+def/100degC. So the containment fine-tune found weights that host the full CNN
+trunk at cell tokens AND remain a functioning language model on text -- the two
+computations coexist in the same 2048-dim residual stream with modest
+interference. (No LM loss was used; this is purely incidental preservation at
+lr 1e-5 / 9000 steps.)
