@@ -2408,3 +2408,33 @@ earlier rank-bound argument); open question is whether the ~5% tail (rank99
 ~4000) carries play-relevant signal, and whether Qwen can learn to pack the
 principal coords. Relevant to a possible r2 with moves-in-order prompts:
 per-move activation-column supervision + register readout.
+
+## 2026-08-12 ~08:10 — ARM F r2 (moves format) spec + P6-P9 registered + launch
+
+Joshua asked for denser signal via moves-in-order input; rank check said full
+maps compress (>=95% var in 2048 dims). r2 sequence = preamble + move list cut
+at a random ply + SINGLE-copy render of the post-cut board (the move list makes
+a single copy causally readable — every stone is in context before the render).
+Three simultaneous supervision streams, per layer l in 0..18 at hidden 5+l:
+ 1. col: at each move token t, the CNN's 64-ch column at the just-played cell,
+    board AFTER move t (new adapters C_l 2048->64) — every prefix supervised.
+ 2. pca: at each move token t, top-128 whitened PCA coords of the full 7744-dim
+    map after move t (P_l 2048->128; basis captures 55-83% var by layer).
+ 3. render: full 121x64 map at render cell tokens (A_l, as r1).
+Data: 2200 games (1800 selfplay + 400 random, median 73 plies, 168k boards),
+5 cuts/game -> 11000 seqs, maxlen 480 tokens; val = game_id % 15 == 0.
+Density: ~282k supervised scalars per ~300-token seq (~940/token, ~2x r1's 443,
+and ~38 distinct boards per sequence vs 1). Verified: 20-game exact replay,
+column indexing, PCA round-trip, 3 full samples eyeballed (121/121 cells each).
+Smoke: loss backward ok, 10.6GB. NOTE: r1 probe warm-start does NOT transfer to
+the moves-format prompt (render step-0 R2 -0.17 vs +0.37 in-format) — another
+data point that these readouts are prompt-context-sensitive.
+
+Predictions registered BEFORE launch (run armF_moves_r2, 9000 steps, batch 12):
+ P6 render-stream final mean val R2 within 0.05 of r1's 0.773 (single-copy +
+    moves context instead of two-copy): 60%.
+ P7 col-stream final mean R2 < render-stream mean R2 (one token must carry
+    incrementally-tracked state vs 121 tokens reading a rendered board): 70%.
+ P8 pca-stream final mean R2 > 0.5: 55%.
+ P9 stitched play from render cells at parity (>=40% pooled vs CNN, paired
+    4-ply openings, cuts 0/9/18): 70%.
