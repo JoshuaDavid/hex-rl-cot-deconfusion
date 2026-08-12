@@ -1,0 +1,47 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2200 seqs, maxlen 311
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:
+ e9 k11 d4 f6 h9 d8 h2 h3 f7 g9 f4 a8 j1 e6 d3 j6 j2 d1 i6 a1 e4 a3 f3 k1 b6 k2 h5 a6 h6 k4 k3 j3 j4 k9 h4 j5 i7 b9 a5 a7 d5 k7 e5 i4 i5 i2 g3 g4 f10 d9 c11 b10 g11 i3 d11 d7 a11 b11 h11 b5 k8 e7 e11 b
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:
+ b8 c4 i10 i8 d10 e9 d3 e5 h4 d8 d7 f6 e4 f4 e10 c8 a5 h10 f9 b10 h11 c7 h2 f3 g11 e3 c1 b9 k1 e7 b1 d6 b11 a11 e1 c10 k11 g2 e11 d5 f11 e6 c11 d1 i11 d4 f8 g3 a1 f5 d11 c6 j1 c5 j10 g4 f1 g5 k10 b7 k9
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:
+ f4 h5 h8 e7 b9 i3 j1 h2 c10 d9 f9 g8 g7 c9 h1 h7 h6 f6 i1 c3 g2 d5 d6 c6 c2 e3 b11 d10 f1 d2 d11 i6 c11 g9 e11 h9 f11 i5 e6 c7 f2 d7 h10 j9 d1 e1 d8 j8 k1 e2 g10 f5 e10 g5 b5 f3 b4 a7 a1 g3 i11 k10 k1
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<01:06,  4.65it/s]Loading weights:  18%|█▊        | 55/310 [00:00<00:01, 166.94it/s]Loading weights:  25%|██▌       | 79/310 [00:00<00:01, 188.27it/s]Loading weights:  32%|███▏      | 100/310 [00:00<00:01, 193.24it/s]Loading weights:  40%|████      | 124/310 [00:00<00:00, 202.77it/s]Loading weights:  47%|████▋     | 146/310 [00:00<00:00, 207.39it/s]Loading weights:  54%|█████▍    | 168/310 [00:00<00:00, 210.23it/s]Loading weights:  61%|██████▏   | 190/310 [00:01<00:00, 168.89it/s]Loading weights:  69%|██████▊   | 213/310 [00:01<00:00, 183.28it/s]Loading weights:  75%|███████▌  | 234/310 [00:01<00:00, 189.09it/s]Loading weights:  83%|████████▎ | 256/310 [00:01<00:00, 195.77it/s]Loading weights:  90%|████████▉ | 278/310 [00:01<00:00, 200.56it/s]Loading weights:  97%|█████████▋| 300/310 [00:01<00:00, 205.62it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 191.99it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+step 0 val R2 -0.2046
+step 50 loss 0.7940 (0.14s/step)
+step 100 loss 0.8229 (0.14s/step)
+step 150 loss 0.7563 (0.14s/step)
+step 200 loss 0.6668 (0.14s/step)
+step 200 val R2 0.3257
+step 250 loss 0.6084 (0.14s/step)
+step 300 loss 0.6745 (0.14s/step)
+step 350 loss 0.5585 (0.14s/step)
+step 400 loss 0.6810 (0.15s/step)
+step 400 val R2 0.3539
+step 450 loss 0.7427 (0.15s/step)
+step 500 loss 0.7134 (0.15s/step)
+step 550 loss 0.6587 (0.15s/step)
+step 600 loss 0.6217 (0.15s/step)
+step 600 val R2 0.3707
+step 650 loss 0.7366 (0.15s/step)
+step 700 loss 0.6989 (0.15s/step)
+step 750 loss 0.6677 (0.15s/step)
+step 800 loss 0.6922 (0.15s/step)
+step 800 val R2 0.3774
+step 850 loss 0.7244 (0.15s/step)
+step 900 loss 0.6983 (0.15s/step)
+step 950 loss 0.6314 (0.15s/step)
+step 1000 loss 0.7307 (0.15s/step)
+step 1000 val R2 0.3793
+FINAL z0 render-free R2 0.3793

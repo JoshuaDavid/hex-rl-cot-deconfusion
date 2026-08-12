@@ -2481,3 +2481,22 @@ naive difficulty ordering (z0 ~ stones). Reading: z-hat errors at shallow cuts
 get amplified through the remaining CNN layers, while at cut 18 errors feed
 straight into the policy head, and the (lower than r1) render R2 hurts shallow
 cuts most. vs random: 18-20/20 at all cuts; 0 illegal argmaxes anywhere.
+
+## 2026-08-12 ~11:15 — P10 graded NO (0.379); one token != whole board at hs[5]
+
+Render-free z0 mini run (train_movesonly_z0.py, 1000 steps): val R2 0.379
+(curve: .33/.35/.37/.38/.38 — converged for this budget). P10 (>=0.70, 65%) NO.
+Contrast trio on the SAME z0 target: played-cell column from move token .786;
+full map from 121 render-cell tokens .760; full map from ONE move token .379.
+Capacity is not the binder (2048 dims >= 94.7% var of z0): the full board is
+not linearly present in a single move token's state at hs[5]. Reading: causal
+attention distributes state across move tokens; aggregating ~70 moves into one
+token needs attention hops the first 5 layers don't provide (CNN gets z0 in one
+conv because its input IS the board; Qwen must first collect it).
+
+Next falsifier (before r3 commits to z_l <-> hs[5+l]): DEPTH SWEEP — same
+render-free z0 full-map target, 23 adapters reading hs[1..23] simultaneously,
+joint FT, 1000 steps. Predictions registered BEFORE launch:
+ P11 peak-depth R2 >= 0.55 (somewhere in the stack the board IS linearly
+     assembled): 60%.
+ P12 argmax depth >= hs[10] (aggregation needs depth; early layers can't): 70%.
