@@ -2604,3 +2604,19 @@ Predictions (registered before extension launch):
   **60%**
 - **P22**: r3ext z0 ≥ 0.85 (P18 revisited with 2x budget+data). **45%**
 - **P23**: r3ext z9 (trough) ≥ 0.58. **50%**
+
+## 2026-08-12 ~12:55 — r3 stitch eval (P20 graded): render-free stitch is a
+## competent-but-not-CNN-grade player
+
+`eval_stitch_full.py` on r3 best.pt (step 9000). Agreement (304 val cuts):
+top1 FLAT ~0.28-0.38 across all 19 cuts, top3 ~0.50-0.63, spearman ~0.80 flat.
+Play (paired 4-ply openings): vs random 19-20/20 at every cut, illegal argmax
+0/everything; vs pure CNN cut0 3/40, cut9 1/40, cut18 4/40 = **8/120 = 6.7%**.
+
+- **P20 NO** (pooled ≥40% @40%): 6.7%. Decisive.
+- Depth profile is neither r1's decline nor r2's inversion: FLAT. Render-free
+  ẑ carries uniform moderate error at every depth; vs a superhuman opponent,
+  ~0.80-spearman ranking loses ~always. "Beats random easily, can't touch the
+  CNN" — the reconstruction is real but not decision-grade.
+- Contrast anchors: r1 render stitch 94/200 (parity); r2 moves+render stitch
+  44/120; r3 render-free 8/120. Each render removed costs a regime.
