@@ -3120,3 +3120,30 @@ the policy is); t=2.0 several hundred below (YES, -464).
 - Caveat: Elo for 40-0 pairs is prior-sensitive, but the ladder is pinned by
   informative adjacent matchups; single seed, 40 games/pair (+-~120 Elo per
   rung at the extremes).
+
+## 2026-08-12 ~21:50 — Elo-vs-temp ladder for the distilled rank-1024 artifact; PE23-PE26 registered
+
+Joshua measured original HexHex on an 8-temp round-robin (elo_temp.py,
+BT anchored orig t=1.0 -> 1500): 2254 / 2158 / 2022 / 1698 / 1500 / 1407 /
+1171 / 1036 for t = 0/.25/.5/.75/1/1.25/1.5/2. Question: where does the
+distilled bottleneck_anchored_ext land at each temp — and is it measurable
+without training a policy head? Answer to the second half: directly
+measurable — the artifact carries its fine-tuned copy of the CNN policy
+head end-to-end and emits full 121 logits; temperature sampling needs no
+new training. elo_temp_distilled.py: joint 16-entity RR ({orig,dist} x 8
+temps, 10 paired openings/pair = 2400 games), BOTH models rotation-averaged
+(dist gets the identical flip-average wrapper), joint BT fit anchored orig
+t=1.0 = 1500. In-tournament orig ladder doubles as harness validation.
+Note: this protocol (1 forced opening move) is friendlier to the student
+than our 4-ply-random 60-game evals — positions stay nearer the selfplay
+training distribution.
+
+Predictions (registered before the full run; a 24-game smoke ran first):
+- PE23 (60%): dist t=0 Elo in [2030, 2230] (win-rate transfer from 20/60
+  implies ~2130).
+- PE24 (85%): dist Elo monotone nonincreasing in temp.
+- PE25 (45%): Elo gap orig-dist at fixed temp is larger at t=.75 and t=1.0
+  than at BOTH t=0 and t=2.0 (mid-temp distribution mismatch, floor
+  compression at t=2).
+- PE26 (70%): in-tournament orig ladder reproduces the published one within
+  max |delta| <= 120 Elo across all 8 temps.
