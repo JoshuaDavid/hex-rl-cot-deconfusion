@@ -1,0 +1,40 @@
+positions: 76210 (basis from first 10000 of train)
+z 0: basis var@1024 1.0000
+z 1: basis var@1024 0.9593
+z 2: basis var@1024 0.9238
+z 3: basis var@1024 0.9092
+z 4: basis var@1024 0.8943
+z 5: basis var@1024 0.8880
+z 6: basis var@1024 0.8814
+z 7: basis var@1024 0.8799
+z 8: basis var@1024 0.8763
+z 9: basis var@1024 0.8723
+z10: basis var@1024 0.8738
+z11: basis var@1024 0.8748
+z12: basis var@1024 0.8785
+z13: basis var@1024 0.8901
+z14: basis var@1024 0.8934
+z15: basis var@1024 0.9052
+z16: basis var@1024 0.9189
+z17: basis var@1024 0.9297
+z18: basis var@1024 0.9399
+basis built in 29s
+sanity: chained k=2048 top1-match on 64 val boards = 0.484
+
+=== chained_k512 ===
+  z-hat R2 per layer: 1.000 0.816 0.742 0.697 0.647 0.622 0.595 0.573 0.546 0.522 0.510 0.498 0.483 0.483 0.474 0.475 0.474 0.479 0.474
+chained_k512: R2 mean 0.5847 z18 0.4740 | top1 0.318 top3 0.554 sp 0.819 | vs random 19/20 | vs CNN 11/60 | illegal 0
+
+=== chained_k1024 ===
+  z-hat R2 per layer: 1.000 0.904 0.846 0.806 0.764 0.741 0.716 0.694 0.671 0.648 0.632 0.620 0.605 0.604 0.596 0.598 0.598 0.602 0.599
+chained_k1024: R2 mean 0.6971 z18 0.5988 | top1 0.424 top3 0.655 sp 0.861 | vs random 20/20 | vs CNN 4/60 | illegal 0
+
+=== chained_k2048 ===
+  z-hat R2 per layer: 1.000 0.962 0.924 0.895 0.865 0.846 0.826 0.808 0.789 0.769 0.754 0.743 0.728 0.727 0.720 0.722 0.721 0.724 0.721
+chained_k2048: R2 mean 0.8022 z18 0.7214 | top1 0.525 top3 0.777 sp 0.903 | vs random 19/20 | vs CNN 4/60 | illegal 0
+
+=== single_z9_k1024 ===
+  z-hat R2 per layer: 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.790 0.830 0.848 0.857 0.871 0.878 0.886 0.892 0.897 0.900
+single_z9_k1024: R2 mean 0.9288 z18 0.8996 | top1 0.729 top3 0.946 sp 0.956 | vs random 20/20 | vs CNN 27/60 | illegal 0
+
+wrote armF/results/fingerE_pca.json

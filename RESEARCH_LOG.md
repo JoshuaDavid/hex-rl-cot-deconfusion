@@ -2825,3 +2825,69 @@ linfull+mlp .975. Reads:
    substitution at these fidelities is already ~parity.
 Artifacts: armF/fingerD_convmlp.py, armF/results/fingerD{,_bypass}.{json,log},
 checkpoints/armF_fingerD/. Finger D CLOSED.
+
+## 2026-08-12 ~17:15 — finger E opened: rank-1024 HexHex (compressed-state distillation); PE1-PE5 registered
+
+Joshua's question: can HexHex be distilled to a rank-1024 state (fits in half
+of Qwen's 2048 residual) "by doing awful things with superposition — 121
+almost-orthogonal rank-64 subspaces of a rank-1024 state"? Conceptual answer
+given before any run:
+- The hand-designed near-orthogonal-subspace version FAILS on dense features:
+  reading one cell through its projection pulls crosstalk from 120
+  simultaneous interferers, noise/signal ~ 120*64/1024 ~ 7.5 (SNR 0.13).
+  Superposition buys capacity under sparsity; a board state is maximally dense.
+- What saves you is cross-cell CORRELATION (global low-rank), not sparsity.
+  New measurement (rank_check_1024.json, 10k positions): a single global
+  rank-1024 basis captures 87-94% of variance at every layer (trough z9
+  .872, z1 .959, z18 .940). Near-orthogonality is the wrong desideratum —
+  it fights the correlations that make 1024 enough. Frame: learned global
+  compression, not 121 private slots.
+- Design consequences: (a) conv weight tying is lost in a compressed basis
+  (fine, fixed 11x11 board, ~2M params/layer); (b) the real risk is
+  COMPOUNDING across 19 compression points, not per-layer fidelity (finger D:
+  one rank-2048 transition bottleneck cost -.036; r2/r3: shallow errors
+  amplify through the trunk).
+
+Cheapest falsifier (fingerE_pca.py): chain frozen per-layer PCA
+project+reconstruct through the whole trunk (compress at every z_l, real conv
+layers in between), agreement + paired-opening play vs pure CNN, rank sweep
+{512, 1024, 2048} + single-layer-z9-only control (isolates compounding).
+Decision rule: chained-1024 >=40% play parity -> frozen compressed state
+suffices, distillation phase is about transitions; <20% -> joint training of
+encoders/decoders/transitions must recover compounding.
+
+Predictions (registered before running):
+- PE1 (40%): chained k=1024 top1 agreement vs pure CNN >= 0.60.
+- PE2 (40%): chained k=1024 play vs pure CNN >= 40% (>=24/60 paired games).
+- PE3 (60%): chained k=2048 play >= 45% (>=27/60).
+- PE4 (50%): compounding is dominant: single-z9-only k=1024 top1 exceeds
+  chained k=1024 top1 by >= 0.15.
+- PE5 (85%): chained k=1024 still beats random >= 18/20.
+
+## 2026-08-12 ~17:40 — finger E falsifier graded: PE1-PE3 NO, PE4-PE5 YES; frozen PCA insufficient, compounding dominant
+
+Chained frozen per-layer PCA (fingerE_pca.py, basis 10k train positions, 60
+paired games/variant):
+  chained k=512:  z18 R2 .474 | top1 .318 | vs CNN 11/60 | vs rand 19/20
+  chained k=1024: z18 R2 .599 | top1 .424 | vs CNN  4/60 | vs rand 20/20
+  chained k=2048: z18 R2 .721 | top1 .525 | vs CNN  4/60 | vs rand 19/20
+  single z9 k=1024: z18 R2 .900 | top1 .729 | vs CNN 27/60 | vs rand 20/20
+- PE1 NO (.424 < .60 @40%). PE2 NO (6.7% << 40% @40%). PE3 NO (@60%) — the
+  genuine surprise: even rank-2048 chained is a broken player at 4/60, so
+  finger D's "one-layer substitution is forgiving" does NOT extend to 19
+  simultaneous mild perturbations; play sensitivity is a compounding
+  phenomenon, not a fidelity threshold. (k=512's 11/60 vs k=1024/2048's 4/60
+  is nonmonotone — treat 4-11/60 as one "broken" band, paired-opening noise.)
+- PE4 YES (.729 - .424 = .305 >= .15 @50%): single-point rank-1024
+  compression at the variance trough is nearly free (45% parity, finger-D
+  band); chaining is what kills. PE5 YES (@85%).
+- Immediate-vs-chained: per-layer basis keeps 87-94% var, but chained R2
+  decays monotonically to ~.60 (k=1024) by z18 — each conv layer amplifies
+  the previous truncation error (same mechanism as r2/r3 shallow-error
+  amplification, now measured cleanly per-rank).
+- Decision rule (pre-registered): <20% parity -> frozen compressed state does
+  NOT suffice; finger E phase 2 = jointly trained compression (encoders/
+  decoders/transitions), where the student can route around its own
+  compression errors rather than eat them layer-by-layer.
+Artifacts: armF/fingerE_pca.py, armF/results/fingerE_pca.{json,log},
+rank_check_1024.json (var@{512,1024,1536,2048} per layer).
