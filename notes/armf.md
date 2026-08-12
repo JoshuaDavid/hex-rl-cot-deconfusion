@@ -95,9 +95,26 @@ PCA-128 of the full map at each move token, full per-cell map at render cells.
    still climbing when plain had plateaued (P13/P14 NO by the letter,
    direction confirmed). 3000-step A/B (P15/P16) pending → decides r3 format.
 
-r3 plan (user-approved): render-free, per-layer Linear(2048→7744) full-map
-adapters at move tokens (~301M params), no cuts — every move token supervises
-its own prefix (~73 prefixes/seq, ~147k scalars/token).
+## r3: render-free full stack (numbered format) — findings
+
+Render-free, per-layer Linear(2048→7744) full-map adapters at move tokens
+(~301M params), numbered format, no cuts — every move token supervises its
+own prefix (`train_movesfull.py`). r3 = 9000 steps; r3ext = warm restart from
+best.pt (weights only, fresh AdamW, halved peak LRs 5e-6/5e-4) + 2200 fresh
+seed-2 games (`gen_games.py --seed 2`, gi offset preserves val split — step-0
+R² must reproduce the ckpt).
+
+10. **R²: r3 0.597 → r3ext 0.639** (z0 .82→.91, trough z9 .52→.55, z18
+    .66→.68). U-shape like r1. P17 NO by .003, P18 NO/P22 YES (z0 .91),
+    P19 YES (z18 .66), P21 NO, P23 NO. Cascade dynamics (Joshua's read):
+    z0 gains fastest, shallow follows, deep lags. Asymptotic ~.65 at this
+    scale — headroom rule (7000→8500 window) failed for a third cycle.
+11. **Render-free stitch plays, but far below CNN** (`eval_stitch_full.py`,
+    P20 NO, P24 YES): agreement FLAT over depth (spearman ~.80-.88); beats
+    random ~90%; vs pure CNN r3 8/120 = 6.7%, r3ext 16/120 = 13.3%.
+    Ladder: r1 render 47% (parity) | r2 moves+render 36.7% | r3 render-free
+    6.7% | r3ext 13.3%. Each render removed costs a regime — reconstructing
+    the board from moves burns capacity the CNN-tail computation needs.
 
 ## Gotchas for reruns
 
