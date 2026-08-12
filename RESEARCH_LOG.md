@@ -2382,3 +2382,29 @@ trunk at cell tokens AND remain a functioning language model on text -- the two
 computations coexist in the same 2048-dim residual stream with modest
 interference. (No LM loss was used; this is purely incidental preservation at
 lr 1e-5 / 9000 steps.)
+
+## 2026-08-12 ~06:50 — ARM F randinit control done: P5 YES; + activation-map rank check
+
+Random-init FT control (same recipe, warm-started from probe_frozen_randinit.pt --
+first launch was confounded by pretrained-probe warm start, step-0 R2 ~ -800;
+killed, added --probe flag, relaunched with step-0 reproducing the randinit probe
+0.441 vs 0.445). FINAL mean val R2 0.7169 (z0 .948, trough .637 z11, z18 .698)
+vs pretrained-init 0.7728 (z0 .991, z18 .763). Trajectory tracked ~2000 steps
+behind pretrained throughout (randinit@7000 = 0.706 ~ pretrained@3000 = 0.701).
+P5 graded (pretrained wins at equal steps, registered 70%): YES. Reading: real
+but modest pretraining contribution, concentrated early/local (z0 gap .043);
+most of containment is learnable from scratch -- arm F's result is substantially
+about transformer capacity + FT, with pretraining as a head start, not a
+prerequisite.
+
+Rank check (armF/rank_check.py, SVD of full 7744-dim activation maps over 10k
+positions), prompted by Joshua's density question: maps are strongly
+low-dimensional with an HOURGLASS depth profile. rank90: 160 (z0) -> 1293 (z9
+peak) -> 557 (z18); participation ratio 71 -> 90 -> 7.4 (deep layers collapse
+onto a handful of global decision directions feeding the linear policy head).
+Top-2048 dims capture >=94.7% variance at EVERY layer => a one/few-token
+"register" affine readout of the full map is NOT capacity-doomed (contra my
+earlier rank-bound argument); open question is whether the ~5% tail (rank99
+~4000) carries play-relevant signal, and whether Qwen can learn to pack the
+principal coords. Relevant to a possible r2 with moves-in-order prompts:
+per-move activation-column supervision + register readout.
