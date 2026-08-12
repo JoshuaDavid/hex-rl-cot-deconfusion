@@ -1,0 +1,44 @@
+{
+ "n_train": 72114,
+ "n_val": 4096,
+ "steps": 8000,
+ "identity": {
+  "r2": 0.20492896437644958
+ },
+ "linfull": {
+  "params_M": 60.0,
+  "r2": 0.9571090936660767,
+  "agreement": {
+   "top1": 0.83203125,
+   "top3": 0.98828125,
+   "spearman": 0.9753913341555744
+  },
+  "vs_random": "10/10",
+  "vs_cnn_openings": "27/60",
+  "illegal_argmax": 0
+ },
+ "lin2048": {
+  "params_M": 31.7,
+  "r2": 0.9205648899078369,
+  "agreement": {
+   "top1": 0.7841796875,
+   "top3": 0.96875,
+   "spearman": 0.9694104517111555
+  },
+  "vs_random": "10/10",
+  "vs_cnn_openings": "28/60",
+  "illegal_argmax": 0
+ },
+ "mlp": {
+  "params_M": 69.5,
+  "r2": 0.9308812022209167,
+  "agreement": {
+   "top1": 0.802734375,
+   "top3": 0.9794921875,
+   "spearman": 0.9718964499770664
+  },
+  "vs_random": "10/10",
+  "vs_cnn_openings": "26/60",
+  "illegal_argmax": 0
+ }
+}

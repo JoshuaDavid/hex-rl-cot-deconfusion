@@ -1,0 +1,20 @@
+{
+ "n_train": 72114,
+ "n_val": 4096,
+ "steps": 8000,
+ "identity": {
+  "r2": 0.20492896437644958
+ },
+ "linfull_mlp": {
+  "params_M": 129.4,
+  "r2": 0.975106954574585,
+  "agreement": {
+   "top1": 0.8642578125,
+   "top3": 0.9892578125,
+   "spearman": 0.9795273683848791
+  },
+  "vs_random": "10/10",
+  "vs_cnn_openings": "32/60",
+  "illegal_argmax": 0
+ }
+}

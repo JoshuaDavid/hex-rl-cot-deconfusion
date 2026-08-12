@@ -1,0 +1,25 @@
+positions: 76210
+cache: z2 (76210, 7744) z3 (76210, 7744) | z2 mean 0.093 std 0.486 | z3 mean 0.146 std 0.549
+sanity anchor (true-z3 stitch vs pure) max|diff| = 0.00e+00
+identity baseline val R2 = 0.2049
+
+=== linfull_mlp (129.4M params) ===
+  step 500/8000 loss 0.0551 val R2 0.9356 (6s)
+  step 1000/8000 loss 0.0425 val R2 0.9474 (13s)
+  step 1500/8000 loss 0.0375 val R2 0.9530 (19s)
+  step 2000/8000 loss 0.0341 val R2 0.9566 (25s)
+  step 2500/8000 loss 0.0301 val R2 0.9598 (31s)
+  step 3000/8000 loss 0.0276 val R2 0.9622 (37s)
+  step 3500/8000 loss 0.0254 val R2 0.9646 (43s)
+  step 4000/8000 loss 0.0229 val R2 0.9669 (50s)
+  step 4500/8000 loss 0.0206 val R2 0.9688 (56s)
+  step 5000/8000 loss 0.0193 val R2 0.9705 (62s)
+  step 5500/8000 loss 0.0172 val R2 0.9718 (68s)
+  step 6000/8000 loss 0.0162 val R2 0.9730 (74s)
+  step 6500/8000 loss 0.0150 val R2 0.9739 (80s)
+  step 7000/8000 loss 0.0143 val R2 0.9746 (87s)
+  step 7500/8000 loss 0.0140 val R2 0.9750 (93s)
+  step 8000/8000 loss 0.0139 val R2 0.9751 (99s)
+linfull_mlp: R2 0.9751 top1 0.864 top3 0.989 sp 0.980 | vs random 10/10 | vs CNN 32/60 | illegal 0
+
+wrote armF/results/fingerD_bypass.json

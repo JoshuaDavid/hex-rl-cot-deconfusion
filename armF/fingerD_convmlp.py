@@ -87,6 +87,22 @@ class QwenMLPBlock(nn.Module):
         return h + self.down(F.silu(self.gate(n)) * self.up(n))
 
 
+class LinBypassMLP(nn.Module):
+    """Full-rank linear path + bottleneck MLP path in parallel: isolates
+    whether the MLP can supply the NONLINEAR part when the linear part is
+    free (not squeezed through the bottleneck)."""
+
+    def __init__(self):
+        super().__init__()
+        self.lin = nn.Linear(D_Z, D_Z)
+        self.down = nn.Linear(D_Z, D_H)
+        self.block = QwenMLPBlock()
+        self.up = nn.Linear(D_H, D_Z, bias=False)
+
+    def forward(self, x):
+        return self.lin(x) + self.up(self.block(self.down(x)))
+
+
 def make_model(variant):
     if variant == "mlp":
         return nn.Sequential(nn.Linear(D_Z, D_H), QwenMLPBlock(),
@@ -95,6 +111,8 @@ def make_model(variant):
         return nn.Sequential(nn.Linear(D_Z, D_H), nn.Linear(D_H, D_Z))
     if variant == "linfull":
         return nn.Linear(D_Z, D_Z)
+    if variant == "linfull_mlp":
+        return LinBypassMLP()
     raise ValueError(variant)
 
 

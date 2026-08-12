@@ -2782,3 +2782,46 @@ mixing is dispensable. Attention "importance" and "where it looks" dissociate:
 sink-dominated layers still carry critical mixing in their small non-sink
 remainder. Method lesson: zero-ablation of attention is confounded wherever
 sinks dominate — use sink-preserving masks.
+
+## 2026-08-12 ~17:10 — finger D main run graded (PD1-PD4); bypass decomposition launched
+
+Results (8000 steps each, 72k train / 4k val, val R2 per-dim mean):
+identity 0.205 | lin2048 0.921 | mlp 0.931 | linfull 0.957.
+Agreement top1 .784/.803/.832; play vs pure CNN 28/60, 26/60, 27/60 — ALL at
+~parity (43-47%) regardless of R2; single-layer replacement is forgiving.
+
+- PD1 NO (identity >=.60 @55%): 0.205. One skip layer transforms per-dim
+  content far more than residual-stream intuition suggested.
+- PD2 NO (lin2048 >=.95 @45%): 0.921 (the >=.90 sub-line at 70% was YES).
+- PD3a NO (mlp >=.99 @35%): 0.931 — not "identical output".
+- PD3b NO (mlp >= lin2048+.02 @75%): +0.010 only. AND linfull (pure linear,
+  no bottleneck) BEATS the MLP: the rank-2048 bottleneck costs -.036, the
+  SwiGLU nonlinearity recovers only +.010. The transformer MLP block does
+  NOT reproduce the conv layer; a plain unconstrained linear map is closer.
+- PD4a YES (mlp stitch >=40% @70%): 26/60 = 43.3%. PD4b NO (top1 .803 < .90).
+
+Reframe (per rule): main run confounds "relearn linear part through
+bottleneck" with "do the nonlinear part". Bypass run launched: full-rank
+Linear(7744->7744) + parallel bottleneck MLP path, all trained.
+- PD5: linfull_mlp closes >=50% of linfull's residual gap (R2 >= 0.9786): 40%
+
+## 2026-08-12 ~17:25 — finger D bypass graded (PD5 NO by a hair); finger D closed
+
+linfull_mlp (full-rank Linear bypass + parallel D->QwenMLP->U): val R2 0.9751,
+top1 .864, vs pure CNN 32/60 (53%) — best emulator on every metric. Closed 42%
+of linfull's residual gap (threshold 50%) -> PD5 NO @40%.
+
+Finger D ladder: identity .205 | lin2048 .921 | mlp .931 | linfull .957 |
+linfull+mlp .975. Reads:
+1. One conv skip layer is NOT per-dim residual passthrough (identity .205)
+   but IS ~96% linear (linfull .957).
+2. A pure project->MLP-block->project emulation (Joshua's original spec) loses
+   to plain linear: rank-2048 skip costs -.036, SwiGLU buys back +.010.
+3. "MLP + skip" is the right frame ONLY if the skip is native-width: then the
+   MLP's contribution is purely nonlinear (+.018, 42% of the nonlinear residue).
+   The binding constraint was the bottleneck, not MLP capacity — rhymes with
+   r3's render-reconstruction tax.
+4. Play vs pure CNN is insensitive across R2 .92-.975 (43-53%): one-layer
+   substitution at these fidelities is already ~parity.
+Artifacts: armF/fingerD_convmlp.py, armF/results/fingerD{,_bypass}.{json,log},
+checkpoints/armF_fingerD/. Finger D CLOSED.

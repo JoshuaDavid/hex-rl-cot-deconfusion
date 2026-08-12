@@ -1,0 +1,63 @@
+positions: 76210
+cache: z2 (76210, 7744) z3 (76210, 7744) | z2 mean 0.093 std 0.486 | z3 mean 0.146 std 0.549
+sanity anchor (true-z3 stitch vs pure) max|diff| = 0.00e+00
+identity baseline val R2 = 0.2049
+
+=== linfull (60.0M params) ===
+  step 500/8000 loss 0.0688 val R2 0.9219 (5s)
+  step 1000/8000 loss 0.0572 val R2 0.9331 (9s)
+  step 1500/8000 loss 0.0531 val R2 0.9376 (14s)
+  step 2000/8000 loss 0.0514 val R2 0.9404 (18s)
+  step 2500/8000 loss 0.0478 val R2 0.9425 (23s)
+  step 3000/8000 loss 0.0459 val R2 0.9448 (27s)
+  step 3500/8000 loss 0.0444 val R2 0.9465 (32s)
+  step 4000/8000 loss 0.0422 val R2 0.9484 (36s)
+  step 4500/8000 loss 0.0403 val R2 0.9503 (40s)
+  step 5000/8000 loss 0.0397 val R2 0.9519 (45s)
+  step 5500/8000 loss 0.0371 val R2 0.9533 (49s)
+  step 6000/8000 loss 0.0362 val R2 0.9546 (54s)
+  step 6500/8000 loss 0.0347 val R2 0.9556 (58s)
+  step 7000/8000 loss 0.0341 val R2 0.9565 (63s)
+  step 7500/8000 loss 0.0341 val R2 0.9570 (67s)
+  step 8000/8000 loss 0.0338 val R2 0.9571 (72s)
+linfull: R2 0.9571 top1 0.832 top3 0.988 sp 0.975 | vs random 10/10 | vs CNN 27/60 | illegal 0
+
+=== lin2048 (31.7M params) ===
+  step 500/8000 loss 0.0974 val R2 0.8938 (2s)
+  step 1000/8000 loss 0.0893 val R2 0.9008 (3s)
+  step 1500/8000 loss 0.0871 val R2 0.9046 (5s)
+  step 2000/8000 loss 0.0855 val R2 0.9067 (7s)
+  step 2500/8000 loss 0.0851 val R2 0.9082 (9s)
+  step 3000/8000 loss 0.0825 val R2 0.9099 (10s)
+  step 3500/8000 loss 0.0796 val R2 0.9114 (12s)
+  step 4000/8000 loss 0.0785 val R2 0.9128 (14s)
+  step 4500/8000 loss 0.0754 val R2 0.9143 (16s)
+  step 5000/8000 loss 0.0756 val R2 0.9160 (17s)
+  step 5500/8000 loss 0.0733 val R2 0.9172 (19s)
+  step 6000/8000 loss 0.0716 val R2 0.9185 (21s)
+  step 6500/8000 loss 0.0714 val R2 0.9194 (23s)
+  step 7000/8000 loss 0.0715 val R2 0.9200 (24s)
+  step 7500/8000 loss 0.0699 val R2 0.9205 (26s)
+  step 8000/8000 loss 0.0698 val R2 0.9206 (28s)
+lin2048: R2 0.9206 top1 0.784 top3 0.969 sp 0.969 | vs random 10/10 | vs CNN 28/60 | illegal 0
+
+=== mlp (69.5M params) ===
+  step 500/8000 loss 0.0841 val R2 0.9071 (4s)
+  step 1000/8000 loss 0.0763 val R2 0.9144 (7s)
+  step 1500/8000 loss 0.0758 val R2 0.9161 (11s)
+  step 2000/8000 loss 0.0722 val R2 0.9182 (15s)
+  step 2500/8000 loss 0.0719 val R2 0.9203 (19s)
+  step 3000/8000 loss 0.0687 val R2 0.9219 (22s)
+  step 3500/8000 loss 0.0660 val R2 0.9238 (26s)
+  step 4000/8000 loss 0.0660 val R2 0.9251 (30s)
+  step 4500/8000 loss 0.0647 val R2 0.9266 (33s)
+  step 5000/8000 loss 0.0635 val R2 0.9277 (37s)
+  step 5500/8000 loss 0.0612 val R2 0.9287 (41s)
+  step 6000/8000 loss 0.0612 val R2 0.9294 (44s)
+  step 6500/8000 loss 0.0604 val R2 0.9301 (48s)
+  step 7000/8000 loss 0.0587 val R2 0.9306 (52s)
+  step 7500/8000 loss 0.0596 val R2 0.9308 (56s)
+  step 8000/8000 loss 0.0594 val R2 0.9309 (59s)
+mlp: R2 0.9309 top1 0.803 top3 0.979 sp 0.972 | vs random 10/10 | vs CNN 26/60 | illegal 0
+
+wrote armF/results/fingerD.json
