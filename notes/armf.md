@@ -116,6 +116,19 @@ R² must reproduce the ckpt).
     6.7% | r3ext 13.3%. Each render removed costs a regime — reconstructing
     the board from moves burns capacity the CNN-tail computation needs.
 
+12. **Attention anatomy of r3ext** (`attn_analysis.py`): three-phase program.
+    L0–L2 gather broadly over the move list (sink ~0); L3+ park 32–97% of
+    mass on the token-0 sink, BUT the non-sink remainder is structured: the
+    previous move record out-attends an average older record in 23/23 layers
+    (3–30x per-record; heads L5H10 .68 mass) — incremental state-passing —
+    and hex-adjacent past moves get ~1.2x mass in 23/23 layers. Sink-clean
+    ablation (mask → keys {0,self}) shows mixing is critical L0–4
+    (−.5…−1.2), real L5–L13 (−.10…−.27 each), severe L14–L17 for deep maps
+    (L16 −10.9), free L18–L22. **Zero-ablating attention is confounded
+    wherever sinks dominate** — deep attn output ≈ o_proj(v_sink) is a
+    learned bias; zeroing it (or selfonly) wrecks layers for the wrong
+    reason. Use sink-preserving masks.
+
 ## Gotchas for reruns
 
 - Randinit control MUST warm-start adapters from `probe_frozen_randinit.pt`
