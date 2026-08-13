@@ -3333,3 +3333,34 @@ occupancy (3-way), per layer x prefix length, on the r4 final ckpt.
   + flat depth sweep push down; linearly-equivalent training pressure up).
 If near-perfect: bottleneck = frame gating -> parity-conditioned adapters
 ablation. If ply-degrading: relay accumulation; the fan-in circuit absent.
+
+## 2026-08-13 ~02:10 — r4 final + equivariance + P33 graded (NO): the board is never fully there
+
+r4 final (9000 steps): mean val R2 0.4022. Full profile: c0 .798, c1 .294
+(global trough, as Joshua eyeballed), monotone climb to c17 .461, c18 .413.
+P29 (>=0.72 @55%): NO, by a wide margin — c-space counts decorrelated
+coordinates and the number is honest about how few we contain.
+
+Equivariance check (/tmp/equivariance.py, held-out linear P-hat per layer,
+c_l(x) -> c_l(Tx), T = transpose+channel-swap): c0 1.000 (exact, all
+linear), c1 .935, sag to ~.73 mid-deep, c18 .832. The distilled net is
+approximately but not exactly equivariant -> parity-gated linear readout
+from a single-frame computation caps at .73-.94 of the flipped frame.
+Not currently binding (actual c1 R2 .29 << .935 ceiling).
+
+P33 (absolute-frame occupancy ridge probe, armF/probe_absocc_r4.py, 90 val
+games, fit/test split by game): best layer hs5 overall acc .892, occupied
+.721, empty .963. P33 (>=0.95 @40%): NO. Three sub-findings:
+- NO parity gap (occ par0 .722 vs par1 .719): frame gating is not what
+  limits board knowledge. Joshua's fan-in circuit (near-1hot board at hs5)
+  is absent; so is my frame-gating story at the probe level.
+- Ply profile INVERTED vs relay-accumulation: occupied acc IMPROVES with
+  prefix length (.667 ply<20 -> .742 ply>60). Long games easier, not
+  harder. Surprise on record; relay error-compounding falsified as the
+  dominant failure mode.
+- Board info peaks at hs5-7 then decays monotonically (.72 -> .42 at
+  hs23): the backbone discards board state down-stack even though deep
+  c_l targets need it.
+Net: the binding constraint is upstream of frame/relay stories — a
+complete board representation never forms. c0 .80 ~ hs5 occupied .72 are
+two views of the same partial-board fact.
