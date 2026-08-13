@@ -3496,3 +3496,18 @@ const, same eval split. Comparator: r4x@3k = 0.2954 (c0 .727; hs5 occ probe
 - **P37b (15%)**: r4t@3k c0 ≥ 0.90 AND post-hoc hs5 occupied-acc ≥ 0.95
   (Joshua's full sketch: with atomic cell tokens the parse snaps to
   near-perfect).
+
+## 2026-08-13 ~07:05 — c0-only speed run queued (Joshua's next probe), P38 registered; ext CANCELLED
+
+Joshua on r4t's mid-run lead ("annoying that that worked so well. Good problem
+to have"): drop the r4x 9k extension entirely (P35/P36 will go ungraded —
+run killed at step ~1700ext, best.pt@1500ext=0.3517 kept on disk), and next
+ask: how fast CAN this go? armF/train_movesc0.py: r4t single-token format,
+loss on c0 ONLY (one adapter at hs5), adapter LR 10x (1e-2), backbone LR
+unchanged 1e-5, 1k steps, val every 100. Comparator: r4t c0 trajectory under
+the 19-layer diluted loss = .15@500 / .44@1k / .70@1500 / .82@2k.
+- **P38a (60%)**: c0-only@1k val R2 ≥ 0.70 (concentrating loss + hot adapter
+  ≈ 2x-2.5x speedup over r4t's c0 curve).
+- **P38b (20%)**: ≥ 0.95 at 1k — the parse "snaps" once undiluted (Joshua's
+  near-affine-perfect expectation; c0 IS affine in occupancy).
+- Instability watch: adapter 1e-2 AdamW may oscillate; grad-clip 1.0 shared.
