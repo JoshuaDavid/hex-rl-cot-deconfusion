@@ -3815,3 +3815,18 @@ Assumption falsified: at lr 1e-5 x 3k on move-token-only loss, weights stay
 in the language basin — containment carves a ~free subspace rather than
 overwriting (consistent with r1's incidental NLL 2.05->2.20). Caveat: one
 greedy sample, splice keeps pretrained blocks 23-27.
+
+### ~16:45 addendum: weight verification (Joshua: "are we sure that loaded the correct weights?")
+
+Diffed ckpt tensors vs pretrained + re-checked the loaded model both ways
+(253 tensors spliced each):
+- c0_ext: layers.2 rel delta .01223; layers.5/12/22 EXACTLY 0.00000 —
+  accidental second confirmation of the indexing correction (that run only
+  had gradient in blocks 0-4). splice check: model==ckpt True,
+  model!=pretrained True.
+- r4t: rel deltas .0165/.0150/.0138/.0158 at layers 2/5/12/22; same splice
+  checks pass.
+So the GSM result is real, and the mechanism is that containment training
+barely travels: ~1.5% relative weight perturbation (lr 1e-5 x 3k, adapter
+absorbs most of the fit) — LoRA-merge scale, well inside the language
+basin. The payload is cheap, not competitive with LM structure.
