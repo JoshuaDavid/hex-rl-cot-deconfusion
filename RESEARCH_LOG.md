@@ -3549,3 +3549,23 @@ c0-only (single-token cells, adapter LR 1e-2, backbone 1e-5) @1k:
   loss dilution + adapter LR (c0-only, 3x on c0). Stack all three and the
   board map goes from "3k steps to .73" to "1k steps to .91, unconverged".
   The deep-cascade constraint (c1-c18 ~.29 regardless) remains the open wall.
+
+## 2026-08-13 ~08:40 — c0-to-convergence + c1-follows chain queued; P39/P40 registered
+
+Joshua: "wondering what it'd take to get c0 to converge, because I suspect
+that once it does, c1 can follow - and if c1 *can't* follow, that will
+itself be informative." train_movesc0.py generalized: --layer N (adapter at
+hs[5+N]), --init-ckpt warm restart; when saved layer != training layer the
+saved adapter is kept FROZEN as an aux drift diagnostic (smoke: c0 0.9095
+reproduced through aux path). Chain: (1) c0 ext +2000 steps (3k total);
+(2) c1-only 1000 steps from the ext checkpoint, aux-tracking c0 drift.
+Comparators: r4t@3k c1 = 0.302 (r4x 0.229); c1 equivariance ceiling note
+(.935); c1 = the trough layer (PR explosion 89->513 after skiplayer0).
+- **P39a (75%)**: c0 ≥ 0.95 by 3k total. **P39b (35%)**: c0 ≥ 0.98 by 3k
+  ("converged" operationally).
+- **P40a (65%)**: c1@1k (from converged c0) ≥ 0.302, i.e. matches r4t's 3k
+  c1 with 1/3 the steps on top of a clean board map.
+- **P40b (25%)**: c1@1k ≥ 0.50 — "c1 follows" strongly; the cascade is
+  layerwise-learnable once its input is clean.
+- Drift watch (not a graded prediction): aux c0 under c1-only training —
+  catastrophic forgetting vs shared-circuit stability.

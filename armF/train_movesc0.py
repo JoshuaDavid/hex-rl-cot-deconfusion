@@ -1,9 +1,10 @@
-"""Arm F c0-only speed run (Joshua 2026-08-13): how fast CAN the board map go?
+"""Arm F single-layer containment runs (Joshua 2026-08-13).
 
-Single-token-cell format (r4t), loss on c0 ONLY (adapter at hs5), adapter LR
-10x (1e-2). Tests whether the 19-layer dense loss and adapter LR were
-throttling c0; c0 is exactly affine in occupancy so R2 -> 1 is achievable
-in principle.
+Single-token-cell format (r4t), loss on ONE c-layer (adapter at hs[5+layer]),
+adapter LR 10x (1e-2). --layer selects the target; --init-ckpt warm-restarts
+the backbone (and the adapter if the saved layer matches; otherwise the saved
+adapter is kept FROZEN as an aux drift diagnostic, e.g. watch c0 while
+training c1).
 """
 import argparse
 import json
@@ -23,19 +24,26 @@ import train_movesr4t as R4T  # noqa: E402
 
 DEV = "cuda"
 K = 1024
-HS = 5  # readout layer for c0
 
 
 @torch.no_grad()
-def batch_targets(student, games, recs, sel, mu0, sd0):
+def batch_targets(student, games, recs, sel, mu, sd, layers):
     boards = [games[recs[i]["gi"]]["boards"][0::2].float() for i in sel]
     bb = torch.cat(boards).to(DEV)
-    c0 = next(iter(R4.dump_c(student, bb)))
-    return (c0 - mu0) / sd0
+    cs = list(R4.dump_c(student, bb))
+    return {l: (cs[l] - mu[l]) / sd[l] for l in layers}
 
 
-def forward_batch(backbone, ad, student, games, recs, sel, mu0, sd0):
-    tgt = batch_targets(student, games, recs, sel, mu0, sd0)
+def gather_h(out, recs, sel, hs_idx):
+    h = out.hidden_states[hs_idx].float()
+    return torch.cat([h[j, recs[i]["mt"].long().to(DEV)]
+                      for j, i in enumerate(sel)])
+
+
+def forward_batch(backbone, ad, layer, student, games, recs, sel, mu, sd,
+                  aux=None):
+    layers = [layer] + ([aux[0]] if aux else [])
+    tgt = batch_targets(student, games, recs, sel, mu, sd, layers)
     lens = [len(recs[i]["ids"]) for i in sel]
     Tlen = max(lens)
     ids = torch.full((len(sel), Tlen), 151643, dtype=torch.long)
@@ -47,27 +55,39 @@ def forward_batch(backbone, ad, student, games, recs, sel, mu0, sd0):
     with torch.autocast("cuda", dtype=torch.bfloat16):
         out = backbone(input_ids=ids, attention_mask=am,
                        output_hidden_states=True, use_cache=False)
-    h = out.hidden_states[HS].float()
-    hm = torch.cat([h[j, recs[i]["mt"].long().to(DEV)]
-                    for j, i in enumerate(sel)])
-    sse = ((ad(hm) - tgt) ** 2).sum()
-    return sse / tgt.numel(), sse.detach(), tgt
+    hm = gather_h(out, recs, sel, 5 + layer)
+    sse = ((ad(hm) - tgt[layer]) ** 2).sum()
+    aux_sse = None
+    if aux:
+        with torch.no_grad():
+            ha = gather_h(out, recs, sel, 5 + aux[0])
+            aux_sse = ((aux[1](ha) - tgt[aux[0]]) ** 2).sum()
+    return sse / tgt[layer].numel(), sse.detach(), tgt, aux_sse
 
 
 @torch.no_grad()
-def evaluate(backbone, ad, student, games, recs, idx, mu0, sd0, batch=4):
+def evaluate(backbone, ad, layer, student, games, recs, idx, mu, sd,
+             aux=None, batch=4):
     backbone.eval()
-    sse, ssum, ssq, n = 0.0, 0.0, 0.0, 0
+    acc = {l: [0.0, 0.0, 0.0] for l in ([layer] + ([aux[0]] if aux else []))}
+    n = 0
     for i in range(0, len(idx), batch):
-        _, s, tgt = forward_batch(backbone, ad, student, games, recs,
-                                  idx[i:i+batch], mu0, sd0)
-        sse += s
-        ssum += tgt.sum()
-        ssq += (tgt ** 2).sum()
-        n += tgt.numel()
+        _, s, tgt, aux_sse = forward_batch(backbone, ad, layer, student,
+                                           games, recs, idx[i:i+batch],
+                                           mu, sd, aux)
+        acc[layer][0] += s
+        if aux:
+            acc[aux[0]][0] += aux_sse
+        for l in acc:
+            acc[l][1] += tgt[l].sum()
+            acc[l][2] += (tgt[l] ** 2).sum()
+        n += tgt[layer].numel()
     backbone.train()
-    mean = ssum / n
-    return (1 - sse / (ssq - n * mean * mean)).item()
+    out = {}
+    for l, (sse, ssum, ssq) in acc.items():
+        mean = ssum / n
+        out[l] = (1 - sse / (ssq - n * mean * mean)).item()
+    return out
 
 
 def main():
@@ -79,6 +99,8 @@ def main():
     ap.add_argument("--warmup", type=int, default=100)
     ap.add_argument("--eval-every", type=int, default=100)
     ap.add_argument("--n-val", type=int, default=60)
+    ap.add_argument("--layer", type=int, default=0)
+    ap.add_argument("--init-ckpt", default=None)
     ap.add_argument("--run-name", default="armF_movesc0")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
@@ -97,9 +119,25 @@ def main():
     cnn = W.load_model()
     student = R4.load_student(cnn)
     mu, sd = R4.c_stats(student, games)
-    mu0, sd0 = mu[0], sd[0]
     backbone = T.load_backbone()
     ad = nn.Linear(2048, K).to(DEV)
+    aux = None
+    if args.init_ckpt:
+        ck = torch.load(args.init_ckpt, map_location="cpu",
+                        weights_only=False)
+        missing, _ = backbone.load_state_dict(
+            {k: v.float() for k, v in ck["backbone"].items()}, strict=False)
+        assert not [m for m in missing if "rotary" not in m], missing
+        prev_layer = ck["args"].get("layer", 0)
+        prev_ad = nn.Linear(2048, K).to(DEV)
+        prev_ad.load_state_dict({k: v.float() for k, v in ck["ad"].items()})
+        if prev_layer == args.layer:
+            ad = prev_ad
+        else:
+            prev_ad.requires_grad_(False)
+            aux = (prev_layer, prev_ad)
+        print(f"warm start from {args.init_ckpt} (step {ck.get('step')}, "
+              f"saved layer {prev_layer}, training layer {args.layer})")
     backbone.train()
 
     qwen_params = [p for p in backbone.parameters() if p.requires_grad]
@@ -115,19 +153,22 @@ def main():
                    config=vars(args))
 
     hist = []
+    L = args.layer
 
     def log_eval(step):
-        r2 = evaluate(backbone, ad, student, games, recs, val, mu0, sd0)
-        hist.append({"step": step, "c0_r2": r2})
-        print(f"step {step} val c0 R2 {r2:.4f}", flush=True)
+        r2 = evaluate(backbone, ad, L, student, games, recs, val, mu, sd, aux)
+        hist.append({"step": step} | {f"c{l}_r2": v for l, v in r2.items()})
+        print(f"step {step} " + " ".join(
+            f"val c{l} R2 {v:.4f}" for l, v in sorted(r2.items())), flush=True)
         if not args.smoke:
-            wandb.log({"val/r2_c0": r2}, step=max(step, 1))
+            wandb.log({f"val/r2_c{l}": v for l, v in r2.items()},
+                      step=max(step, 1))
         return r2
 
     log_eval(0)
     if args.smoke:
-        loss, _, _ = forward_batch(backbone, ad, student, games, recs,
-                                   train[:args.batch], mu0, sd0)
+        loss, _, _, _ = forward_batch(backbone, ad, L, student, games, recs,
+                                      train[:args.batch], mu, sd, aux)
         loss.backward()
         opt.step()
         print(f"smoke loss {loss.item():.3f}, "
@@ -138,8 +179,8 @@ def main():
     step, t0 = 0, time.time()
     while step < args.steps:
         sel = rng.sample(train, args.batch)
-        loss, _, _ = forward_batch(backbone, ad, student, games, recs, sel,
-                                   mu0, sd0)
+        loss, _, _, _ = forward_batch(backbone, ad, L, student, games, recs,
+                                      sel, mu, sd)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(
