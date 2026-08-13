@@ -3664,3 +3664,23 @@ training, which the frozen-input MLP fit cannot.
 - **P43a (40%)**: c1@1k (hs7) ≥ 0.35 — extra block buys a real chunk;
   depth was a binding constraint.
 - **P43b (25%)**: c1@1k (hs7) ≤ 0.30 — no gain over hs6; wall intrinsic.
+
+## 2026-08-13 ~12:25 — P44 registered: standalone MLP+skip on c0->c1 (outside Qwen)
+
+Joshua: "check whether a single MLP+skip, *outside* the qwen context, can
+repro c0->c1". armF/mlp_skip_c0c1.py: pred = Linear(c0) + MLP(c0) (skip
+arch), hidden {4096, 16384}, ALL games (~150k X-ply samples vs 52k in the
+head-capacity fit), 60 epochs, best-val R2. Plus control cell
+skipMLP(board)->c1: board is a sufficient statistic by construction, so if
+board succeeds where c0 fails, the .459 reflects c0-projection
+INSUFFICIENCY (rank-1024, PR~89 — dropped info the conv layer needs), not
+MLP incapacity. Comparators: MLP(c0true) .459 (no skip, 52k, 30ep,
+undertrained), linear(c0true) .273.
+- **P44a (15%)**: best c0 cell ≥ 0.90 — prior .459 was mostly an
+  undertraining/no-skip artifact; transition IS MLP-reproducible from c0.
+- **P44b (50%)**: best c0 cell ≥ 0.60 — real gains from skip+data+epochs,
+  but transition still not fully captured.
+- **P44c (40%)**: board cell beats best c0 cell by ≥ 0.15 — c0 projection
+  insufficiency is a major part of the "wall", reframing it: the target c1
+  is partly UNPREDICTABLE from c0 alone, so no c0-preserving backbone
+  could ever match it.
