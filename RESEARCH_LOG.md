@@ -3531,3 +3531,21 @@ r4t (single-token cells) final: mean X-only val R2 **0.3180** vs r4x 0.2954.
 - Joshua's circuit sketch: with atomic cell tokens, essentially vindicated
   (gather L0-3, aggregate hs4-5, near-1hot at hs5). The original slowness was
   the tokenizer's fault, not the transformer's.
+
+## 2026-08-13 ~08:15 — c0-only speed run: P38a YES, P38b NO; 3x speedup, no asymptote at 1k
+
+c0-only (single-token cells, adapter LR 1e-2, backbone 1e-5) @1k:
+**val c0 R2 0.9096**, still +.037/100 at the end — no asymptote in sight.
+- **P38a (≥0.70 @60%): YES** (cleared at step 700).
+- **P38b (≥0.95 @20%): NO** (0.91), but the curve says it's steps away, not
+  blocked.
+- Speedup: reaches r4t's 3k-step c0 (.91) in exactly 1k steps = 3x, on the
+  same format — so undiluted loss + hot adapter (jointly) buy 3x on the board
+  map. Not decomposed which of the two dominates (would need a 2x2; low
+  priority). Compounding the ladder at c0: r4x needed >3k for .73; r4t 3k for
+  .91; c0-only 1k for .91.
+- Full picture of the original "why so slow" question: (1) frame flipping
+  (r4x, ~+.05 mean), (2) multi-token cell binding (r4t, c0 .73->.91), (3)
+  loss dilution + adapter LR (c0-only, 3x on c0). Stack all three and the
+  board map goes from "3k steps to .73" to "1k steps to .91, unconverged".
+  The deep-cascade constraint (c1-c18 ~.29 regardless) remains the open wall.
