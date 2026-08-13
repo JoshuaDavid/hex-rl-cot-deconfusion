@@ -3857,3 +3857,29 @@ r4t c0@1k = .91.
 Flagged for later (Joshua): format-robust move recognition / "blindfold
 conversational hex" — if a backbone can contain from MULTIPLE formats,
 format choice stops being load-bearing. Not tested now.
+
+## 2026-08-13 ~17:50 — run C result: c1 WALL DEMOLISHED — .8771 @ 20k; P46a YES, P46b YES, P46c NO
+
+armF_movesc1_frzC final: val c1 R2 0.8771 @ 20k (peak .8791 @ 19.5k),
+c0 aux frozen-adapter R2 pinned 0.9781 the entire run (freeze verified).
+Trajectory: .226@500 -> .514@3k -> .78@10k -> .877@20k, still ~+.004/1k
+at the end (not fully converged; extension declined by default per the
+r3 headroom rule).
+- P46a (55%) YES, P46b (30%) YES: one Qwen block + linear adapter, given
+  (a) gradient access to the actual transition block (freeze-below 5, the
+  off-by-one fix), (b) ridge-init de-scrambled adapter, (c) matched sample
+  budget (~5.6M presentations), lands at .877 — essentially the standalone
+  skip-MLP regime (.898 @ 4096-hidden from TRUE c0; run C works from hs5's
+  imperfect c0 embedding, R2 .978, so ~.88 is about the ceiling that input
+  allows). P46c dead.
+- Verdict on the ~.29 "wall": 100% optimization pathology, 0% capacity.
+  Decomposition: (1) pretrained block 5 scrambles the linear readout
+  (ridge hs6->c1 ~0 vs hs5->c1 .27); (2) full-stack training lets lower
+  blocks relocate the c0 payload instead of fixing block 5 (c0 crash);
+  (3) 1k steps at adapter-lr 1e-3 is a ~100-step-equivalent budget.
+  Surgical fix for all three -> 3x the wall.
+- Remaining gap to skip-MLP-from-true-c0 (.898/.931): input fidelity +
+  1-block width; not worth chasing.
+Open: weight-swap surgery (attribute the unfrozen run's de-scrambling to
+lower-block relocation vs block-5 self-repair) — awaiting Joshua's call.
+d04 format A/B (P47) auto-launched behind this run.
