@@ -3437,3 +3437,27 @@ binding. Also r4x sees half the supervised tokens per step.
   ~0.246 despite half supervision — frame consistency is worth real R²).
 - **P34b** (10%): r4x@3k ≥ 0.4057 (matches r4's full 9k-step result at 1/3
   compute — frame confusion was THE dominant tax).
+
+## 2026-08-13 ~05:15 — r4x@3k result: P34a NO (by 0.005), P34b NO; frame consistency is real but not the dominant tax
+
+r4x 3k done (WSD const LR, X-only supervision). Final X-only val R² mean
+**0.2954** (c0 .727, c1 .229 trough, c17 .306, c18 .259).
+- **P34a (≥0.30 @55%): NO by 0.0046.** Threshold miss, but the substance
+  leans yes: +0.050 over equal-step r4 (0.246), ~20% relative, achieved with
+  HALF the supervised tokens per step. c0 0.73 vs 0.48 — the frame-consistent
+  occupancy map learns ~2x faster (r4 needed ~4500 steps to reach c0 .73).
+- **P34b (≥0.4057 @10%): NO**, comfortably. Frame confusion was a tax, not
+  THE bottleneck — consistent with P33 (partial board rep is upstream).
+- Trajectory gap vs r4 (same eval cadence): +.011/.033/.062/.065/.050 at
+  500-step marks. Window deltas at const LR still healthy (+.032 last 500).
+- Reading: removing the parity-gating burden buys a real head start
+  (biggest exactly where the frame bites — c0), but deep-c R² converges to
+  the same regime, again pointing at board-representation quality as binding.
+
+Extension decision: this is exactly what WSD was adopted for — extension is
+free. Continuing to 9k total (warm restart best.pt, same const LR) for the
+true apples-to-apples vs r4@9k X-only 0.4057.
+- **P35 (60%): r4x@9k X-only val R² ≥ 0.42** (beats r4@9k on the shared
+  metric; gap at 3k persists or grows).
+- **P36 (25%): r4x@9k ≥ 0.47** (frame consistency compounds — gap widens
+  substantially past the point r4's cosine anneal started flattering it).
