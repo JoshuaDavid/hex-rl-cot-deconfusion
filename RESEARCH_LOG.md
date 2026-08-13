@@ -3648,3 +3648,19 @@ but the D2 ~.985 precedent (deeper-layer transitions, where rank is stable)
 does NOT transfer to the rank-explosion layer. Note also linear(c0true)
 .273, well under the .38 skiplayer0 linearity — different protocol
 (normalized per-dim targets, X-token position distribution).
+
+## 2026-08-13 ~11:55 — P43 registered: two transformer blocks for the c0->c1 transition (readout at hs7)
+
+Joshua: "what if we give the transformer 2 layers to reproduce what c1 does?"
+Tests whether the wall is compute-DEPTH-limited (one block can't emulate one
+conv layer) vs intrinsic to the target. train_movesc0.py gains --readout-hs:
+c1 adapter moved hs6 -> hs7, warm start from converged-c0 base
+(armF_movesc0_ext, c0@hs5 .978), 1k steps, adapter-lr 1e-2, frozen c0
+adapter as aux drift diagnostic. Comparator: identical run at hs6 = .2898@1k.
+Note the head-capacity result cuts against depth being the binding limit
+(even MLP(c0true) with a fresh 4096-wide hidden layer only hit .459), but a
+transformer block has attention + can restructure the representation over
+training, which the frozen-input MLP fit cannot.
+- **P43a (40%)**: c1@1k (hs7) ≥ 0.35 — extra block buys a real chunk;
+  depth was a binding constraint.
+- **P43b (25%)**: c1@1k (hs7) ≤ 0.30 — no gain over hs6; wall intrinsic.

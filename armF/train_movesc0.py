@@ -41,7 +41,9 @@ def gather_h(out, recs, sel, hs_idx):
 
 
 def forward_batch(backbone, ad, layer, student, games, recs, sel, mu, sd,
-                  aux=None):
+                  aux=None, hs_idx=None):
+    if hs_idx is None:
+        hs_idx = 5 + layer
     layers = [layer] + ([aux[0]] if aux else [])
     tgt = batch_targets(student, games, recs, sel, mu, sd, layers)
     lens = [len(recs[i]["ids"]) for i in sel]
@@ -55,7 +57,7 @@ def forward_batch(backbone, ad, layer, student, games, recs, sel, mu, sd,
     with torch.autocast("cuda", dtype=torch.bfloat16):
         out = backbone(input_ids=ids, attention_mask=am,
                        output_hidden_states=True, use_cache=False)
-    hm = gather_h(out, recs, sel, 5 + layer)
+    hm = gather_h(out, recs, sel, hs_idx)
     sse = ((ad(hm) - tgt[layer]) ** 2).sum()
     aux_sse = None
     if aux:
@@ -67,14 +69,14 @@ def forward_batch(backbone, ad, layer, student, games, recs, sel, mu, sd,
 
 @torch.no_grad()
 def evaluate(backbone, ad, layer, student, games, recs, idx, mu, sd,
-             aux=None, batch=4):
+             aux=None, batch=4, hs_idx=None):
     backbone.eval()
     acc = {l: [0.0, 0.0, 0.0] for l in ([layer] + ([aux[0]] if aux else []))}
     n = 0
     for i in range(0, len(idx), batch):
         _, s, tgt, aux_sse = forward_batch(backbone, ad, layer, student,
                                            games, recs, idx[i:i+batch],
-                                           mu, sd, aux)
+                                           mu, sd, aux, hs_idx)
         acc[layer][0] += s
         if aux:
             acc[aux[0]][0] += aux_sse
@@ -100,6 +102,8 @@ def main():
     ap.add_argument("--eval-every", type=int, default=100)
     ap.add_argument("--n-val", type=int, default=60)
     ap.add_argument("--layer", type=int, default=0)
+    ap.add_argument("--readout-hs", type=int, default=None,
+                    help="override hidden-state index (default 5+layer)")
     ap.add_argument("--init-ckpt", default=None)
     ap.add_argument("--run-name", default="armF_movesc0")
     ap.add_argument("--smoke", action="store_true")
@@ -154,9 +158,11 @@ def main():
 
     hist = []
     L = args.layer
+    HS = args.readout_hs if args.readout_hs is not None else 5 + L
 
     def log_eval(step):
-        r2 = evaluate(backbone, ad, L, student, games, recs, val, mu, sd, aux)
+        r2 = evaluate(backbone, ad, L, student, games, recs, val, mu, sd, aux,
+                      hs_idx=HS)
         hist.append({"step": step} | {f"c{l}_r2": v for l, v in r2.items()})
         print(f"step {step} " + " ".join(
             f"val c{l} R2 {v:.4f}" for l, v in sorted(r2.items())), flush=True)
@@ -168,7 +174,7 @@ def main():
     log_eval(0)
     if args.smoke:
         loss, _, _, _ = forward_batch(backbone, ad, L, student, games, recs,
-                                      train[:args.batch], mu, sd, aux)
+                                      train[:args.batch], mu, sd, aux, HS)
         loss.backward()
         opt.step()
         print(f"smoke loss {loss.item():.3f}, "
@@ -180,7 +186,7 @@ def main():
     while step < args.steps:
         sel = rng.sample(train, args.batch)
         loss, _, _, _ = forward_batch(backbone, ad, L, student, games, recs,
-                                      sel, mu, sd)
+                                      sel, mu, sd, hs_idx=HS)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(
