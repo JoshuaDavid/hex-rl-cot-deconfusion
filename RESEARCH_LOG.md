@@ -4092,3 +4092,35 @@ Predictions:
 Smoke: loads clean (bottom 0..19 from chain ckpt verified via missing-keys
 assert), 9.0GB, ridge on 64 seqs overfits to negative val R2 as expected
 (real run uses 1200).
+
+## 2026-08-13 ~23:55 — P51 graded: joint-tail matches chain tail's ASYMPTOTE, beats its EFFICIENCY
+
+armF_jointtail early-stopped at 4000 steps (window gain .0022). Values at stop
+(peak@3500 in parens): c16 .3718 (.3761) | c17 .3965 (.3983) | c18 .3421
+(.3425) | mean .3701 (.3723). Chain tail finals: .3735 / .3928 / .3318, mean
+.3660 in 9500 total steps.
+
+Grading:
+- P51a (70%) YES, but marginally: +.004 at stop, +.006 at peak. Real but tiny.
+- P51b (65%) NO: c18 .3421 vs needed >=.362; lift only +.010.
+- P51c (40%) push/noise: c16 .3718 vs .3735 at stop (-.002), peak above.
+- Registered fork LANDS: joint-tail ~= chain tail in final quality. The deep
+  deficit vs full-joint r4 (c17 .40 vs .46) is NOT within-tail supervision
+  structure — with an identical frozen bottom, joint and greedy converge to
+  the same ~.37 ceiling. The bottleneck is the shallow-locked bottom.
+
+The real signal is COMPUTE EFFICIENCY: joint-tail hit chain-final levels at
+~2000 steps and stopped at 4000 (0.46s/step, ~31 min) vs the chain tail's
+9500 (~3 stages x ridge + train, ~47+ min). Subspace overlap (.45-.49) shows
+up as shared-gradient speedup, not a better asymptote — consistent with
+neighbors' supervision being partially redundant rather than complementary.
+
+Also retro-resolves the chain-tail budget confound: neither more steps
+(WSD-constant, early-stopped flat) nor joint supervision moves the ~.37 tail
+ceiling on this bottom. Bottom quality is the whole game deep.
+
+Natural next (proposed to Joshua): chain-then-joint polish — warm-start
+full-stack joint training (all 19 adapters, chain backbone init, chain
+adapters as init) and see whether it preserves the chain's shallow wins
+(c1 .77) while climbing toward r4's deep levels (.44-.46); i.e., is
+sequential-then-joint a strictly better curriculum than either alone?
