@@ -3589,3 +3589,17 @@ SCRATCH. Comparators: c1-from-c0 .2898@1k; r4t c1 ~.11@1k (inferred), .302@3k.
 - **P41 (55%)**: scratch c1@1k ≥ 0.25 — the c0 head start bought <.05,
   i.e. most of c1-from-c0's speed is the generic single-layer speedup, not
   transfer from the converged board map.
+
+## 2026-08-13 ~10:40 — c1-scratch control: P41 NO (.195); c0 transfer is real, but the c1 wall stands
+
+c1-only from scratch @1k: **0.1951** vs c1-from-converged-c0 **0.2898**.
+P41 (55%, scratch ≥ .25 = "head start bought <.05"): **NO** — transfer was
++.095, ~2x at the 500-step mark. Route ordering at 1k steps: from-c0 (.29) >
+scratch (.195) > joint-19-layer r4t (~.11 inferred). So Joshua's cascade
+intuition half-holds: a converged board map DOES accelerate c1 (P41's null
+falsified in the direction of transfer), BUT every route decelerates into
+the same ~.3 territory (from-c0 deltas at the end: .257->.269->.283->.290) —
+the c1 ceiling looks intrinsic to the target (rank-513, linearity .38 after
+skiplayer0), not upstream-input-limited. Consistent with finger-D/D2:
+width-relative-to-state-rank is the binding constraint, and c1 is the layer
+where state rank explodes past everything else.
