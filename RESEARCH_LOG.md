@@ -3364,3 +3364,27 @@ games, fit/test split by game): best layer hs5 overall acc .892, occupied
 Net: the binding constraint is upstream of frame/relay stories — a
 complete board representation never forms. c0 .80 ~ hs5 occupied .72 are
 two views of the same partial-board fact.
+
+## 2026-08-13 ~02:50 — r4 stitch eval: depth profile inverts AGAIN (now tracks containment quality); P30 NO, P32 YES
+
+Agreement vs distilled (val games, random cuts): top1 .56 (cut0) -> .38
+(cut18), spearman .87-.91 everywhere. Play vs distilled argmax (paired
+openings): cut0 17/40 4-ply / 16/40 1-ply; cut9 4/40 / 4/40; cut18 6/40 /
+4/40; vs random 20/19/17 per 20; zero illegal argmax. Exactness anchor
+passed (true-c stitch == distilled forward at k=0,9,18).
+
+- P30 (pooled 4-ply >= 48/120 @45%): NO — 27/120 = 22.5%.
+- P32 (1-ply pooled strictly < 4-ply @60%): YES — 24 < 27, but the margin
+  (3 games) is within noise; weak confirmation only.
+- Depth story: r2 was depth-INVERTED (shallow worst, error amplification
+  through the tail); r4 inverts back — cut0 is BEST (42.5%, brushing the
+  parity band) and matches the R2 profile (c0 .80 is the best-contained
+  layer). When containment quality varies 2.7x across layers, it dominates
+  the amplification effect. Reconstructing just the board-linear c0 and
+  letting the distilled trunk compute is nearly as good as the teacher.
+- Render-free ladder: r3 6.7% / r3ext 13.3% (vs orig CNN, 2254 Elo) ->
+  r4 22.5% (vs its own weaker teacher, 1867 Elo). Not apples-to-apples,
+  but each stitch is measured against the net it was trained to contain.
+Artifacts: armF/eval_stitch_r4.py, armF/results/stitch_eval_r4.{json,log}.
+Frozen-backbone reservoir control (P31) launched: armF_movesr4_frozen,
+equal 9000 steps, adapters only.
