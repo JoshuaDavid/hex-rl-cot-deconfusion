@@ -3461,3 +3461,20 @@ true apples-to-apples vs r4@9k X-only 0.4057.
   metric; gap at 3k persists or grows).
 - **P36 (25%): r4x@9k ≥ 0.47** (frame consistency compounds — gap widens
   substantially past the point r4's cosine anneal started flattering it).
+
+## 2026-08-13 ~05:45 — hs5-vs-c0 retest on r4x (Joshua's circuit-sketch probe, round 2)
+
+probe_absocc_r4x.py on r4x@3k (X tokens, absolute frame; fixed frame transform
+is absorbed by ridge). Occupied-cell acc: hs0-3 ~0/.23/.28/.37, jump at hs4
+(.67), PEAK hs5 = .809, monotone decay to .67 at hs23. c0 ridge R2 same shape,
+peak hs5 = .608 (trained adapter at hs5: .727). vs r4's P33 probe: peak up
+.72->.81 (frame consistency helped) but STILL far from Joshua's near-perfect
+prediction; identical shape. Per-ply at hs5 IMPROVES with ply (.77/.80/.82);
+hs8 inverts (best .87 at ply<20, decays) — two aggregation paths?
+
+Tokenization fact bearing on the sketch: " e10" -> [' e','1','0'] — there is
+NO cell token. Cell identity must be composed from letter + 1-2 digit tokens
+whose vocabulary is shared with move numbers. The predicted L4 head can't
+attend to "the e10 token"; binding is a multi-token relay with ambiguous keys.
+Circuit SHAPE matches the sketch (gather L0-3, aggregate at L4-5); fidelity
+plateaus ~.8 instead of ~1.0.
