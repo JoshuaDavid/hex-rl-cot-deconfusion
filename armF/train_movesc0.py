@@ -68,6 +68,37 @@ def forward_batch(backbone, ad, layer, student, games, recs, sel, mu, sd,
 
 
 @torch.no_grad()
+def ridge_init(backbone, ad, layer, hs_idx, student, games, recs, idx, mu,
+               sd, lam=10.0, batch=8):
+    backbone.eval()
+    Hs, Ys = [], []
+    for i in range(0, len(idx), batch):
+        sel = idx[i:i + batch]
+        tgt = batch_targets(student, games, recs, sel, mu, sd, [layer])
+        lens = [len(recs[j]["ids"]) for j in sel]
+        Tlen = max(lens)
+        ids = torch.full((len(sel), Tlen), 151643, dtype=torch.long)
+        for jj, j in enumerate(sel):
+            ids[jj, :lens[jj]] = recs[j]["ids"].long()
+        am = (torch.arange(Tlen, device=DEV)[None]
+              < torch.tensor(lens, device=DEV)[:, None]).long()
+        with torch.autocast("cuda", dtype=torch.bfloat16):
+            out = backbone(input_ids=ids.to(DEV), attention_mask=am,
+                           output_hidden_states=True, use_cache=False)
+        Hs.append(gather_h(out, recs, sel, hs_idx).cpu())
+        Ys.append(tgt[layer].cpu())
+    X = torch.cat(Hs).to(DEV)
+    Y = torch.cat(Ys).to(DEV)
+    X1 = torch.cat([X, torch.ones(len(X), 1, device=DEV)], 1)
+    G = X1.T @ X1 + lam * torch.eye(X1.shape[1], device=DEV)
+    Wb = torch.linalg.solve(G, X1.T @ Y)
+    ad.weight.copy_(Wb[:-1].T)
+    ad.bias.copy_(Wb[-1])
+    backbone.train()
+    print(f"ridge-init adapter from {len(X)} tokens")
+
+
+@torch.no_grad()
 def evaluate(backbone, ad, layer, student, games, recs, idx, mu, sd,
              aux=None, batch=4, hs_idx=None):
     backbone.eval()
@@ -106,6 +137,8 @@ def main():
                     help="override hidden-state index (default 5+layer)")
     ap.add_argument("--freeze-below", type=int, default=None,
                     help="freeze transformer blocks with index < N")
+    ap.add_argument("--ridge-init", type=int, default=0,
+                    help="closed-form init adapter from N train seqs")
     ap.add_argument("--init-ckpt", default=None)
     ap.add_argument("--run-name", default="armF_movesc0")
     ap.add_argument("--smoke", action="store_true")
@@ -165,6 +198,9 @@ def main():
     hist = []
     L = args.layer
     HS = args.readout_hs if args.readout_hs is not None else 5 + L
+    if args.ridge_init:
+        ridge_init(backbone, ad, L, HS, student, games, recs,
+                   train[:args.ridge_init], mu, sd)
 
     def log_eval(step):
         r2 = evaluate(backbone, ad, L, student, games, recs, val, mu, sd, aux,

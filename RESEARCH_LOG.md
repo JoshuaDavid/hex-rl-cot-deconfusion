@@ -3750,3 +3750,40 @@ in the UNFROZEN regime — with blocks 0-5 frozen the global clip (norm 1.0
 over far fewer params) no longer tames it. Protocol amendment: ladder reruns
 at --adapter-lr 1e-3 (both A and B); P45 bars unchanged. Side benefit
 discovered: frozen backward is ~8x cheaper (0.26s/step, 1k steps ~5min).
+
+## 2026-08-13 ~15:10 — P45 graded (all NO) + the actual finding: pretrained block 6 SCRAMBLES the linear c1 readout
+
+Frozen ladder finals: A (lr 1e-5) c1@1k = -.0581, B (lr 1e-4) = -.0585.
+P45a NO, P45b NO, P45c NO (B == A, a wash). But the runs were mis-designed
+in a way that itself surfaced the real structure. Diagnostic (lam sweep,
+42k train tokens, c0-trained backbone, frozen): ridge hs5->c1 = .271
+(= linear-c0 ceiling .30 x .978 exposure), ridge **hs6->c1 ~ 0.00 at every
+lam 1e1..1e7**. Run A's trained adapter independently converged to the same
+~-.06. So on the c0-trained backbone the best LINEAR hs6 readout of c1 is
+ZERO even though hs5, one layer down, linearly carries c0 at .978.
+Mechanism: hs6 = hs5 + attn6 + mlp6 is a SUM; pretrained block 6's output
+has components INSIDE the payload subspace, and a linear map cannot
+separate payload from a nonlinear function of the same input added on top.
+Coherent story for the whole saga:
+(1) at init, block 6 contaminates the c0 payload subspace -> linear c1
+    readout starts at ~0 (not at the .27 the info content would allow);
+(2) UNFROZEN training escapes fast because lower blocks can RELOCATE the
+    payload out of block-6's line of fire (cheap, many params) — that is
+    why freeze-below-6 made things dramatically WORSE, and why the c0
+    frozen-adapter readout crashes instantly when c1 training starts
+    (payload relocation = same phenomenon, seen from the other side);
+(3) the frozen A/B runs gave the adapter a ~0-linear starting point and a
+    starved lr, and block 6 at 1e-5/1e-4 x 1k steps cannot unscramble
+    itself -> both flatline; backbone lr irrelevant because the adapter
+    never found a signal to backprop through (chicken-and-egg, quantified).
+Reframe of head_capacity linear(hs6)=.241 on the c1-TRAINED backbone:
+training moved the linear readout from ~0 to .24 — most of that motion is
+de-scrambling, not transition-computing.
+- **P46 registered** (run C, the honest in-situ skip-MLP replica): freeze
+  0-5, ridge-init adapter (1200 seqs), adapter-lr 1e-3, block-6 lr 3e-4,
+  20k steps (~5.6M sample-presentations ~ standalone's 9.5M), eval/500.
+  - P46a (55%): c1@20k ≥ .35 (beats every 1k-step route; block 6 alone can
+    de-scramble + start computing given budget).
+  - P46b (30%): c1@20k ≥ .60 (approaches standalone regime in-situ).
+  - P46c (15%): c1@20k ≤ .30 (even matched budget fails -> the 2048-dim
+    shared-basis input format under attn/RMSNorm is itself the tax).
