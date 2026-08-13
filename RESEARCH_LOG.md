@@ -3388,3 +3388,26 @@ passed (true-c stitch == distilled forward at k=0,9,18).
 Artifacts: armF/eval_stitch_r4.py, armF/results/stitch_eval_r4.{json,log}.
 Frozen-backbone reservoir control (P31) launched: armF_movesr4_frozen,
 equal 9000 steps, adapters only.
+
+## 2026-08-13 ~04:30 — P31 YES + r3ext-in-c-space calibration: r4 contains 2.8x more real state
+
+Frozen-backbone reservoir control (armF_movesr4_frozen, equal 9000 steps,
+adapters only): final mean 0.0342 (c0 .12, rest ~.02-.04) vs joint-FT
+0.4022. P31 (gap >= 0.15 @70%): YES, gap 0.37. Bonus finding: c-space
+also kills the reservoir artifact — r1's frozen-probe "deep containment"
+(~.37) was random-feature capacity soaking up z-space redundancy; against
+decorrelated targets a frozen Qwen fits almost nothing. Naive-probe
+inflation and z-space redundancy were the same artifact.
+
+r3ext-in-c-space calibration (/tmp/r3ext_cspace.py; r3ext z-hats
+denormalized, pushed through enc_l, scored on r4's exact val split +
+normalization): mean 0.1457 — c0 .824, c1 .281, deep .08-.20, c18 -0.719
+(NEGATIVE: z-space z18 R2 .68 was ~all redundant/mean structure; its
+decorrelated content is worse than predicting the mean). Apples-to-apples:
+r4 0.4022 vs r3ext 0.1457 = 2.8x more independent state contained, in one
+9k cycle vs r3ext's two. Targeting the native low-rank state directly is
+the single biggest efficiency win in the arm so far. Note r3ext was never
+trained toward c-space (enc composition is fair but adversarial to it);
+this is the honest reading of "how much of the distilled net's state does
+each run contain," which is what stitching cares about — and it predicts
+the stitch ladder correctly (r3ext 13.3% < r4 22.5%, cut0 42.5%).
