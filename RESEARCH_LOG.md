@@ -3741,3 +3741,12 @@ Sanity: aux c0 must stay exactly .9781 (frozen input) in both.
 - **P45b (45%)**: B ≥ 0.60 — with stationary input + real lr, block 6
   approaches the standalone regime inside Qwen.
 - **P45c (70%)**: B > A — lr/budget is the bigger lever than drift.
+
+### ~14:00 amendment: frozen ladder diverged at adapter-lr 1e-2; rerun at 1e-3
+
+Run A diverged (train loss 1.43->2.96 rising, val c1 -0.30->-2.55 by step
+200; c0 pinned .9781 so the freeze itself works). adapter-lr 1e-2 was tuned
+in the UNFROZEN regime — with blocks 0-5 frozen the global clip (norm 1.0
+over far fewer params) no longer tames it. Protocol amendment: ladder reruns
+at --adapter-lr 1e-3 (both A and B); P45 bars unchanged. Side benefit
+discovered: frozen backward is ~8x cheaper (0.26s/step, 1k steps ~5min).
