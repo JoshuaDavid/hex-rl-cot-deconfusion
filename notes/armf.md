@@ -129,6 +129,45 @@ R² must reproduce the ckpt).
     learned bias; zeroing it (or selfonly) wrecks layers for the wrong
     reason. Use sink-preserving masks.
 
+## r4: render-free containment of the DISTILLED rank-1024 net — findings
+
+Teacher = finger E artifact (`bottleneck_anchored_ext.pt`, 1867 Elo @ t=0);
+targets = native c_l = enc_l(z_l) ∈ R^1024 at all 19 capture points,
+per-dim normalized; adapters 19× Linear(2048→1024) (~40M, 7.6× smaller than
+r3); input/readout identical to r3ext (`train_movesr4.py`, 9000 steps).
+Stitch eval `eval_stitch_r4.py` (exactness anchor: true-c stitch == distilled
+forward at k=0,9,18).
+
+13. **c-space is the honest metric.** Final mean R² 0.4022 (c0 .80, c1 .29
+    global trough, monotone to c17 .46). Looks worse than r3ext's 0.639 —
+    but r3ext *measured in c-space* scores 0.146 (c18 NEGATIVE −0.72):
+    z-space R² was redundancy-inflated (PR of z collapses to ~7 deep).
+    r4 contains **2.8× more independent state** in one cycle. c-space also
+    kills the reservoir artifact: frozen-backbone control gets 0.034
+    (P31 YES, gap 0.37) where r1's frozen z-probe got ~0.37.
+14. **Why c1 is the trough**: c0 is EXACTLY affine in board occupancy
+    (ridge R²=1.000); one skiplayer explodes effective rank 89→513 and
+    kills linearity (0.38); deeper layers funnel (PR→261). Difficulty ≈
+    effective rank × nonlinearity. The r1/r3 mid-stack U-shape was a
+    z-space artifact.
+15. **The board is never fully there** (P33 NO, `probe_absocc_r4.py`):
+    absolute-frame occupancy probe peaks at hs5, 0.72 on occupied cells;
+    NO parity gap (frame gating not binding); accuracy IMPROVES with
+    prefix length (relay error-accumulation falsified); board info decays
+    monotonically down-stack (0.72→0.42). Partial board rep is the
+    upstream bottleneck for everything.
+16. **Stitch tracks containment now** (P30 NO, P32 weak YES): vs distilled
+    4-ply cut0 17/40 (42.5%, near parity band!), cut9 4/40, cut18 6/40,
+    pooled 22.5%; 1-ply pooled 20%. Depth profile matches R² profile —
+    opposite of r2's amplification inversion. Render-free ladder: r3 6.7%
+    → r3ext 13.3% → r4 22.5% (each vs its own teacher).
+17. Equivariance of the distilled net (linear c_l(x)→c_l(Tx)): c0 1.000,
+    c1 .935, ~.73 mid, .83 deep — parity-conditioned adapters have real
+    ceiling but aren't binding at current R².
+18. Schedule lesson (logged mid-run): val-R² window deltas track LR
+    ~proportionally → cosine decay manufactures fake plateaus (r3ext's
+    restart gains). Future long runs: WSD (warmup→constant→short anneal).
+
 ## Gotchas for reruns
 
 - Randinit control MUST warm-start adapters from `probe_frozen_randinit.pt`
