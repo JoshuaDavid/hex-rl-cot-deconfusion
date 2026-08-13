@@ -3684,3 +3684,42 @@ undertrained), linear(c0true) .273.
   insufficiency is a major part of the "wall", reframing it: the target c1
   is partly UNPREDICTABLE from c0 alone, so no c0-preserving backbone
   could ever match it.
+
+## 2026-08-13 ~13:05 — P43/P44 graded: the "target-side wall" verdict was WRONG. Skip-MLP hits .93 on c0->c1
+
+**P43 (c1 readout at hs7, 2 blocks for the transition)**: c1@1k = .2739 vs
+hs6's .2898 — slightly SLOWER, trailing at every eval. P43a NO (40%, ≥.35).
+P43b YES on the number (25%, ≤.30) — but its interpretation clause ("wall
+intrinsic") is falsified by P44 below. Depth is not the constraint.
+Ckpt: checkpoints/armF_movesc1_hs7/final.pt.
+
+**P44 (standalone skip-MLP c0->c1, 158k samples, 60ep)**:
+linear(c0) .299 | skip4096(c0) **.8977** | skip16384(c0) **.9307** (still
+climbing at ep60) | skip4096(board) .6537.
+- **P44a YES** (15%): best c0 cell ≥ .90. The 15% shot landed: the CNN
+  c0->c1 transition IS reproducible by a single hidden layer + skip.
+  Yesterday's MLP(c0true)=.459 was an ARTIFACT (no skip, 52k samples, 30ep)
+  and the "target-side wall / CNN does something the MLP can't reproduce"
+  conclusion is hereby RETRACTED.
+- **P44b YES** (50%): subsumed.
+- **P44c NO** (40%): board cell (.654) is .24 BELOW the c0 cell at matched
+  capacity — no c0-insufficiency; c0 determines c1 fine, and c0 is a BETTER
+  basis for a shallow net than the raw board (it's already the CNN's
+  feature space).
+Corollary: the head-capacity MLP(hs6)=.328 is untrustworthy for the same
+reasons — it does NOT establish that hs6 lacks c1 info.
+
+Revised picture of the ~.29 Qwen c1 wall: not depth (P43), not target
+difficulty (P44a), not c0 insufficiency (P44c). Leading suspects now:
+(1) **data/optimization budget** — the skip-MLP saw ~9.5M sample-
+presentations vs ~280k for the 1k-step Qwen run (~30x); every Qwen route
+"walling at ~.3" may just be very early on a slow curve;
+(2) linear-adapter readout on a representation Qwen has no pressure to
+LINEARIZE (the skip-MLP's own output is a nonlinear function of its input;
+the adapter demands c1 be linearly exposed).
+Also note skip4096(board)=.65: learning c1 from a raw board encoding with
+one hidden layer is genuinely harder than from c0 — Qwen's actual task
+(tokens -> board map -> c1) is closer to the board cell than the c0 cell.
+Next falsifiers: (a) long c1 run (data-budget test, does .29 keep creeping);
+(b) rerun head-capacity on hs6 with the STRONG protocol (skip, 158k-scale
+fit at 1500 games, 60ep) to test hs6 c0-retention properly.
