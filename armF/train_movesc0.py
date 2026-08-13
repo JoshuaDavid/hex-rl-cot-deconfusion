@@ -104,6 +104,8 @@ def main():
     ap.add_argument("--layer", type=int, default=0)
     ap.add_argument("--readout-hs", type=int, default=None,
                     help="override hidden-state index (default 5+layer)")
+    ap.add_argument("--freeze-below", type=int, default=None,
+                    help="freeze transformer blocks with index < N")
     ap.add_argument("--init-ckpt", default=None)
     ap.add_argument("--run-name", default="armF_movesc0")
     ap.add_argument("--smoke", action="store_true")
@@ -143,6 +145,10 @@ def main():
         print(f"warm start from {args.init_ckpt} (step {ck.get('step')}, "
               f"saved layer {prev_layer}, training layer {args.layer})")
     backbone.train()
+    if args.freeze_below is not None:
+        for i in range(args.freeze_below):
+            backbone.layers[i].requires_grad_(False)
+        print(f"froze blocks 0..{args.freeze_below - 1}")
 
     qwen_params = [p for p in backbone.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(

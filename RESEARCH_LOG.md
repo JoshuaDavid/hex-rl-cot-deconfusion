@@ -3723,3 +3723,21 @@ one hidden layer is genuinely harder than from c0 — Qwen's actual task
 Next falsifiers: (a) long c1 run (data-budget test, does .29 keep creeping);
 (b) rerun head-capacity on hs6 with the STRONG protocol (skip, 158k-scale
 fit at 1500 games, 60ep) to test hs6 c0-retention properly.
+
+## 2026-08-13 ~13:40 — P45 registered: frozen-input ladder (drift fix vs drift+budget fix)
+
+Joshua: the input-drift failure mode "is fixable, right?" — yes: freeze
+blocks 0-5 after c0 convergence so hs5 (c0 at .978) is stationary. Since
+readout at hs6 gives blocks 7+ zero gradient anyway, freeze-below-6 leaves
+ONLY block 6 + adapter training = the in-situ surgical analogue of the
+standalone skip-MLP (adapter.(block6) contains the skip-MLP functional
+form exactly: A.hs6 = A.hs5 + A.attn6 + (A.Wdown).act — expressivity is
+not the question, optimization is). train_movesc0.py gains --freeze-below.
+Ladder, both c1@hs6 from armF_movesc0_ext, 1k steps, eval/100:
+  A: --freeze-below 6, lr 1e-5  (drift fix only; comparator .2898 unfrozen)
+  B: --freeze-below 6, lr 1e-4  (drift + weight-travel budget)
+Sanity: aux c0 must stay exactly .9781 (frozen input) in both.
+- **P45a (30%)**: A ≥ 0.35 — drift alone was a major tax.
+- **P45b (45%)**: B ≥ 0.60 — with stationary input + real lr, block 6
+  approaches the standalone regime inside Qwen.
+- **P45c (70%)**: B > A — lr/budget is the bigger lever than drift.
