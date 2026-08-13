@@ -4003,3 +4003,30 @@ Consistent with the finger E picture: no residual-stream-like shared
 format; per-layer PCA finds per-layer bases, and chained-PCA compounding
 (fingerE_pca) is what a basis-free stack costs you. (Inline computation,
 CPU, no script artifact.)
+
+## 2026-08-14 ~05:55 — CHAIN COMPLETE: 18-stage sequential containment done in 8h04; P50a YES, P50b NO, P50c NO, P50d NO, P50e YES
+
+Full profile (stage finals, early-stopped): c0 .9744 | c1 .7693 | c2
+.6576 | c3 .5949 | c4 .5543 | c5 .5192 | c6 .4858 | c7 .4623 | c8 .4414 |
+c9 .4197 | c10 .4001 | c11 .3837 | c12 .3728 | c13 .3653 | c14 .3628 |
+c15 .3676 | c16 .3735 | c17 .3928 | c18 .3318. Mean c1-c18 .4586;
+all-19 mean .4858 vs r4-joint .4022.
+- P50a (75%) YES: fully unattended, no crash/divergence, disk pruning
+  worked, early stop cut worst-case 16h to 8h04.
+- P50b (60%) NO: chain and joint are MIRROR IMAGES. Joint: trough at c1
+  (.294), monotone climb to c17 (.461). Chain: peak at c1 (.769),
+  monotone decay to c14 (.363), slight c15-c17 recovery, c18 drop
+  (.332). Crossover ~c10-c11: chain wins every layer above, loses every
+  layer below (c12-c18 vs joint .41-.46).
+- P50c NO (.459 < .70), P50d NO (min .332), P50e (15%) YES (8 stages
+  < .40).
+Interpretation: sequential-greedy locks shallow-optimal features into the
+frozen bottom; deep transitions then can't reshape their inputs — greedy
+myopia is real. BUT budget confound on record: deep stages early-stopped
+at 3-3.5k steps vs joint's 9k; and ALL stage numbers are lower bounds
+(run C: c1 .78@10k -> .877@20k with the same recipe). WSD-constant LR
+makes any stage extendable to separate myopia from budget.
+Preservation confirmed end-to-end: each stage's aux (frozen prev-layer
+adapter) reproduced the previous final to +-.0002 through all 18 stages.
+Artifact: checkpoints/armF_chain_c18/final.pt (full backbone) + per-stage
+adapters in armF_chain_c*/final.pt (backbones stripped, adapters kept).
