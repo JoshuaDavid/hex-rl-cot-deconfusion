@@ -3478,3 +3478,21 @@ whose vocabulary is shared with move numbers. The predicted L4 head can't
 attend to "the e10 token"; binding is a multi-token relay with ambiguous keys.
 Circuit SHAPE matches the sketch (gather L0-3, aggregate at L4-5); fidelity
 plateaus ~.8 instead of ~1.0.
+
+## 2026-08-13 ~06:00 — r4t queued: single-token cells (binding falsifier), P37 registered
+
+Joshua approved test 1 ("better to know earlier"): armF/train_movesr4t.py =
+r4x but the 121 cells renamed to 121 distinct single Qwen tokens (common
+lowercase words by token id, preamble words banned; " for", " con", " this",
+...). Removes the multi-token letter+digit binding problem entirely — the
+frozen embedding IS the cell ID. Confounds on record: also removes
+compositional coordinate geometry (a win implicates binding; a null is
+ambiguous), and seqs shrink (maxlen 932->527). Samples eyeballed: "\n1. work
+X", readout at ' X' color tokens, X-only alignment asserted. 3k steps, WSD
+const, same eval split. Comparator: r4x@3k = 0.2954 (c0 .727; hs5 occ probe
+.809).
+- **P37a (55%)**: r4t@3k mean X-only val R2 ≥ 0.35 (clear win over r4x@3k —
+  binding is a major part of the slowness).
+- **P37b (15%)**: r4t@3k c0 ≥ 0.90 AND post-hoc hs5 occupied-acc ≥ 0.95
+  (Joshua's full sketch: with atomic cell tokens the parse snaps to
+  near-perfect).
