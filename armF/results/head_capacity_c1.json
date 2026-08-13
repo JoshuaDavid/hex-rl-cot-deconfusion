@@ -1,0 +1,11 @@
+{
+ "ckpt": "checkpoints/armF_movesc1/final.pt",
+ "n_train_tokens": 52752,
+ "res": {
+  "linear_hs6": 0.2409326434135437,
+  "linear_c0true": 0.27269619703292847,
+  "mlp_hs6": 0.32759881019592285,
+  "mlp_hs5": 0.30709075927734375,
+  "mlp_c0true": 0.45878487825393677
+ }
+}

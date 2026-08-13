@@ -3622,3 +3622,29 @@ finger-D2 MLP on native transitions ~.985.
 - **P42c (65%)**: MLP(c0true) ≥ 0.90 — the CNN c0->c1 transition IS
   MLP-learnable in native space (falsifying "CNN does something the MLP
   can't reproduce"), localizing the wall to what hs6 retains/loses of c0.
+
+## 2026-08-13 ~11:30 — P42 graded: all three NO. Joshua's conjecture vindicated — the c0->c1 map itself resists the MLP
+
+head_capacity_c1 results (frozen armF_movesc1 backbone, 52752 train X-tokens
+/ 2141 test): linear(hs6) .241 | MLP(hs6) .328 | MLP(hs5) .307 |
+linear(c0true) .273 | **MLP(c0true) .459** (still climbing .444->.459 over
+last 5 epochs — undertrained, but nowhere near .9).
+- **P42a NO** (35%, MLP(hs6) ≥ .45): .328. Modest nonlinear headroom only.
+- **P42b NO** (30%, MLP-linear gap ≤ .05): gap .087. Some entangled info.
+- **P42c NO** (65%, MLP(c0true) ≥ .90): **.459**. The big miss, and the
+  informative one: even given the TRUE native c0, a 4096-hidden MLP on 52k
+  samples recovers under half of c1's variance. "The CNN is doing something
+  the MLP can't reproduce" — Joshua called it. The c0->c1 CNN block (where
+  PR explodes 89->513) is intrinsically hard to emulate pointwise in the
+  compressed 1024-dim space at this sample/capacity budget.
+Verdict on the wall: NOT readout-side (MLP(hs6) .328 ~ trained adapter .29),
+and only secondarily backbone-side (hs6 vs c0true MLP gap .13 = imperfect c0
+retention). PRIMARILY target-side: the transition itself is the bottleneck,
+so pushing the containment loss harder at hs6 cannot buy much — matching
+c1 would require the backbone to re-implement a high-rank conv layer, not
+merely to preserve c0. Caveats on record: MLP undertrained (30ep) and single
+capacity point; a much bigger head / more epochs could shift .459 somewhat,
+but the D2 ~.985 precedent (deeper-layer transitions, where rank is stable)
+does NOT transfer to the rank-explosion layer. Note also linear(c0true)
+.273, well under the .38 skiplayer0 linearity — different protocol
+(normalized per-dim targets, X-token position distribution).
