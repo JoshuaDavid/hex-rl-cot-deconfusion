@@ -3411,3 +3411,29 @@ trained toward c-space (enc composition is fair but adversarial to it);
 this is the honest reading of "how much of the distilled net's state does
 each run contain," which is what stitching cares about — and it predicts
 the stitch ladder correctly (r3ext 13.3% < r4 22.5%, cut0 42.5%).
+
+## 2026-08-13 ~00:30 — Arm F r4x: frame-consistent supervision (Joshua's proposal), P34 registered
+
+Joshua, on learning the canonical-frame flip: "the acts switch color every turn.
+That seems like it should change our plan." Proposed format: preamble +
+"Player: X" header + numbered list, gradient ONLY at X move (color) tokens →
+every supervised target shares the O-to-move frame. Built
+armF/train_movesr4x.py: same c_l targets/adapters as r4, X-only spans
+(boards[0::2]), WSD warmup→constant (extension free per 08-12 schedule
+decision), 3k steps. Smoke: header renders, X-span/target alignment asserted
+OK, ~38.5 supervised tok/seq (r4: ~77), 24.6GB.
+
+Baselines (X-only metric, /tmp/r4_xonly_baseline.py): r4@9000 scored on even-ply
+tokens only = **0.4057** (vs 0.4022 all-token — r4 has NO parity asymmetry:
+it fit both frames equally). Equal-compute r4@3000 = 0.2457 (all-token, cosine).
+
+Tension to resolve: equivariance says frames genuinely differ (mid-stack linear
+map between frames only R²~0.73), and a shared linear adapter can't gate on
+parity — frame consistency should help. But P33 says the upstream bottleneck is
+partial board representation with NO parity gap — frame-gating may not be
+binding. Also r4x sees half the supervised tokens per step.
+
+- **P34a** (55%): r4x@3k X-only val R² ≥ 0.30 (clearly beats equal-step r4's
+  ~0.246 despite half supervision — frame consistency is worth real R²).
+- **P34b** (10%): r4x@3k ≥ 0.4057 (matches r4's full 9k-step result at 1/3
+  compute — frame confusion was THE dominant tax).
