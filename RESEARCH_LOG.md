@@ -3569,3 +3569,23 @@ Comparators: r4t@3k c1 = 0.302 (r4x 0.229); c1 equivariance ceiling note
   layerwise-learnable once its input is clean.
 - Drift watch (not a graded prediction): aux c0 under c1-only training —
   catastrophic forgetting vs shared-circuit stability.
+
+## 2026-08-13 ~10:00 — chain results: P39a YES (.978), P39b NO by .002; c1 does NOT follow (P40a NO by .012, P40b NO); moved-not-destroyed
+
+c0-ext: converged 0.9780 @3k total (window deltas ~.001/100 at end).
+c1-from-converged-c0 @1k: **0.2898**. Drift drama: c0 (frozen adapter)
+crashed .978 -> -1.19 within 100 steps of c1-only gradient, then settled
+~.24-.29. Ridge reprobe (identical protocol both ckpts): post-c1 hs5 occ
+.823 / c0 .646 vs pre-c1 .763/.619, hs6 .687 vs .369 — board info NOT
+destroyed, REPRESENTATION MOVED (frozen linear readout invalidated while
+probe-accessible info slightly increased). Two probe caveats now on record:
+(1) hot-adapter training parks target info in low-variance directions ridge
+under-recovers (c0-ext probes .62 at hs5 despite trained-adapter .978 — probe
+UNDERSTATES vs trained readout); (2) single-layer training gives blocks
+above the readout ZERO gradient, so stale weights on a shifted input
+scramble deep layers (c0-ext hs6+ occ collapses to .31).
+Missing control before concluding "c0 base worthless for c1": c1-only from
+SCRATCH. Comparators: c1-from-c0 .2898@1k; r4t c1 ~.11@1k (inferred), .302@3k.
+- **P41 (55%)**: scratch c1@1k ≥ 0.25 — the c0 head start bought <.05,
+  i.e. most of c1-from-c0's speed is the generic single-layer speedup, not
+  transfer from the converged board map.
