@@ -3803,3 +3803,15 @@ hs6->c1 ~0 stands; s/block 6/block 5 (0-based)/ in the mechanism story).
 First C launch (freeze-below 6) killed at step 500 (same defect). C
 relaunched with --freeze-below 5: trainable = block 5 + adapter, ridge
 init, block lr 3e-4, 20k steps. P46 bars apply to the corrected run.
+
+## 2026-08-13 ~16:20 — side-check: containment-trained qwen is NOT turbocooked as an LM
+
+Joshua assumed the containment backbone "emits multilingual line noise on
+gsm questions". Spliced trained blocks 0-22 into full Qwen3-1.7B (blocks
+23-27 pretrained; /tmp/gsm_cooked.py), greedy GSM sample: pretrained,
+c0_ext (blocks 0-4 trained), and r4t (ALL 23 blocks, 3k steps pure
+regression, no LM/KL loss) all produce fluent, correct English CoT (72).
+Assumption falsified: at lr 1e-5 x 3k on move-token-only loss, weights stay
+in the language basin — containment carves a ~free subspace rather than
+overwriting (consistent with r1's incidental NLL 2.05->2.20). Caveat: one
+greedy sample, splice keeps pretrained blocks 23-27.
