@@ -140,6 +140,7 @@ def main():
     ap.add_argument("--ridge-init", type=int, default=0,
                     help="closed-form init adapter from N train seqs")
     ap.add_argument("--init-ckpt", default=None)
+    ap.add_argument("--fmt", default="r4t", choices=["r4t", "d04"])
     ap.add_argument("--run-name", default="armF_movesc0")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
@@ -150,7 +151,11 @@ def main():
     tok = AutoTokenizer.from_pretrained("Qwen/Qwen3-1.7B")
     games = torch.load("armF/data/games.pt", weights_only=False)["games"]
     games += torch.load("armF/data/games2.pt", weights_only=False)["games"]
-    recs = R4T.build_seqs_t(tok, games)
+    if args.fmt == "d04":
+        import build_d04
+        recs = build_d04.build_seqs_d(tok, games)
+    else:
+        recs = R4T.build_seqs_t(tok, games)
     print(f"{len(recs)} seqs, maxlen {max(len(r['ids']) for r in recs)}")
 
     val = [i for i in range(len(recs)) if recs[i]["gi"] % 15 == 0][:args.n_val]

@@ -3830,3 +3830,30 @@ So the GSM result is real, and the mechanism is that containment training
 barely travels: ~1.5% relative weight perturbation (lr 1e-5 x 3k, adapter
 absorbs most of the fit) — LoRA-merge scale, well inside the language
 basin. The payload is cheap, not competitive with LM structure.
+
+## 2026-08-13 ~17:15 — d04 format queued: fixed-width compositional cells (Joshua's aesthetic ask), P47 registered
+
+Joshua dislikes the arbitrary-word cells of r4t and proposed a fixed-width
+format. Tokenizer facts: Qwen splits EVERY ASCII digit to its own token
+(bare \p{N} in the pretokenizer, vs cl100k's \p{N}{1,3}), so " D04" is
+always ' D'|'0'|'4'. Trap found: ':X' is a single vocab token but ':O'
+splits — colon dropped for a space. Final format (armF/build_d04.py):
+"\nMove NNN. LDD C", 3-digit zero-pad, uniform 11 tokens/line, all fields
+at fixed offsets, readout at ' X' (verified over 50 games).
+
+This retro-completes a decomposition we couldn't do at r4t time: r4x
+(variable-width compositional, c0@3k .727) vs r4t (fixed atomic words,
+.91) conflated multi-token BINDING with positional JITTER. d04 is
+fixed-width but compositional -> isolates binding. Confound on record:
+d04 maxlen 1172 vs r4t ~600 (verbose lines ~2x seq length; steps matched,
+FLOPs not). Run: train_movesc0.py --fmt d04, c0-only, 1k steps, defaults
+(lr 1e-5, adapter-lr 1e-2) = the r4t c0 speedrun recipe; comparator
+r4t c0@1k = .91.
+- **P47a (55%)**: d04 c0@1k >= .85 (jitter was most of the r4x tax).
+- **P47b (25%)**: d04 c0@1k >= .90 (binding ~free; compositional format
+  fully rehabilitated, aesthetics win).
+- **P47c (10%)**: d04 c0@1k <= .75 (binding is the whole tax; atomic
+  cells stay mandatory).
+Flagged for later (Joshua): format-robust move recognition / "blindfold
+conversational hex" — if a backbone can contain from MULTIPLE formats,
+format choice stops being load-bearing. Not tested now.
