@@ -3270,3 +3270,24 @@ Predictions (registered before launch):
   >= 0.15 mean R2 below the joint-FT run: 70%
 - P32 1-ply-opening pooled win% strictly below 4-ply pooled win% (protocol
   flattening replicates on this arm): 60%
+
+## 2026-08-13 ~00:30 — schedule post-mortem (mid-r4, Joshua's question): cosine decay likely costs more than it buys
+
+Observation on the live r4 run: 500-step val-R2 window deltas track the LR
+almost proportionally (+0.05/500 near peak LR -> +0.011/500 at ~25% of peak,
+step 5500-6000). That is the signature of an LR-limited regime, not an
+information-limited one — mid-run decay is throttling progress, not
+consolidating it. Combined with the r3->r3ext evidence (the "converged"
+annealed endpoint yielded another +0.042 immediately after a warm restart
+with fresh schedule), the cosine tail manufactures fake plateaus that we
+then pay to diagnose (headroom-rule bookkeeping, restart surgery with
+halved LRs, step-0 reproduction checks).
+
+Decision: future arm-F long runs (r5+, and any joint-FT partner for the r4
+frozen-backbone control if rerun) switch to a WSD-style schedule: warmup ->
+constant LR -> short sharp anneal (~10% of budget) triggered only when we
+decide the run is done. Extensions then resume from the constant phase for
+free. Keep the final anneal — at batch 8 the gradient noise floor is real
+and the low-LR polish is the one thing decay genuinely buys. r4 itself
+stays on cosine (schedule-matched comparison to r3/r3ext is worth more
+than the tail waste).
