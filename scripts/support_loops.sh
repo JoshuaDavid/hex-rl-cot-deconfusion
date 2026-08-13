@@ -20,7 +20,10 @@ backup() {
     rclone copy data "$B2/data" --exclude ".hf_home/**" -q
     rclone copy notes "$B2/notes" -q
     rclone copy checkpoints "$B2/checkpoints" \
-      --include "*/hf/**" --include "*/huggingface/**" --transfers 4 -q
+      --include "*/hf/**" --include "*/huggingface/**" \
+      --include "armF*/final.pt" --include "armF*/*.json" \
+      --include "armF_fingerE/*.pt" --transfers 4 -q
+    rclone copy armF/data "$B2/armF/data" --include "*.pt" -q
     sleep 7200
   done
 }
