@@ -23,14 +23,15 @@ def cell_str(mv):
     return chr(ord("A") + int(mv[0])) + f"{int(mv[1]) + 1:02d}"
 
 
-def build_seqs_d(tok, games):
+def build_seqs_d(tok, games, numbers=True):
     recs = []
     for gi, g in enumerate(games):
         parts = [RM.PREAMBLE_M, R4X.HDR]
         pos = len(RM.PREAMBLE_M) + len(R4X.HDR)
         spans = []
         for t, mv in enumerate(g["moves"].tolist()):
-            s = f"\nMove {t + 1:03d}. {cell_str(mv)} {'X' if t % 2 == 0 else 'O'}"
+            pre = f"Move {t + 1:03d}. " if numbers else ""
+            s = f"\n{pre}{cell_str(mv)} {'X' if t % 2 == 0 else 'O'}"
             parts.append(s)
             if t % 2 == 0:
                 spans.append((pos + 1, pos + len(s)))

@@ -3904,3 +3904,23 @@ may measure optimization speed, not asymptote. Extension queued.
 - **P48b (25%)**: d04@3k >= .85 (fully catches r4t-format regime).
 - **P48c (20%)**: d04@3k <= .55 (format tax is deep; atomic cells or
   fewer digits mandatory).
+
+### ~19:10 d04n queued: Joshua's no-move-numbers variant, P49 registered
+
+Joshua expects move numbers are unnecessary. Context check: P15/P16's
+numbered-vs-plain win (.774 vs .436) did NOT isolate numbers — "plain" was
+" g1" with NO color token and no newlines, so the model had to infer color
+from list-position parity; d04-family formats state color explicitly per
+line, mooting the parity job. Also, with fixed-width lines the move number
+is a linear function of absolute position (RoPE has it for free) — the
+3 padded number digits per line mostly add digit-aliasing clutter.
+Format d04n: "\nG01 X" — uniform 5 tokens/line (\n|G|0|1|' X'), maxlen 525
+(vs d04 1172), no move-number digits. Run: c0-only from scratch, 3k steps
+(the d04ext lesson: judge AFTER the phase transition, 1k is premature).
+Comparators: r4t .910@1k; d04 .341@1k -> transition ~step 1200 -> (P48
+pending, ~.96@2300 mid-extension).
+- **P49a (60%)**: d04n@3k >= .90 (numbers redundant; Joshua right).
+- **P49b (25%)**: transition arrives EARLIER than d04's (~1200) — shorter
+  seqs + less clutter speed the click.
+- **P49c (15%)**: d04n@3k <= .55 (explicit numbers/anchors genuinely
+  load-bearing for binding).
