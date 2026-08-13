@@ -3982,3 +3982,24 @@ Comparators: r4 joint c-space mean .4022 (c1 .29 trough, c17 .46).
 - **P50c (40%)**: chain mean over c1..c18 >= .70.
 - **P50d (25%)**: min stage >= .60 (no deep trough at all).
 - **P50e (15%)**: some stage < .40 (a wall run-C's recipe can't fix).
+
+## 2026-08-13 — quick measurement (Joshua's ask): adjacent-layer basis alignment of the distilled net's rank-1024 bottlenecks
+
+Question: at the rank-1024 bottleneck (bottleneck_anchored_ext.pt), how
+basis-aligned are adjacent layers' c-spaces? Two metrics on decoder D_l
+(7744x1024): subspace overlap (mean sq cos principal angles between
+range(D_l), range(D_{l+1}); random baseline 1024/7744 = .132) and
+same-index coordinate alignment (mean |cos(D_l[:,i], D_{l+1}[:,i])|;
+random ~.009).
+- Subspace overlap climbs monotonically with depth: c0-c1 .133 (EXACTLY
+  chance) -> c5-c6 .363 -> c17-c18 .488 (~3.7x chance). c0-c1 at chance
+  matches the known PR explosion at skiplayer0 (89->513): the first
+  transition rewrites the state into a fresh subspace.
+- Same-index alignment is nil everywhere: mean |cos| .016-.058, diagonal
+  energy 1-2% of the cross-cosine matrix. Adjacent layers partially share
+  a SUBSPACE (increasingly with depth) but each layer has its own private
+  BASIS within it — dim i of c_l means nothing in c_{l+1}.
+Consistent with the finger E picture: no residual-stream-like shared
+format; per-layer PCA finds per-layer bases, and chained-PCA compounding
+(fingerE_pca) is what a basis-free stack costs you. (Inline computation,
+CPU, no script artifact.)
