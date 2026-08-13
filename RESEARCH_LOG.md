@@ -3511,3 +3511,23 @@ the 19-layer diluted loss = .15@500 / .44@1k / .70@1500 / .82@2k.
 - **P38b (20%)**: ≥ 0.95 at 1k — the parse "snaps" once undiluted (Joshua's
   near-affine-perfect expectation; c0 IS affine in occupancy).
 - Instability watch: adapter 1e-2 AdamW may oscillate; grad-clip 1.0 shared.
+
+## 2026-08-13 ~07:40 — r4t@3k result: P37a NO, P37b NO by .005; binding hypothesis directionally CONFIRMED
+
+r4t (single-token cells) final: mean X-only val R2 **0.3180** vs r4x 0.2954.
+- **P37a (≥0.35 @55%): NO** (+0.023 only on the mean).
+- **P37b (c0≥.90 AND hs5 occ≥.95 @15%): NO by 0.005** — c0 0.91 ✓, hs5
+  occupied-acc 0.945 (bar .95). Third straight threshold miss by a hair;
+  note to self: my thresholds are well-calibrated on direction, sloppy on
+  margin.
+- Substance: binding WAS the board-map bottleneck. Occ probe hs5 .809->.945
+  (all-cell .981), c0-from-hs5 ridge .608->.805, adapter c0 .727->.91, and
+  c0@2k (.82) matched r4x@3k early. But deep layers barely moved (c18
+  .26->.25, mid +.01-.02): total-mean gain small. Two-bottleneck picture now
+  sharp: (1) multi-token cell binding throttles the occupancy/board map —
+  SOLVED by atomic tokens; (2) deep containment (skiplayer-cascade emulation)
+  has its own, slower constraint — NOT parse-limited, since a .95-occupancy
+  board map at hs5 still leaves c1-c18 at ~.29.
+- Joshua's circuit sketch: with atomic cell tokens, essentially vindicated
+  (gather L0-3, aggregate hs4-5, near-1hot at hs5). The original slowness was
+  the tokenizer's fault, not the transformer's.
