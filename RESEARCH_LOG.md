@@ -4030,3 +4030,33 @@ Preservation confirmed end-to-end: each stage's aux (frozen prev-layer
 adapter) reproduced the previous final to +-.0002 through all 18 stages.
 Artifact: checkpoints/armF_chain_c18/final.pt (full backbone) + per-stage
 adapters in armF_chain_c*/final.pt (backbones stripped, adapters kept).
+
+## 2026-08-13 — Joshua-supplied reference: adjacent-layer basis alignment in the distilled hexnet
+
+Joshua computed subspace overlap (mean-sq cos of principal angles) between
+adjacent c-layer bases (1024-dim in 7744-dim native space), plus same-index
+mean |cos|:
+
+| pair | subspace overlap | same-index mean |cos| |
+|---|---|---|
+| c0-c1 | .133 (= chance, 1024/7744) | .016 |
+| c1-c2 | .249 | .030 |
+| c5-c6 | .363 | .048 |
+| c9-c10 | .405 | .049 |
+| c13-c14 | .453 | .049 |
+| c17-c18 | .488 | .058 |
+
+Same-index cos ~0 everywhere: no coordinate alignment, only subspace-level
+sharing, rising monotonically with depth from chance to ~half.
+
+Interpretation vs the chain result: the chain-joint delta tracks this table
+monotonically. Chain wins where adjacent bases are chance-orthogonal (c0->c1
+pure basis rewrite; chain c1 .769 vs joint .294, +.48) and loses where sharing
+is high (c17-c18 overlap .488; chain -.07/-.08 vs joint). Crossover ~c10-c11
+lands where overlap passes ~.4. Story: joint training exploits deep subspace
+sharing — supervising one deep layer partially supervises neighbors, so the
+funnel comes semi-free — while greedy can't propagate sharing forward through
+a frozen bottom. Joint's c1 trough is the same fact inverted: the one
+transition with no reusable basis (skiplayer0 PR 89->513) starves under shared
+capacity, thrives with a dedicated stage. Consistent with the budget-confound
+caveat but gives it a mechanism.
