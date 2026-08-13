@@ -140,6 +140,9 @@ def main():
     ap.add_argument("--ridge-init", type=int, default=0,
                     help="closed-form init adapter from N train seqs")
     ap.add_argument("--init-ckpt", default=None)
+    ap.add_argument("--early-stop-window", type=int, default=0,
+                    help="stop when R2 gain over last N evals < delta")
+    ap.add_argument("--early-stop-delta", type=float, default=0.01)
     ap.add_argument("--fmt", default="r4t", choices=["r4t", "d04", "d04n"])
     ap.add_argument("--run-name", default="armF_movesc0")
     ap.add_argument("--smoke", action="store_true")
@@ -249,6 +252,13 @@ def main():
                   f"({(time.time()-t0)/step:.2f}s/step)", flush=True)
         if step % args.eval_every == 0:
             log_eval(step)
+            W_ = args.early_stop_window
+            if W_ and len(hist) > W_:
+                gain = hist[-1][f"c{L}_r2"] - hist[-1 - W_][f"c{L}_r2"]
+                if gain < args.early_stop_delta:
+                    print(f"early stop at {step}: window gain {gain:.4f}",
+                          flush=True)
+                    break
     torch.save({"backbone": {k: v.bfloat16() for k, v in
                              backbone.state_dict().items()},
                 "ad": {k: v.bfloat16() for k, v in ad.state_dict().items()},

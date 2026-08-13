@@ -3961,3 +3961,24 @@ future arm-F-style runs; budget ~2x r4t's steps for the binding
 transition when training from scratch.
 Format thread CLOSED. Still flagged for later: multi-format containment
 (format-robust move recognition / blindfold conversational hex).
+
+## 2026-08-13 ~21:00 — OVERNIGHT: sequential 18-stage layer-by-layer containment chain launched, P50 registered
+
+Joshua's ask: build the full 19-layer distilled-net containment layer by
+layer — stage l warm-starts from stage l-1, freezes blocks < 4+l, trains
+ONLY transition block 4+l + fresh ridge-init adapter at hs[5+l]. Frozen
+bottom preserves every prior layer EXACTLY by construction (stage-1 smoke:
+aux c0 .9743 = d04n final). Format d04n; base = armF_movesc0_d04n (.9744).
+Recipe per stage = run C: block lr 3e-4, adapter-lr 1e-3, warmup 500,
+ridge-init 1200 seqs; cap 10k steps with early stop (gain < .01 over 2k).
+armF/chain_d04n.sh; backbone stripped from ckpts two stages back (disk:
+17G free vs 18x2.8G). Worst case ~16h; early stops should cut it.
+Run C reference: c1 .78@10k (asymptote .877@20k) — per-stage numbers will
+undershoot their ceilings; WSD-constant LR makes later extension free.
+Comparators: r4 joint c-space mean .4022 (c1 .29 trough, c17 .46).
+- **P50a (75%)**: chain completes all 18 stages unattended (no crash/
+  divergence/disk-full).
+- **P50b (60%)**: every stage-final R2 beats its r4-joint counterpart.
+- **P50c (40%)**: chain mean over c1..c18 >= .70.
+- **P50d (25%)**: min stage >= .60 (no deep trough at all).
+- **P50e (15%)**: some stage < .40 (a wall run-C's recipe can't fix).
