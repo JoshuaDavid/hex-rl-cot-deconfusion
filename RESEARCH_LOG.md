@@ -3941,3 +3941,23 @@ circuit (gather letter+digits into cell identity) that takes ~1.2k steps
 to form; atomic cells skip that construction. Once formed, no residual
 tax (digit aliasing / 2x seq length / two-token rows: all absorbed).
 Aesthetic format is viable for future arms at ~2-3x the warmup compute.
+
+## 2026-08-13 ~20:30 — d04n result: P49a YES, P49b YES, P49c NO — numbers redundant; "\nG01 X" is the format
+
+armF_movesc0_d04n final: val c0 R2 0.9744 @ 3k from scratch (peak .9751
+@ 2.9k) — matches d04ext (.971) and r4t warm-ext (.978): three formats,
+one asymptote. P49a YES (>= .90, cleared @ 1900 with 1.1k to spare):
+Joshua right, move numbers are redundant once color is explicit per line
+(the P15/P16 "numbers matter" result was really "explicit color matters"
+— its plain arm had NO color tokens). P49b YES: transition arrived
+earlier (~700-900 vs d04's ~1200; @1k d04n .441 vs d04 .341) — less
+clutter, faster click. P49c dead.
+Format ladder @3k, all ~equal: r4t atomic words .978 | d04 verbose .971 |
+d04n minimal .974. d04n wins on everything else: 5 tokens/line, maxlen
+655 (vs 1172), no digit aliasing, compositional coordinates preserved,
+human-readable. RECOMMENDATION: d04n ("\nG01 X", zero-padded rows,
+space-separated color, NO move numbers) is the default move format for
+future arm-F-style runs; budget ~2x r4t's steps for the binding
+transition when training from scratch.
+Format thread CLOSED. Still flagged for later: multi-format containment
+(format-robust move recognition / blindfold conversational hex).
