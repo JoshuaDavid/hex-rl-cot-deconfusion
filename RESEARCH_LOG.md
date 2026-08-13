@@ -4060,3 +4060,35 @@ a frozen bottom. Joint's c1 trough is the same fact inverted: the one
 transition with no reusable basis (skiplayer0 PR 89->513) starves under shared
 capacity, thrives with a dedicated stage. Consistent with the budget-confound
 caveat but gives it a mechanism.
+
+## 2026-08-13 — P51 registered: joint-tail (c16+c17+c18) vs sequential chain tail
+
+Joshua's follow-up to the basis-alignment table: "does training on the last 3
+layers jointly get a better outcome?" (last 3 hs -> c layers: c16/c17/c18 at
+hs[21..23]). Design (armF/train_jointtail.py): frozen bottom = chain-c15 state
+(chain_c18 blocks 0..19, frozen through stages c16-c18), blocks 20-22 reset to
+pretrained (they had zero gradient through stage c15), 3 ridge-init adapters
+(1200 seqs), loss = mean of 3 normalized MSEs, lr 3e-4 / adapter 1e-3, warmup
+500, d04n, steps 9500 = chain tail's actual total (3500+3000+3000), same
+early-stop rule on the MEAN. Both arms share the identical frozen bottom, so
+this isolates WITHIN-TAIL shared supervision from full-joint's other advantage
+(reshaping the bottom for deep layers). Chain comparators: c16 .3735, c17
+.3928, c18 .3318, mean .3660.
+
+Predictions:
+- P51a (70%): joint-tail mean(c16-18) > .3660 (chain tail mean). Mechanism:
+  overlap .45-.49 in the tail means one layer's supervision partially
+  supervises its neighbors; capacity split hurts less than sharing helps.
+- P51b (65%): joint c18 >= .362 (chain c18 + .03). The chain's c18 terminal
+  drop looks like greedy/budget artifact; shared tail supervision should lift
+  it most.
+- P51c (40%): joint c16 < .3735 (loses its dedicated stage). Weakly held —
+  sharing may compensate for the lost dedicated capacity.
+- Interpretive fork registered in advance: if joint-tail ~= chain tail
+  everywhere, the deep chain deficit is NOT within-tail sharing but the
+  shallow-locked frozen bottom (input quality) — which joint-tail can't fix
+  either — and full-joint's deep advantage comes from bottom reshaping.
+
+Smoke: loads clean (bottom 0..19 from chain ckpt verified via missing-keys
+assert), 9.0GB, ridge on 64 seqs overfits to negative val R2 as expected
+(real run uses 1200).
