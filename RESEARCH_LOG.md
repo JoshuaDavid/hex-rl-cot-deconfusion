@@ -3787,3 +3787,19 @@ de-scrambling, not transition-computing.
   - P46b (30%): c1@20k ≥ .60 (approaches standalone regime in-situ).
   - P46c (15%): c1@20k ≤ .30 (even matched budget fails -> the 2048-dim
     shared-basis input format under attn/RMSNorm is itself the tax).
+
+### ~15:40 CORRECTION: freeze-below off-by-one — A/B (and first C launch) trained the ADAPTER ONLY
+
+HF hidden_states[k] is the output of block k-1, so the c1 readout at hs6
+reads BLOCK 5's output — block 5 is the transition block. --freeze-below 6
+froze blocks 0..5 INCLUDING the transition block; blocks 6+ get no gradient
+above the readout; so runs A and B trained nothing but the linear adapter.
+This mechanically explains B == A (-.0581 vs -.0585) — backbone lr never
+entered the graph — and re-grades P45c's "wash" as vacuous rather than
+informative. What A/B DO establish: SGD-trained adapter-only at hs6
+converges to ~ridge level ~0, independently corroborating the scrambling
+finding (which is forward-only and UNAFFECTED: ridge hs5->c1 .271 vs
+hs6->c1 ~0 stands; s/block 6/block 5 (0-based)/ in the mechanism story).
+First C launch (freeze-below 6) killed at step 500 (same defect). C
+relaunched with --freeze-below 5: trainable = block 5 + adapter, ridge
+init, block lr 3e-4, 20k steps. P46 bars apply to the corrected run.
