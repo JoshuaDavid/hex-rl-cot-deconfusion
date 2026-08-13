@@ -3291,3 +3291,25 @@ free. Keep the final anneal — at batch 8 the gradient noise floor is real
 and the low-LR polish is the one thing decay genuinely buys. r4 itself
 stays on cosine (schedule-matched comparison to r3/r3ext is worth more
 than the tail waste).
+
+## 2026-08-13 ~01:10 — mid-r4: why c1 is the trough (Joshua's observation; cheap falsifier run)
+
+Hypothesis: per-dim-normalized c-space R2 ~ fraction of independent
+coordinates captured, so the trough should sit where the state has the most
+effective rank and least board-linear structure. Measured on 4000 boards
+(/tmp/c_anatomy.py, alongside the live run): PR of the normalized-c
+correlation matrix + closed-form ridge from raw occupancy planes (242
+features) -> c_l.
+
+Result: c0 PR 89.5, board-ridge R2 = 1.000 — c0 is EXACTLY affine in board
+occupancy (a linear re-render; Qwen only needs the board, which r3 proved
+it reconstructs). c1: PR explodes to 513 (rank90 617) and board-linearity
+collapses to 0.38 — one skiplayer manufactures ~600 effectively independent,
+mostly-nonlinear dims, the largest pile of new information in the stack.
+Then a monotone funnel: PR 513 -> 261 (c17) / 286 (c18), linearity -> 0.20.
+Explains the full observed profile: c0 easy (0.78 @ step 7000), c1-c3
+trough (~0.31), deep moderately better (0.40) because there are half as
+many independent coordinates left to capture. The r1/r3 U-shape (mid-stack
+trough, shallow easy) was a z-space redundancy artifact; in decorrelated
+c-space, difficulty ~ effective rank x nonlinearity, peaking right after
+the first block.
