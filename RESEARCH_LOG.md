@@ -3924,3 +3924,20 @@ pending, ~.96@2300 mid-extension).
   seqs + less clutter speed the click.
 - **P49c (15%)**: d04n@3k <= .55 (explicit numbers/anchors genuinely
   load-bearing for binding).
+
+## 2026-08-13 ~19:35 — d04ext result: P48a YES, P48b YES — format fully rehabilitated; P47's 1k verdict was an induction-delay artifact
+
+armF_movesc0_d04ext final: val c0 R2 0.9711 @ 3k total (peak .9714) vs
+r4t-format warm-ext .978 @ 3k — matched within noise. The P47 story
+inverts: the fixed-width compositional format has the SAME asymptote as
+atomic word-cells; what differs is a delayed PHASE TRANSITION (~flat to
+step ~1100, then +.1/100 steps through ~1900, then plateau) vs r4t's
+smooth ramp from step 0. Equal-budget comparisons at 1k measured
+time-to-click, not capacity — second instance of the "cosine plateau" /
+premature-horizon lesson, now for from-scratch format A/Bs: judge formats
+AFTER the transition or not at all.
+Interpretation: compositional cells require an induction-like binding
+circuit (gather letter+digits into cell identity) that takes ~1.2k steps
+to form; atomic cells skip that construction. Once formed, no residual
+tax (digit aliasing / 2x seq length / two-token rows: all absorbed).
+Aesthetic format is viable for future arms at ~2-3x the warmup compute.
