@@ -3603,3 +3603,22 @@ the c1 ceiling looks intrinsic to the target (rank-513, linearity .38 after
 skiplayer0), not upstream-input-limited. Consistent with finger-D/D2:
 width-relative-to-state-rank is the binding constraint, and c1 is the layer
 where state rank explodes past everything else.
+
+## 2026-08-13 ~11:05 — P42 registered: head-capacity test on the c1 wall (Joshua's test (c))
+
+Q: is the ~.29 c1 wall readout-side (info in hs6, linear head can't extract)
+or backbone-side (features never computed)? armF/head_capacity_c1.py: frozen
+armF_movesc1 backbone, 1500 train / 60 val games, at X tokens fit -> norm c1:
+linear(hs6), MLP(hs6) [2048->4096 GELU->1024, AdamW 1e-3, 30ep, best-val],
+MLP(hs5), plus reference cells linear(c0true), MLP(c0true) on the native
+normalized c0. MLP(c0true) is the D2-style ceiling — directly tests Joshua's
+"CNN doing something the MLP can't reproduce". Comparators: trained adapter
+c1 .2898; skiplayer0 linearity .38 (so linear(c0true) ~.4 expected);
+finger-D2 MLP on native transitions ~.985.
+- **P42a (35%)**: MLP(hs6) ≥ 0.45 — big nonlinear headroom, wall is
+  readout-side, the backbone computes more c1 than the linear adapter reads.
+- **P42b (30%)**: MLP(hs6) − linear(hs6) ≤ 0.05 — no nonlinear headroom,
+  wall is backbone-side (features absent from hs6, not merely entangled).
+- **P42c (65%)**: MLP(c0true) ≥ 0.90 — the CNN c0->c1 transition IS
+  MLP-learnable in native space (falsifying "CNN does something the MLP
+  can't reproduce"), localizing the wall to what hs6 retains/loses of c0.
