@@ -3883,3 +3883,24 @@ r3 headroom rule).
 Open: weight-swap surgery (attribute the unfrozen run's de-scrambling to
 lower-block relocation vs block-5 self-repair) — awaiting Joshua's call.
 d04 format A/B (P47) auto-launched behind this run.
+
+## 2026-08-13 ~18:40 — d04 result: P47a NO, P47b NO, P47c YES — fixed-width compositional format LOSES badly at 1k
+
+armF_movesc0_d04 final: val c0 R2 0.3413 @ 1k vs r4t-format .910 (same
+recipe, same steps). The 10% tail case hit. NOT just "jitter vs binding":
+d04 is fixed-width AND compositional yet lands far below even the
+variable-width r4x format's regime, so something in this format is
+actively harder. Candidate suspects (not yet separated):
+  (1) digit aliasing — 5 digit tokens per line (3-digit padded move number
+      + 2-digit row) all drawn from the same 10-token vocab; '0'/'4' in
+      "Move 040" vs row "04" must be disambiguated positionally;
+  (2) row identity split across two digit tokens (r4x rows 1-9 were one);
+  (3) 2x sequence length (maxlen 1172 vs ~600) diluting attention.
+CAVEAT for interpretation: d04 was still ACCELERATING at cutoff (+.039,
++.046 last two evals) while r4t was decelerating into .91 — the 1k bar
+may measure optimization speed, not asymptote. Extension queued.
+- **P48a (50%)**: d04 warm-extended to 3k total reaches >= .70 (slow
+  learner, not low ceiling; gap mostly closes with budget).
+- **P48b (25%)**: d04@3k >= .85 (fully catches r4t-format regime).
+- **P48c (20%)**: d04@3k <= .55 (format tax is deep; atomic cells or
+  fewer digits mandatory).
