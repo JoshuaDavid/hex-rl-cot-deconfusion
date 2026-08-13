@@ -3313,3 +3313,23 @@ many independent coordinates left to capture. The r1/r3 U-shape (mid-stack
 trough, shallow easy) was a z-space redundancy artifact; in decorrelated
 c-space, difficulty ~ effective rank x nonlinearity, peaking right after
 the first block.
+
+## 2026-08-13 ~01:40 — Joshua's circuit sketch vs observed mechanism; P33 registered
+
+Joshua's expected circuit for board tracking: L0-L3 local binding (coord
+tokens -> color token payload), an L4 fan-in head summing all past X/O
+payloads (= bag-of-one-hots = absolute occupancy in one head), MLP unpacks
+-> near-perfect linear occupancy probes at hs[5]. What we actually observe:
+(a) L0-L2 broad gather yes; (b) NO fan-in aggregation — attn anatomy shows
+a prev-record RELAY in 23/23 layers (incremental state-passing, error-
+compounding); (c) canonical-frame occupancy at hs[5] is provably not
+near-perfect (c0 = affine of canonical occ; adapter reads 0.79). Open
+loophole: targets are canonical (frame flips each ply); a shared linear
+adapter cannot gate on parity, so absolute-frame occupancy could be
+near-perfect while c0 caps at 0.79 (all deficit = frame gating).
+Discriminator: ridge probe hs[l] at color tokens -> absolute per-cell
+occupancy (3-way), per layer x prefix length, on the r4 final ckpt.
+- P33 best-layer mean per-cell 3-way accuracy >= 0.95: 40% (relay anatomy
+  + flat depth sweep push down; linearly-equivalent training pressure up).
+If near-perfect: bottleneck = frame gating -> parity-conditioned adapters
+ablation. If ply-degrading: relay accumulation; the fan-in circuit absent.
