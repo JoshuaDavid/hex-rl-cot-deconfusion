@@ -4296,3 +4296,23 @@ Predictions:
 - Failure reading: c1 craters -> crowd hurts even from good init (P52's
   acquittal was head-only, doesn't generalize); mean stalls ~.49 -> chain
   init is a local minimum joint training can't escape at halved LR.
+
+## 2026-08-14 ~08:05 — polish19 spike at ~19.5k; abort guard WORKED; restarted as polish19b
+
+Third occurrence of the joint-run instability: healthy loss .095 at step
+19500, then >2.0; 50 consecutive skips -> clean ABORT at 19537 (new guard's
+first live firing — no corrupted final.pt, best.pt step 19000 preserved).
+Not disk (17G free; Joshua guessed disk full — it wasn't).
+
+**LR-instability scaling observation:** spike at ~8.8-9.4k @ lr 3e-4
+(jointhead x2), ~19.5k @ 1.5e-4 (polish19) — time-to-instability roughly
+doubles when LR halves, consistent with slow state accumulation (wd 0)
+reaching an edge, not random batch events.
+
+State at abort (step 19000, mean .6928, still +.003/500): P53a already
+exceeded (.6928 >> .55), c1 .8603 (P53b passing), c18 .6231 (P53c passing),
+every layer far above both chain and joint-r4 at matching index. Full grade
+deferred to asymptote.
+
+Restart: armF_polish19b from polish19/best.pt, lr 7.5e-5 / adapter-lr
+2.5e-4 (halved again), warmup 250, steps 11000 (remaining cap), same guards.
