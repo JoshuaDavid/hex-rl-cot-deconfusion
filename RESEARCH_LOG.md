@@ -4351,3 +4351,22 @@ never observed at 7.5e-5.
 Next (standing directive, cheap): stitch/play eval of the polished backbone
 vs the distilled CNN (eval_stitch_r4.py protocol) — r4's mean .402 gave
 pooled 22.5%; does .7274 buy parity?
+
+## 2026-08-14 ~19:00 — P54 registered: stitch/play eval of polished backbone (eval_stitch_polish.py)
+
+d04n constraint on record: polish supervision is X-move-tokens only
+(boards[0::2]), so agreement = even-ply positions and the stitched player
+plays SECOND only (every decision follows an X move). Protocol differs from
+eval_stitch_r4 (both sides, numbered format) — noted for comparability.
+Baselines (r4, mean-R2 .402): play 4-ply cut0 17/40 / cut9 4/40 / cut18
+6/40 (pooled 22.5%); agreement top1 .56/.49/.38 at k=0/9/18.
+
+Predictions (polish mean-R2 .727, c0 .996, deep ~.67):
+- P54a (65%): pooled vs distilled 4-ply across cuts 0/9/18 >= 40% (48/120).
+- P54b (60%): cut0 4-ply >= 50% (20/40) — c0 R2 .996 should approach parity.
+- P54c (65%): cut18 4-ply >= 30% (12/40) — double r4's 15%.
+- P54d (70%): agreement top1 at k=18 >= .50 (r4 .38).
+- Reading: R2->play transfer has repeatedly been sublinear (r1 lesson:
+  move-match is the wrong metric; r4 lesson: shallow z-hat errors amplify
+  through remaining CNN layers) — if P54b fails despite c0 .996, error
+  amplification through 19 distilled layers is harsher than R2 suggests.
