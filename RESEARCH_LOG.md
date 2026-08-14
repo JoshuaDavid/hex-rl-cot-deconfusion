@@ -4139,3 +4139,35 @@ Two corrections to the headline framing:
    story (r4's c17 has ~20 trainable blocks below it, and sits +.07 higher).
    Gradient-sharing per se contributes ~nothing to asymptote (c16 is the
    control: shared loss, no extra depth, no gain) — it only buys speed.
+
+## 2026-08-14 — P52 registered: joint-head (c0+c1+c2) — is c0 special, or is it overlap interference?
+
+Joshua's confusion: joint-tail beat the chain tail, yet full-joint r4 was much
+worse than sequential at c0/c1 (.798/.294 vs .974/.769). "I wonder if c0 is
+just special." Note full-joint also falsifies yesterday's clean "trainable
+depth buys asymptote" story at c1 — more depth, worse result — so something
+else (19-loss capacity competition / orthogonal-basis interference at the
+chance-overlap c0->c1 boundary) must dominate shallow.
+
+Discriminator (per Joshua's standing directive: note confusion, run the cheap
+discriminator): joint-head-3 = exact mirror of joint-tail. c0+c1+c2 at
+hs[5..7], pure pretrained init, blocks 0..6 trainable (backbone truncated to
+7 blocks — pure speed, no math change), 3 ridge-init adapters, mean loss,
+d04n, same LRs, cap 23000 steps (= sequential's 3000+10000+10000), same
+early-stop rule on mean. Sequential comparators: c0 .9744 / c1 .7693 /
+c2 .6576, mean .8004. CAVEAT on record: sequential c1 was budget-capped and
+still climbing (run C: .877@20k), so the sequential asymptote is understated.
+train_jointtail.py generalized (--layers/--freeze-below/--truncate-blocks/
+--bottom-ckpt none); tail defaults reproduce the P51 run.
+
+Predictions:
+- P52a (65%): joint-head c1 < .70 at stop (clearly below sequential .769) —
+  interference story.
+- P52b (55%): c0 >= .95 (c0-is-easy: trivially affine target survives a
+  3-loss crowd even if c1 doesn't).
+- P52c (70%): mean < .80 (sequential wins the head, mirror of the tail).
+- Discriminator logic: c1 >= .77 with 3 losses would falsify 3-way
+  interference and pin full-joint's shallow damage on the 19-loss crowd /
+  optimization pathology instead. c0 crater (<.90) would falsify "c0
+  special"; c0 holds + c1 craters = c0 genuinely special (easy target), not
+  shallowness per se.

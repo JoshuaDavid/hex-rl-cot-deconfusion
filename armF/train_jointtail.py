@@ -26,7 +26,7 @@ import build_d04  # noqa: E402
 
 DEV = "cuda"
 K = 1024
-LAYERS = [16, 17, 18]
+LAYERS = [16, 17, 18]  # overwritten from --layers in main()
 
 
 def pad_batch(recs, sel):
@@ -116,13 +116,21 @@ def main():
     ap.add_argument("--eval-every", type=int, default=500)
     ap.add_argument("--n-val", type=int, default=60)
     ap.add_argument("--ridge-init", type=int, default=1200)
+    ap.add_argument("--layers", default="16,17,18")
+    ap.add_argument("--freeze-below", type=int, default=20)
+    ap.add_argument("--truncate-blocks", type=int, default=23,
+                    help="drop blocks above the deepest readout (pure speed)")
     ap.add_argument("--bottom-ckpt",
-                    default="checkpoints/armF_chain_c18/final.pt")
+                    default="checkpoints/armF_chain_c18/final.pt",
+                    help="'none' = pure pretrained init")
     ap.add_argument("--early-stop-window", type=int, default=4)
     ap.add_argument("--early-stop-delta", type=float, default=0.01)
     ap.add_argument("--run-name", default="armF_jointtail")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
+    global LAYERS
+    LAYERS = [int(x) for x in args.layers.split(",")]
+    assert args.truncate_blocks >= 5 + max(LAYERS) - 1 + 1
     out_dir = Path(f"checkpoints/{args.run_name}")
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -138,19 +146,26 @@ def main():
     cnn = W.load_model()
     student = R4.load_student(cnn)
     mu, sd = R4.c_stats(student, games)
-    backbone = T.load_backbone()
-    ck = torch.load(args.bottom_ckpt, map_location="cpu", weights_only=False)
-    keep = {k: v.float() for k, v in ck["backbone"].items()
-            if not any(k.startswith(f"layers.{i}.") for i in (20, 21, 22))}
-    missing, _ = backbone.load_state_dict(keep, strict=False)
-    bad = [m for m in missing if "rotary" not in m
-           and not any(m.startswith(f"layers.{i}.") for i in (20, 21, 22))]
-    assert not bad, bad
-    print(f"bottom 0..19 from {args.bottom_ckpt}; blocks 20-22 pretrained")
+    backbone = T.load_backbone(train_blocks=args.truncate_blocks)
+    FB = args.freeze_below
+    if args.bottom_ckpt != "none":
+        ck = torch.load(args.bottom_ckpt, map_location="cpu",
+                        weights_only=False)
+        trainable = range(FB, args.truncate_blocks)
+        keep = {k: v.float() for k, v in ck["backbone"].items()
+                if not any(k.startswith(f"layers.{i}.") for i in trainable)}
+        missing, _ = backbone.load_state_dict(keep, strict=False)
+        bad = [m for m in missing if "rotary" not in m
+               and not any(m.startswith(f"layers.{i}.") for i in trainable)]
+        assert not bad, bad
+        print(f"bottom 0..{FB - 1} from {args.bottom_ckpt}; "
+              f"blocks {FB}.. pretrained")
+    else:
+        print("pure pretrained init")
     backbone.train()
-    for i in range(20):
+    for i in range(FB):
         backbone.layers[i].requires_grad_(False)
-    print("froze blocks 0..19")
+    print(f"froze blocks 0..{FB - 1}" if FB else "nothing frozen")
 
     ads = {l: nn.Linear(2048, K).to(DEV) for l in LAYERS}
     ad_params = [p for a in ads.values() for p in a.parameters()]
