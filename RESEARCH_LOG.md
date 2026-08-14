@@ -4219,3 +4219,49 @@ tightened 50→2.0 (healthy loss ~0.1).
 P52 status going in: P52a (c1 < .70) already FALSIFIED at 8500; P52b (c0 ≥
 .95) passing (.9778); P52c pends asymptote. c1 .7166 and climbing vs
 sequential .8004 mean — grading once jointhead3 early-stops.
+
+## 2026-08-14 ~03:35 — P52 GRADED: 3-way joint interference ACQUITTED; full-joint's shallow damage is the 19-loss crowd
+
+armF_jointhead3 early-stopped at step 9000 (window gain .0093). Total budget:
+18000 steps (9000 jointhead2 @ 3e-4 + 9000 jointhead3 @ 1.5e-4) vs
+sequential's 23000 cap — joint used LESS compute. Final: c0 .9957 / c1 .8666 /
+c2 .7686, mean .8770. Sequential comparators: .9744 / .7693 / .6576, .8004.
+
+- **P52a NO (was 65%)**: c1 .8666 >> .70, and >> sequential .769. The 3-way
+  interference story is dead.
+- **P52b YES (was 55%)**: c0 .9957 ≥ .95 — and ABOVE dedicated .9744.
+  Cost-of-joint at c0 is negative.
+- **P52c NO (was 70%)**: mean .8770 > .8004. Joint-head BEATS sequential at
+  every layer, not just on mean.
+
+Discriminator verdict (per registration): c1 ≥ .77 with 3 losses → full-joint
+r4's shallow crater (c1 .294) was NOT caused by joint training of
+adjacent chance-overlap layers. Blame shifts to the 19-loss crowd /
+full-stack optimization pathology. c0 is not fragile-special, it's easy
+(affine in occupancy) — it holds .99+ in any company tried so far.
+
+Bonus datapoints:
+- Joint c1 .8666 ~= run C's dedicated surgical c1 .8771@20k — the joint head
+  reproduces the demolished-wall result while also training c0 and c2 above
+  their sequential marks.
+- The halved-LR warm restart didn't just stop the spikes — it unlocked a step
+  change (.7781 -> .8770). Constant 3e-4 was both the instability source and
+  a convergence brake. Reinforces the WSD-anneal decision: joint runs at
+  constant LR understate their own asymptote until annealed.
+- Combined P51+P52 picture: small-group joint >= sequential everywhere
+  (tail: same asymptote at 2.4x less compute; head: better at all 3 layers,
+  less compute). The chain's value was giving deep stages a stable bottom,
+  not the one-at-a-time supervision itself.
+
+Artifact: checkpoints/armF_jointhead3/final.pt (mean .8770). Instability
+caveat stands: both head runs spiked near ~9k steps at lr 3e-4, wd 0 —
+shallow-block containment at 3e-4 is on the edge of stability; future runs
+should anneal earlier.
+
+Obvious next discriminator (Joshua's queued proposal, now better-motivated):
+chain-then-joint polish — full-19 joint warm-started from the chain backbone
++ 19 chain adapters at halved LR. P52 says joint groups don't interfere given
+a decent init; P50's chain gave exactly such an init. If the 19-loss crowd
+only hurts from scratch, polish should lift the whole profile above both
+chain (.486) and joint r4 (.402). This is a multi-hour run -> needs the
+pre-training-run checklist, not autonomous launch.
