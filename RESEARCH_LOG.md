@@ -4124,3 +4124,18 @@ full-stack joint training (all 19 adapters, chain backbone init, chain
 adapters as init) and see whether it preserves the chain's shallow wins
 (c1 .77) while climbing toward r4's deep levels (.44-.46); i.e., is
 sequential-then-joint a strictly better curriculum than either alone?
+
+## 2026-08-14 — P51 addendum (Joshua's "wait, 4k beats 9.5k on c17?"): decomposing the joint-tail win
+
+Two corrections to the headline framing:
+1. Per-layer supervision was 4000 (shared) vs 3000 (dedicated) steps — the
+   chain's 9500 was split across three targets, and the c17 stage early-stopped
+   FLAT (gain .003), so it was at its ceiling, not budget-starved.
+2. The per-layer lift tracks TRAINABLE DEPTH below the readout, not sharing:
+   c16 (0 extra trainable blocks) -.002 | c17 (1 extra: block 20) +.004 |
+   c18 (2 extra: blocks 20,21) +.010. In the chain, each stage's gradient
+   could shape exactly one block; joint-tail lets c17/c18 reshape the blocks
+   below them too. ~+.005/extra block — a miniature of the full chain-vs-joint
+   story (r4's c17 has ~20 trainable blocks below it, and sits +.07 higher).
+   Gradient-sharing per se contributes ~nothing to asymptote (c16 is the
+   control: shared loss, no extra depth, no gain) — it only buys speed.
