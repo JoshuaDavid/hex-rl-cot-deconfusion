@@ -4171,3 +4171,22 @@ Predictions:
   optimization pathology instead. c0 crater (<.90) would falsify "c0
   special"; c0 holds + c1 craters = c0 genuinely special (easy target), not
   shallowness per se.
+
+## 2026-08-14 — joint-head run 1 KILLED BY LOSS SPIKE at step 8775; guards added, rerunning
+
+armF_jointhead collapsed 8500->9000: train loss 0.12 -> 70587 in one logged
+window (8775), then settled ~0.9 (= adapters predicting the mean); val mean
+.7684 -> .0377; early-stop fired on the negative gain and saved the corpse.
+First loss spike in all of arm F. Suspect: first run where SHALLOW blocks
+(0-4, never touched at high LR before) sit at lr 3e-4, wd 0, constant LR for
+8k+ steps. Values before death (step 8500, still climbing): c0 .9784 (already
+ABOVE sequential's .9744 — P52b's threshold passed and c0-cost-of-joint ~0),
+c1 .6994 (vs sequential .7693, rising ~.025/1k), c2 .6273 (vs .658, rising).
+History preserved in checkpoints/armF_jointhead/final.json.
+
+Guards added to train_jointtail.py (both arms of any future A/B get them):
+--spike-skip 50 (skip optimizer step on loss>50 or nonfinite — normal loss
+is 0.1-1.0 on normalized targets) and best.pt checkpointing at each improving
+eval. Rerun as armF_jointhead2, identical config otherwise. P52 grading
+deferred to the rerun; note P52a (c1<.70) was about to be falsified when the
+run died.

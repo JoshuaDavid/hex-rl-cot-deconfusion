@@ -123,6 +123,8 @@ def main():
     ap.add_argument("--bottom-ckpt",
                     default="checkpoints/armF_chain_c18/final.pt",
                     help="'none' = pure pretrained init")
+    ap.add_argument("--spike-skip", type=float, default=50.0,
+                    help="skip optimizer step when loss exceeds this")
     ap.add_argument("--early-stop-window", type=int, default=4)
     ap.add_argument("--early-stop-delta", type=float, default=0.01)
     ap.add_argument("--run-name", default="armF_jointtail")
@@ -186,11 +188,24 @@ def main():
         ridge_init_joint(backbone, ads, student, games, recs,
                          train[:args.ridge_init], mu, sd)
 
+    best = [-1e9]
+
+    def save_state(path, step):
+        torch.save({"backbone": {k: v.bfloat16() for k, v in
+                                 backbone.state_dict().items()},
+                    "ads": {l: {k: v.bfloat16() for k, v in
+                                a.state_dict().items()}
+                            for l, a in ads.items()},
+                    "step": step, "args": vars(args)}, path)
+
     def log_eval(step):
         r2 = evaluate(backbone, ads, student, games, recs, val, mu, sd)
         mean = sum(r2.values()) / len(r2)
         hist.append({"step": step, "mean_r2": mean}
                     | {f"c{l}_r2": v for l, v in r2.items()})
+        if mean > best[0] and not args.smoke:
+            best[0] = mean
+            save_state(out_dir / "best.pt", step)
         print(f"step {step} " + " ".join(
             f"val c{l} R2 {v:.4f}" for l, v in sorted(r2.items()))
             + f" mean {mean:.4f}", flush=True)
@@ -215,6 +230,12 @@ def main():
         sel = rng.sample(train, args.batch)
         loss, _, _ = forward_joint(backbone, ads, student, games, recs,
                                    sel, mu, sd)
+        if not torch.isfinite(loss) or loss.item() > args.spike_skip:
+            print(f"step {step + 1}: SKIP spike, loss {loss.item():.1f}",
+                  flush=True)
+            opt.zero_grad(set_to_none=True)
+            step += 1
+            continue
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(qwen_params + ad_params, 1.0)
@@ -235,11 +256,7 @@ def main():
                     print(f"early stop at {step}: window gain {gain:.4f}",
                           flush=True)
                     break
-    torch.save({"backbone": {k: v.bfloat16() for k, v in
-                             backbone.state_dict().items()},
-                "ads": {l: {k: v.bfloat16() for k, v in
-                            a.state_dict().items()} for l, a in ads.items()},
-                "step": step, "args": vars(args)}, out_dir / "final.pt")
+    save_state(out_dir / "final.pt", step)
     (out_dir / "final.json").write_text(json.dumps({"hist": hist}))
     wandb.finish()
 
