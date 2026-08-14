@@ -4402,3 +4402,26 @@ blunder tails k=0 vs k=18 on val.
 - P55a (60%): own-play top1 at k=18 at least .10 below val's .610 (H2 real).
 - P55b (70%): P(ref-rank > 5) at k=18 >= 3x that at k=0 on val (H3 real).
 - Both can be true; if BOTH fail, the collapse needs a new story.
+
+## 2026-08-14 ~20:05 — P55 GRADED 2/2 YES: deep containment is MANIFOLD-BRITTLE; cut0 robust
+
+probe_stitch_gap.py; replays reproduce eval wins exactly (3/40, 26/40) —
+probe validity anchored. Ranks = ref-rank of stitch argmax among legal.
+val k0: top1 .923, P(rank>5) .001 | val k18: .610 / .067 (67x tail — P55b
+YES @70%) | own-play k18: .317 / .173 (drop .29 >> .10 — P55a YES @60%) |
+own-play k0: .861 / .001 (robust; explains cut0 > parity: Qwen only needs
+occupancy, CNN repairs downstream).
+
+Story: deep-layer R2/agreement measured on training-distribution positions
+OVERSTATES decision-usable containment. At cut18 every blunder pushes the
+game further off-manifold -> feedback spiral (1 in 6 moves rank>5
+off-manifold). Shallow containment generalizes; deep containment is
+manifold-local. (Also explains the 1561 vs 1560: one terminal full-board
+position — same degenerate position that NaN'd spearman.)
+
+P56 registered (split H2 into exogenous-opening-shift vs own-error
+feedback): measure k=18/k=0 agreement on distilled-vs-distilled games from
+the SAME random 4-ply openings (off-manifold openings, blunder-free
+trajectories).
+- P56 (55%): k=18 top1 on those positions >= .50 -> crater is mostly
+  own-error feedback; < .50 -> exogenous shift alone breaks deep readouts.
