@@ -4370,3 +4370,35 @@ Predictions (polish mean-R2 .727, c0 .996, deep ~.67):
   move-match is the wrong metric; r4 lesson: shallow z-hat errors amplify
   through remaining CNN layers) — if P54b fails despite c0 .996, error
   amplification through 19 distilled layers is harsher than R2 suggests.
+
+## 2026-08-14 ~19:40 — P54 GRADED (2/2 split): agreement soars, deep play COLLAPSES
+
+Full eval (1561 X-ply val positions; play player-2-only): agreement top1
+k0/9/18 = .923/.678/.610 (r4: .56/.49/.38); play 4-ply cut0 26/40 = 65%
+(ABOVE parity vs the distilled reference), cut9 10/40, cut18 3/40 = 7.5%
+(1-ply 0/40). vs random 20/20 at every cut; illegal argmax 0 everywhere.
+
+- P54a NO (65%): pooled 39/120 = 32.5% < 40%.
+- P54b YES (60%): cut0 65% >= 50% — first stitched cut to EXCEED parity.
+- P54c NO (65%): cut18 7.5% < 30%, BELOW r4's 15% despite top1 .38->.61.
+- P54d YES (70%): k=18 top1 .610.
+
+CONFUSION ON RECORD: at k=18 agreement nearly doubled while play halved
+(and 1-ply went to 0/40). Depth gradient of play (65/25/7.5%) runs OPPOSITE
+to r4-relative agreement gains. Cut0's 65% clears the protocol itself
+(player-2 can win big). Hypotheses:
+- H2 distribution-shift: deep readouts are brittle off the training-game
+  manifold; play trajectories (random openings + own-move drift) leave it.
+- H3 metric-inadequacy: games are decided by the blunder TAIL, not top1;
+  deep cuts feed c-hat straight into the policy head with no remaining CNN
+  layers to repair errors -> fatter catastrophic tail at same top1.
+(Minor: spearman column NaN'd — some position with degenerate legal-move
+rank vector; top1/top3 unaffected. Fix when next touched.)
+
+P55 registered (cheap discriminator, autonomous per standing directive):
+replay the cut18 stitch-vs-distilled games, compute agreement + ref-rank of
+stitch's argmax on OWN-PLAY positions vs val positions; also ref-rank
+blunder tails k=0 vs k=18 on val.
+- P55a (60%): own-play top1 at k=18 at least .10 below val's .610 (H2 real).
+- P55b (70%): P(ref-rank > 5) at k=18 >= 3x that at k=0 on val (H3 real).
+- Both can be true; if BOTH fail, the collapse needs a new story.
