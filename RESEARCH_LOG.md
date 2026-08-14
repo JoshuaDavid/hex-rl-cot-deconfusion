@@ -4265,3 +4265,34 @@ a decent init; P50's chain gave exactly such an init. If the 19-loss crowd
 only hurts from scratch, polish should lift the whole profile above both
 chain (.486) and joint r4 (.402). This is a multi-hour run -> needs the
 pre-training-run checklist, not autonomous launch.
+
+## 2026-08-14 ~03:55 — P53 registered: chain-then-joint polish (armF_polish19), overnight
+
+Joshua approved the queued proposal ("sounds like a great overnight run",
+GPU indefinite). Setup: train_jointtail.py, all 19 layers jointly, blocks
+0..22 trainable, warm-started from an assembled init
+(checkpoints/armF_polish19/init.pt = chain_c18 backbone + the 19 chain
+adapters; assembly script inline in log commit). Step-0 anchor EXACT: mean
+.4857 vs chain .486, per-layer matches to ~4 decimals — adapters remain
+valid on the chain backbone, as designed.
+
+Config: lr 1.5e-4 / adapter-lr 5e-4 (halved, per jointhead lesson: 3e-4 is
+spike-prone AND a convergence brake), warmup 250, batch 8, steps cap 30000,
+eval-every 500, early-stop window 6 / delta .005 (loosened from 4/.01 —
+overnight budget, want the asymptote; deviation logged), spike-skip 2.0
+(healthy init loss .156), max-consec-skips 50, best.pt guard on.
+Checklist: wandb on; save_state has no optimizer state; data pipeline
+unchanged from chain; step-0 anchor in lieu of task-eyeball (regression, no
+prompts). Comparators: chain mean .486 (c1 .769, c18 .332), joint-r4 mean
+.402 (c1 .294, c17 .461).
+
+Predictions:
+- P53a (70%): final mean-19 >= .55.
+- P53b (75%): c1 >= .70 at stop — the 19-loss crowd does NOT crater shallow
+  layers when given a good init (direct extension of P52's acquittal).
+- P53c (60%): c18 >= .45 — deep gains require reshaping the chain-locked
+  bottom; joint-from-scratch managed .461 with a co-adapted bottom.
+- P53d (55%): >= 15 of 19 layers end above max(chain, joint-r4) per-layer.
+- Failure reading: c1 craters -> crowd hurts even from good init (P52's
+  acquittal was head-only, doesn't generalize); mean stalls ~.49 -> chain
+  init is a local minimum joint training can't escape at halved LR.
