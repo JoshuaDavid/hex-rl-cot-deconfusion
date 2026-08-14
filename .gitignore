@@ -9,3 +9,6 @@ default.log
 __pycache__/
 *.pyc
 armF/data/
+HexHex/
+.claude/
+armF/results/pca_basis.pt
