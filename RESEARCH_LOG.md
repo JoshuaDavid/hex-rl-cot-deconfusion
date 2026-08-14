@@ -4190,3 +4190,32 @@ is 0.1-1.0 on normalized targets) and best.pt checkpointing at each improving
 eval. Rerun as armF_jointhead2, identical config otherwise. P52 grading
 deferred to the rerun; note P52a (c1<.70) was about to be falsified when the
 run died.
+
+## 2026-08-14 ~03:10 — jointhead2 spike RECURRENCE + guard lock-in failure mode; jointhead3 warm restart
+
+Second loss spike at step 9443 (run 1 died at 8775): train loss healthy
+0.09–0.14 through 9425, then 307+ at 9443. Recurrence at a DIFFERENT step on
+identical data order rules out a bad batch — this is state-driven instability
+(shallow blocks 0–4 at constant lr 3e-4, wd 0, 9k+ steps).
+
+**Guard failure mode discovered:** spike-skip=50 cannot save the run, only the
+checkpoint. Weights were poisoned by sub-threshold damage BEFORE any loss
+reading crossed 50; after corruption every batch reads ~300–450, so the guard
+skips every step and the run idles frozen to the step cap. A skip-guard
+converts collapse into livelock, not recovery.
+
+Fixes (train_jointtail.py, committed):
+- `--resume-ckpt`: warm restart loading FULL backbone + all adapters from a
+  joint checkpoint, ridge-init skipped. Verified: step-0 eval reproduces
+  best.pt mean (.7776 vs .7781, bf16 round-trip).
+- `--max-consec-skips 50`: abort without saving final.pt on guard lock-in
+  (best.pt remains the artifact).
+
+Relaunched as **armF_jointhead3**: resume from jointhead2/best.pt (step 9000,
+mean .7781, c0 .9778 / c1 .7166 / c2 .6399), halved LRs (1.5e-4 / 5e-4) per
+r3ext protocol, warmup 250, steps 14000 (remaining budget), spike-skip
+tightened 50→2.0 (healthy loss ~0.1).
+
+P52 status going in: P52a (c1 < .70) already FALSIFIED at 8500; P52b (c0 ≥
+.95) passing (.9778); P52c pends asymptote. c1 .7166 and climbing vs
+sequential .8004 mean — grading once jointhead3 early-stops.

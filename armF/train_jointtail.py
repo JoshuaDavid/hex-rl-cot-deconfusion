@@ -125,6 +125,13 @@ def main():
                     help="'none' = pure pretrained init")
     ap.add_argument("--spike-skip", type=float, default=50.0,
                     help="skip optimizer step when loss exceeds this")
+    ap.add_argument("--max-consec-skips", type=int, default=50,
+                    help="abort (without saving final) after this many "
+                         "consecutive spike-skips: guard lock-in")
+    ap.add_argument("--resume-ckpt", default="",
+                    help="warm restart: load FULL backbone + all adapters "
+                         "from a joint checkpoint (best.pt/final.pt); "
+                         "skips ridge-init")
     ap.add_argument("--early-stop-window", type=int, default=4)
     ap.add_argument("--early-stop-delta", type=float, default=0.01)
     ap.add_argument("--run-name", default="armF_jointtail")
@@ -170,6 +177,18 @@ def main():
     print(f"froze blocks 0..{FB - 1}" if FB else "nothing frozen")
 
     ads = {l: nn.Linear(2048, K).to(DEV) for l in LAYERS}
+    if args.resume_ckpt:
+        rck = torch.load(args.resume_ckpt, map_location="cpu",
+                         weights_only=False)
+        missing, _ = backbone.load_state_dict(
+            {k: v.float() for k, v in rck["backbone"].items()}, strict=False)
+        assert not [m for m in missing if "rotary" not in m], missing
+        for l in LAYERS:
+            ads[l].load_state_dict(
+                {k: v.float() for k, v in rck["ads"][l].items()})
+        args.ridge_init = 0
+        print(f"resumed full state from {args.resume_ckpt} "
+              f"(saved at step {rck['step']})")
     ad_params = [p for a in ads.values() for p in a.parameters()]
     qwen_params = [p for p in backbone.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(
@@ -226,16 +245,25 @@ def main():
 
     rng = random.Random(0)
     step, t0 = 0, time.time()
+    consec_skips, aborted = 0, False
     while step < args.steps:
         sel = rng.sample(train, args.batch)
         loss, _, _ = forward_joint(backbone, ads, student, games, recs,
                                    sel, mu, sd)
         if not torch.isfinite(loss) or loss.item() > args.spike_skip:
-            print(f"step {step + 1}: SKIP spike, loss {loss.item():.1f}",
-                  flush=True)
+            consec_skips += 1
+            print(f"step {step + 1}: SKIP spike, loss {loss.item():.1f} "
+                  f"({consec_skips} consecutive)", flush=True)
             opt.zero_grad(set_to_none=True)
             step += 1
+            if consec_skips >= args.max_consec_skips:
+                print(f"ABORT at step {step}: {consec_skips} consecutive "
+                      f"skips = guard lock-in, weights corrupted; "
+                      f"best.pt is the artifact", flush=True)
+                aborted = True
+                break
             continue
+        consec_skips = 0
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(qwen_params + ad_params, 1.0)
@@ -256,7 +284,8 @@ def main():
                     print(f"early stop at {step}: window gain {gain:.4f}",
                           flush=True)
                     break
-    save_state(out_dir / "final.pt", step)
+    if not aborted:
+        save_state(out_dir / "final.pt", step)
     (out_dir / "final.json").write_text(json.dumps({"hist": hist}))
     wandb.finish()
 
