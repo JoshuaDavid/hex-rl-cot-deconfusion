@@ -1,0 +1,440 @@
+4400 seqs, maxlen 928
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:\n\n1. e10 X\n2. j6 O\n3. 
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:\n\n1. h10 X\n2. d7 O\n3. 
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:\n\n1. k4 X\n2. a1 O\n3. d
+c stats: mu norm 3.38, sd med 0.551
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<01:59,  2.60it/s]Loading weights:  21%|██▏       | 66/310 [00:00<00:01, 177.06it/s]Loading weights:  34%|███▎      | 104/310 [00:00<00:01, 182.11it/s]Loading weights:  43%|████▎     | 134/310 [00:00<00:00, 206.72it/s]Loading weights:  53%|█████▎    | 163/310 [00:00<00:00, 185.72it/s]Loading weights:  60%|██████    | 187/310 [00:01<00:00, 194.80it/s]Loading weights:  69%|██████▉   | 214/310 [00:01<00:00, 212.62it/s]Loading weights:  77%|███████▋  | 239/310 [00:01<00:00, 221.46it/s]Loading weights:  85%|████████▌ | 264/310 [00:01<00:00, 224.97it/s]Loading weights:  93%|█████████▎| 289/310 [00:01<00:00, 187.88it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 193.61it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: joshuadavid to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run 4u5y6lju
+wandb: Tracking run with wandb version 0.28.1
+wandb: Run data is saved locally in /workspace/hex-rl-cot-deconfusion/wandb/run-20260813_014608-4u5y6lju
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run armF_movesr4_frozen
+wandb: ⭐️ View project at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: 🚀 View run at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/4u5y6lju
+step 0 val R2 mean -26.7757 | c0:-0.27 c3:-0.38 c6:-1.60 c9:-3.18 c12:-10.55 c15:-42.43 c18:-173.48 c18:-173.48
+step 25 loss 3.5850 (0.68s/step)
+step 50 loss 1.6249 (0.66s/step)
+step 75 loss 1.4847 (0.66s/step)
+step 100 loss 1.4409 (0.66s/step)
+step 125 loss 1.4721 (0.66s/step)
+step 150 loss 1.3508 (0.65s/step)
+step 175 loss 1.3947 (0.65s/step)
+step 200 loss 1.3280 (0.65s/step)
+step 225 loss 1.3764 (0.65s/step)
+step 250 loss 1.3514 (0.66s/step)
+step 275 loss 1.3165 (0.66s/step)
+step 300 loss 1.3179 (0.66s/step)
+step 325 loss 1.3932 (0.66s/step)
+step 350 loss 1.3434 (0.66s/step)
+step 375 loss 1.3947 (0.66s/step)
+step 400 loss 1.3209 (0.66s/step)
+step 425 loss 1.2930 (0.66s/step)
+step 450 loss 1.3075 (0.66s/step)
+step 475 loss 1.3486 (0.66s/step)
+step 500 loss 1.3117 (0.66s/step)
+step 500 val R2 mean -0.3145 | c0:0.00 c3:-0.06 c6:-0.09 c9:-0.15 c12:-0.27 c15:-0.58 c18:-1.08 c18:-1.08
+step 525 loss 1.3277 (0.67s/step)
+step 550 loss 1.3039 (0.67s/step)
+step 575 loss 1.2657 (0.67s/step)
+step 600 loss 1.2950 (0.66s/step)
+step 625 loss 1.3633 (0.66s/step)
+step 650 loss 1.2841 (0.66s/step)
+step 675 loss 1.2904 (0.66s/step)
+step 700 loss 1.3581 (0.66s/step)
+step 725 loss 1.2774 (0.66s/step)
+step 750 loss 1.2548 (0.66s/step)
+step 775 loss 1.2709 (0.66s/step)
+step 800 loss 1.2834 (0.66s/step)
+step 825 loss 1.3405 (0.67s/step)
+step 850 loss 1.2993 (0.67s/step)
+step 875 loss 1.3119 (0.67s/step)
+step 900 loss 1.2494 (0.67s/step)
+step 925 loss 1.2721 (0.67s/step)
+step 950 loss 1.2807 (0.67s/step)
+step 975 loss 1.2601 (0.67s/step)
+step 1000 loss 1.2906 (0.67s/step)
+step 1000 val R2 mean -0.2796 | c0:0.03 c3:-0.05 c6:-0.08 c9:-0.13 c12:-0.21 c15:-0.53 c18:-1.09 c18:-1.09
+step 1025 loss 1.2449 (0.67s/step)
+step 1050 loss 1.2342 (0.67s/step)
+step 1075 loss 1.3205 (0.67s/step)
+step 1100 loss 1.2493 (0.67s/step)
+step 1125 loss 1.3074 (0.67s/step)
+step 1150 loss 1.3112 (0.67s/step)
+step 1175 loss 1.2513 (0.67s/step)
+step 1200 loss 1.2909 (0.67s/step)
+step 1225 loss 1.2481 (0.67s/step)
+step 1250 loss 1.2826 (0.67s/step)
+step 1275 loss 1.2777 (0.67s/step)
+step 1300 loss 1.2351 (0.67s/step)
+step 1325 loss 1.3117 (0.67s/step)
+step 1350 loss 1.2553 (0.67s/step)
+step 1375 loss 1.2083 (0.67s/step)
+step 1400 loss 1.2448 (0.67s/step)
+step 1425 loss 1.1707 (0.67s/step)
+step 1450 loss 1.2342 (0.67s/step)
+step 1475 loss 1.2075 (0.67s/step)
+step 1500 loss 1.2733 (0.67s/step)
+step 1500 val R2 mean -0.2576 | c0:0.01 c3:-0.06 c6:-0.09 c9:-0.12 c12:-0.24 c15:-0.38 c18:-1.24 c18:-1.24
+step 1525 loss 1.2756 (0.67s/step)
+step 1550 loss 1.3197 (0.67s/step)
+step 1575 loss 1.2855 (0.67s/step)
+step 1600 loss 1.2708 (0.67s/step)
+step 1625 loss 1.2481 (0.67s/step)
+step 1650 loss 1.2337 (0.67s/step)
+step 1675 loss 1.3004 (0.67s/step)
+step 1700 loss 1.2270 (0.67s/step)
+step 1725 loss 1.2999 (0.67s/step)
+step 1750 loss 1.2338 (0.67s/step)
+step 1775 loss 1.2481 (0.67s/step)
+step 1800 loss 1.2006 (0.67s/step)
+step 1825 loss 1.2230 (0.67s/step)
+step 1850 loss 1.2541 (0.67s/step)
+step 1875 loss 1.2376 (0.67s/step)
+step 1900 loss 1.2467 (0.67s/step)
+step 1925 loss 1.2071 (0.67s/step)
+step 1950 loss 1.2597 (0.67s/step)
+step 1975 loss 1.2079 (0.67s/step)
+step 2000 loss 1.2473 (0.67s/step)
+step 2000 val R2 mean -0.2268 | c0:0.06 c3:-0.04 c6:-0.07 c9:-0.10 c12:-0.21 c15:-0.48 c18:-0.66 c18:-0.66
+step 2025 loss 1.2470 (0.68s/step)
+step 2050 loss 1.2039 (0.68s/step)
+step 2075 loss 1.2640 (0.67s/step)
+step 2100 loss 1.1930 (0.67s/step)
+step 2125 loss 1.2884 (0.67s/step)
+step 2150 loss 1.1910 (0.67s/step)
+step 2175 loss 1.1906 (0.67s/step)
+step 2200 loss 1.2551 (0.67s/step)
+step 2225 loss 1.2222 (0.67s/step)
+step 2250 loss 1.2683 (0.67s/step)
+step 2275 loss 1.2072 (0.67s/step)
+step 2300 loss 1.1965 (0.67s/step)
+step 2325 loss 1.1849 (0.67s/step)
+step 2350 loss 1.2383 (0.67s/step)
+step 2375 loss 1.1895 (0.67s/step)
+step 2400 loss 1.2186 (0.67s/step)
+step 2425 loss 1.1686 (0.67s/step)
+step 2450 loss 1.1554 (0.67s/step)
+step 2475 loss 1.1731 (0.67s/step)
+step 2500 loss 1.2252 (0.67s/step)
+step 2500 val R2 mean -0.2119 | c0:0.04 c3:-0.06 c6:-0.07 c9:-0.13 c12:-0.21 c15:-0.45 c18:-0.64 c18:-0.64
+step 2525 loss 1.2004 (0.67s/step)
+step 2550 loss 1.1847 (0.67s/step)
+step 2575 loss 1.2171 (0.67s/step)
+step 2600 loss 1.2345 (0.67s/step)
+step 2625 loss 1.1614 (0.67s/step)
+step 2650 loss 1.1914 (0.67s/step)
+step 2675 loss 1.2248 (0.67s/step)
+step 2700 loss 1.2000 (0.67s/step)
+step 2725 loss 1.2290 (0.67s/step)
+step 2750 loss 1.1943 (0.67s/step)
+step 2775 loss 1.2021 (0.67s/step)
+step 2800 loss 1.1675 (0.67s/step)
+step 2825 loss 1.1872 (0.67s/step)
+step 2850 loss 1.2293 (0.67s/step)
+step 2875 loss 1.2337 (0.67s/step)
+step 2900 loss 1.1455 (0.67s/step)
+step 2925 loss 1.2121 (0.67s/step)
+step 2950 loss 1.2101 (0.67s/step)
+step 2975 loss 1.1967 (0.67s/step)
+step 3000 loss 1.1846 (0.67s/step)
+step 3000 val R2 mean -0.1942 | c0:0.04 c3:-0.04 c6:-0.07 c9:-0.10 c12:-0.20 c15:-0.36 c18:-0.68 c18:-0.68
+step 3025 loss 1.1533 (0.67s/step)
+step 3050 loss 1.2112 (0.67s/step)
+step 3075 loss 1.1940 (0.67s/step)
+step 3100 loss 1.1798 (0.67s/step)
+step 3125 loss 1.1738 (0.67s/step)
+step 3150 loss 1.1482 (0.67s/step)
+step 3175 loss 1.1756 (0.67s/step)
+step 3200 loss 1.1686 (0.67s/step)
+step 3225 loss 1.1484 (0.67s/step)
+step 3250 loss 1.1262 (0.67s/step)
+step 3275 loss 1.1478 (0.67s/step)
+step 3300 loss 1.1374 (0.67s/step)
+step 3325 loss 1.1677 (0.67s/step)
+step 3350 loss 1.1443 (0.67s/step)
+step 3375 loss 1.1700 (0.67s/step)
+step 3400 loss 1.1315 (0.67s/step)
+step 3425 loss 1.1173 (0.67s/step)
+step 3450 loss 1.1328 (0.67s/step)
+step 3475 loss 1.1444 (0.67s/step)
+step 3500 loss 1.1950 (0.67s/step)
+step 3500 val R2 mean -0.1562 | c0:0.04 c3:-0.03 c6:-0.05 c9:-0.08 c12:-0.15 c15:-0.26 c18:-0.57 c18:-0.57
+step 3525 loss 1.1870 (0.68s/step)
+step 3550 loss 1.1602 (0.68s/step)
+step 3575 loss 1.1777 (0.67s/step)
+step 3600 loss 1.1652 (0.67s/step)
+step 3625 loss 1.1510 (0.67s/step)
+step 3650 loss 1.1352 (0.67s/step)
+step 3675 loss 1.1914 (0.67s/step)
+step 3700 loss 1.1561 (0.67s/step)
+step 3725 loss 1.1534 (0.67s/step)
+step 3750 loss 1.1540 (0.67s/step)
+step 3775 loss 1.1563 (0.67s/step)
+step 3800 loss 1.1319 (0.67s/step)
+step 3825 loss 1.1834 (0.67s/step)
+step 3850 loss 1.1405 (0.67s/step)
+step 3875 loss 1.1323 (0.67s/step)
+step 3900 loss 1.1804 (0.67s/step)
+step 3925 loss 1.1124 (0.67s/step)
+step 3950 loss 1.1378 (0.67s/step)
+step 3975 loss 1.1492 (0.67s/step)
+step 4000 loss 1.1077 (0.67s/step)
+step 4000 val R2 mean -0.1408 | c0:0.06 c3:-0.03 c6:-0.05 c9:-0.08 c12:-0.16 c15:-0.32 c18:-0.47 c18:-0.47
+step 4025 loss 1.1656 (0.68s/step)
+step 4050 loss 1.1001 (0.68s/step)
+step 4075 loss 1.1186 (0.67s/step)
+step 4100 loss 1.1439 (0.67s/step)
+step 4125 loss 1.1062 (0.67s/step)
+step 4150 loss 1.1118 (0.67s/step)
+step 4175 loss 1.1403 (0.67s/step)
+step 4200 loss 1.0975 (0.67s/step)
+step 4225 loss 1.1219 (0.67s/step)
+step 4250 loss 1.1268 (0.67s/step)
+step 4275 loss 1.1155 (0.67s/step)
+step 4300 loss 1.0751 (0.67s/step)
+step 4325 loss 1.0893 (0.67s/step)
+step 4350 loss 1.1298 (0.67s/step)
+step 4375 loss 1.0784 (0.67s/step)
+step 4400 loss 1.1282 (0.67s/step)
+step 4425 loss 1.1272 (0.67s/step)
+step 4450 loss 1.1000 (0.67s/step)
+step 4475 loss 1.0766 (0.67s/step)
+step 4500 loss 1.1235 (0.67s/step)
+step 4500 val R2 mean -0.1133 | c0:0.07 c3:-0.02 c6:-0.03 c9:-0.05 c12:-0.11 c15:-0.25 c18:-0.43 c18:-0.43
+step 4525 loss 1.0839 (0.67s/step)
+step 4550 loss 1.1208 (0.67s/step)
+step 4575 loss 1.1230 (0.67s/step)
+step 4600 loss 1.0746 (0.67s/step)
+step 4625 loss 1.1042 (0.67s/step)
+step 4650 loss 1.1545 (0.67s/step)
+step 4675 loss 1.0611 (0.67s/step)
+step 4700 loss 1.0678 (0.67s/step)
+step 4725 loss 1.0925 (0.67s/step)
+step 4750 loss 1.1010 (0.67s/step)
+step 4775 loss 1.1288 (0.67s/step)
+step 4800 loss 1.1163 (0.67s/step)
+step 4825 loss 1.0808 (0.67s/step)
+step 4850 loss 1.1315 (0.67s/step)
+step 4875 loss 1.0321 (0.67s/step)
+step 4900 loss 1.1260 (0.67s/step)
+step 4925 loss 1.0519 (0.67s/step)
+step 4950 loss 1.0806 (0.67s/step)
+step 4975 loss 1.1160 (0.67s/step)
+step 5000 loss 1.1175 (0.67s/step)
+step 5000 val R2 mean -0.0900 | c0:0.08 c3:-0.01 c6:-0.02 c9:-0.04 c12:-0.10 c15:-0.23 c18:-0.35 c18:-0.35
+step 5025 loss 1.0579 (0.67s/step)
+step 5050 loss 1.0557 (0.67s/step)
+step 5075 loss 1.1126 (0.67s/step)
+step 5100 loss 1.0156 (0.67s/step)
+step 5125 loss 1.0642 (0.67s/step)
+step 5150 loss 1.0372 (0.67s/step)
+step 5175 loss 1.1013 (0.67s/step)
+step 5200 loss 1.0713 (0.67s/step)
+step 5225 loss 1.0774 (0.67s/step)
+step 5250 loss 1.0690 (0.67s/step)
+step 5275 loss 1.0851 (0.67s/step)
+step 5300 loss 1.0942 (0.67s/step)
+step 5325 loss 1.0803 (0.67s/step)
+step 5350 loss 1.0555 (0.67s/step)
+step 5375 loss 1.0615 (0.67s/step)
+step 5400 loss 1.0577 (0.67s/step)
+step 5425 loss 1.1023 (0.67s/step)
+step 5450 loss 1.0340 (0.67s/step)
+step 5475 loss 1.0541 (0.67s/step)
+step 5500 loss 1.0507 (0.67s/step)
+step 5500 val R2 mean -0.0681 | c0:0.09 c3:-0.01 c6:-0.02 c9:-0.04 c12:-0.08 c15:-0.14 c18:-0.27 c18:-0.27
+step 5525 loss 1.0864 (0.67s/step)
+step 5550 loss 1.0416 (0.67s/step)
+step 5575 loss 1.0916 (0.67s/step)
+step 5600 loss 1.0689 (0.67s/step)
+step 5625 loss 1.0411 (0.67s/step)
+step 5650 loss 1.0991 (0.67s/step)
+step 5675 loss 1.0234 (0.67s/step)
+step 5700 loss 1.0232 (0.67s/step)
+step 5725 loss 1.0775 (0.67s/step)
+step 5750 loss 1.0815 (0.67s/step)
+step 5775 loss 1.0510 (0.67s/step)
+step 5800 loss 1.0453 (0.67s/step)
+step 5825 loss 1.0245 (0.67s/step)
+step 5850 loss 1.0447 (0.67s/step)
+step 5875 loss 1.0411 (0.67s/step)
+step 5900 loss 1.0490 (0.67s/step)
+step 5925 loss 1.0289 (0.67s/step)
+step 5950 loss 1.0107 (0.67s/step)
+step 5975 loss 1.0688 (0.67s/step)
+step 6000 loss 1.0454 (0.67s/step)
+step 6000 val R2 mean -0.0476 | c0:0.09 c3:0.00 c6:-0.01 c9:-0.02 c12:-0.06 c15:-0.11 c18:-0.21 c18:-0.21
+step 6025 loss 1.0492 (0.67s/step)
+step 6050 loss 1.0103 (0.67s/step)
+step 6075 loss 1.0500 (0.67s/step)
+step 6100 loss 1.0547 (0.67s/step)
+step 6125 loss 1.0361 (0.67s/step)
+step 6150 loss 1.0124 (0.67s/step)
+step 6175 loss 1.0373 (0.67s/step)
+step 6200 loss 1.0696 (0.67s/step)
+step 6225 loss 1.0609 (0.67s/step)
+step 6250 loss 1.0098 (0.67s/step)
+step 6275 loss 1.0471 (0.67s/step)
+step 6300 loss 1.0394 (0.67s/step)
+step 6325 loss 1.0072 (0.67s/step)
+step 6350 loss 0.9811 (0.67s/step)
+step 6375 loss 1.0504 (0.67s/step)
+step 6400 loss 1.0283 (0.67s/step)
+step 6425 loss 1.0525 (0.67s/step)
+step 6450 loss 1.0348 (0.67s/step)
+step 6475 loss 1.0484 (0.67s/step)
+step 6500 loss 0.9980 (0.67s/step)
+step 6500 val R2 mean -0.0281 | c0:0.10 c3:0.01 c6:0.00 c9:-0.01 c12:-0.04 c15:-0.08 c18:-0.16 c18:-0.16
+step 6525 loss 1.0335 (0.67s/step)
+step 6550 loss 1.0112 (0.67s/step)
+step 6575 loss 1.0328 (0.67s/step)
+step 6600 loss 1.0429 (0.67s/step)
+step 6625 loss 1.0027 (0.67s/step)
+step 6650 loss 1.0514 (0.67s/step)
+step 6675 loss 1.0041 (0.67s/step)
+step 6700 loss 0.9868 (0.67s/step)
+step 6725 loss 0.9957 (0.67s/step)
+step 6750 loss 0.9941 (0.67s/step)
+step 6775 loss 1.0282 (0.67s/step)
+step 6800 loss 0.9593 (0.67s/step)
+step 6825 loss 1.0007 (0.67s/step)
+step 6850 loss 1.0153 (0.67s/step)
+step 6875 loss 1.0270 (0.67s/step)
+step 6900 loss 1.0089 (0.67s/step)
+step 6925 loss 1.0358 (0.67s/step)
+step 6950 loss 1.0029 (0.67s/step)
+step 6975 loss 1.0205 (0.67s/step)
+step 7000 loss 0.9974 (0.67s/step)
+step 7000 val R2 mean -0.0098 | c0:0.11 c3:0.01 c6:0.01 c9:0.00 c12:-0.01 c15:-0.05 c18:-0.11 c18:-0.11
+step 7025 loss 1.0058 (0.68s/step)
+step 7050 loss 0.9442 (0.68s/step)
+step 7075 loss 0.9873 (0.68s/step)
+step 7100 loss 0.9960 (0.68s/step)
+step 7125 loss 0.9963 (0.68s/step)
+step 7150 loss 0.9925 (0.67s/step)
+step 7175 loss 0.9932 (0.67s/step)
+step 7200 loss 0.9898 (0.67s/step)
+step 7225 loss 1.0274 (0.67s/step)
+step 7250 loss 1.0190 (0.67s/step)
+step 7275 loss 0.9613 (0.67s/step)
+step 7300 loss 0.9133 (0.67s/step)
+step 7325 loss 1.0189 (0.67s/step)
+step 7350 loss 0.9891 (0.67s/step)
+step 7375 loss 1.0313 (0.67s/step)
+step 7400 loss 1.0138 (0.67s/step)
+step 7425 loss 0.9876 (0.67s/step)
+step 7450 loss 0.9794 (0.67s/step)
+step 7475 loss 0.9348 (0.67s/step)
+step 7500 loss 0.9916 (0.67s/step)
+step 7500 val R2 mean 0.0087 | c0:0.11 c3:0.02 c6:0.02 c9:0.01 c12:-0.00 c15:-0.02 c18:-0.05 c18:-0.05
+step 7525 loss 0.9859 (0.68s/step)
+step 7550 loss 0.9829 (0.68s/step)
+step 7575 loss 0.9790 (0.68s/step)
+step 7600 loss 0.9997 (0.68s/step)
+step 7625 loss 0.9921 (0.68s/step)
+step 7650 loss 0.9459 (0.68s/step)
+step 7675 loss 0.9696 (0.68s/step)
+step 7700 loss 1.0092 (0.68s/step)
+step 7725 loss 0.9537 (0.67s/step)
+step 7750 loss 0.9847 (0.67s/step)
+step 7775 loss 1.0372 (0.67s/step)
+step 7800 loss 0.9396 (0.67s/step)
+step 7825 loss 0.9936 (0.67s/step)
+step 7850 loss 0.9789 (0.67s/step)
+step 7875 loss 0.9797 (0.67s/step)
+step 7900 loss 0.9923 (0.67s/step)
+step 7925 loss 0.9678 (0.67s/step)
+step 7950 loss 0.9879 (0.67s/step)
+step 7975 loss 0.9641 (0.67s/step)
+step 8000 loss 0.9440 (0.67s/step)
+step 8000 val R2 mean 0.0206 | c0:0.12 c3:0.02 c6:0.02 c9:0.02 c12:0.01 c15:-0.00 c18:-0.02 c18:-0.02
+step 8025 loss 0.9759 (0.67s/step)
+step 8050 loss 0.9719 (0.67s/step)
+step 8075 loss 1.0031 (0.67s/step)
+step 8100 loss 0.9240 (0.67s/step)
+step 8125 loss 0.9497 (0.67s/step)
+step 8150 loss 0.9796 (0.67s/step)
+step 8175 loss 0.9656 (0.67s/step)
+step 8200 loss 0.9601 (0.67s/step)
+step 8225 loss 0.9604 (0.67s/step)
+step 8250 loss 1.0003 (0.67s/step)
+step 8275 loss 0.9994 (0.67s/step)
+step 8300 loss 0.9400 (0.67s/step)
+step 8325 loss 0.9830 (0.67s/step)
+step 8350 loss 0.9780 (0.67s/step)
+step 8375 loss 0.9338 (0.67s/step)
+step 8400 loss 0.9628 (0.67s/step)
+step 8425 loss 0.9261 (0.67s/step)
+step 8450 loss 0.9662 (0.67s/step)
+step 8475 loss 0.9255 (0.67s/step)
+step 8500 loss 0.9892 (0.67s/step)
+step 8500 val R2 mean 0.0310 | c0:0.12 c3:0.03 c6:0.03 c9:0.03 c12:0.03 c15:0.02 c18:0.01 c18:0.01
+step 8525 loss 0.9713 (0.67s/step)
+step 8550 loss 0.9641 (0.67s/step)
+step 8575 loss 0.9720 (0.67s/step)
+step 8600 loss 0.9573 (0.67s/step)
+step 8625 loss 0.9434 (0.67s/step)
+step 8650 loss 0.9405 (0.67s/step)
+step 8675 loss 0.9604 (0.67s/step)
+step 8700 loss 0.9799 (0.67s/step)
+step 8725 loss 0.9436 (0.67s/step)
+step 8750 loss 0.9267 (0.67s/step)
+step 8775 loss 0.9634 (0.67s/step)
+step 8800 loss 0.9203 (0.67s/step)
+step 8825 loss 0.9275 (0.67s/step)
+step 8850 loss 0.8992 (0.67s/step)
+step 8875 loss 0.9255 (0.67s/step)
+step 8900 loss 0.9373 (0.67s/step)
+step 8925 loss 0.9359 (0.67s/step)
+step 8950 loss 0.9415 (0.67s/step)
+step 8975 loss 0.9655 (0.67s/step)
+step 9000 loss 0.9153 (0.67s/step)
+step 9000 val R2 mean 0.0342 | c0:0.12 c3:0.03 c6:0.03 c9:0.03 c12:0.03 c15:0.03 c18:0.02 c18:0.02
+step 9000 val R2 mean 0.0342 | c0:0.12 c3:0.03 c6:0.03 c9:0.03 c12:0.03 c15:0.03 c18:0.02 c18:0.02
+wandb: updating run metadata
+wandb: uploading wandb-summary.json; uploading config.yaml; uploading output.log
+wandb: uploading history steps 360-360, summary, console lines 379-379
+wandb: 
+wandb: Run history:
+wandb: train/grad_norm ▇█▇█▇▇█▇█▇▆▆▆▆▆▅▅▅▅▄▄▄▄▃▄▃▃▃▃▃▂▃▃▂▂▂▂▂▁▁
+wandb:      train/loss ██▇▇▆▅▆▆▄▅▄▄▅▅▄▄▄▃▄▄▄▄▄▂▃▃▃▃▂▂▁▂▂▂▂▂▂▂▁▁
+wandb:        train/lr ███████████▇▇▇▇▆▆▆▆▆▅▄▄▄▄▃▃▃▃▂▂▂▂▁▁▁▁▁▁▁
+wandb:       val/r2_c0 ▁▆▆▆▇▆▆▇▇▇▇▇▇██████
+wandb:       val/r2_c1 ▁▆▆▆▆▆▇▇▇▇▇▇▇██████
+wandb:      val/r2_c10 ▁██████████████████
+wandb:      val/r2_c11 ▁██████████████████
+wandb:      val/r2_c12 ▁██████████████████
+wandb:      val/r2_c13 ▁██████████████████
+wandb:      val/r2_c14 ▁██████████████████
+wandb:             +13 ...
+wandb: 
+wandb: Run summary:
+wandb: train/grad_norm 0.80361
+wandb:      train/loss 0.91532
+wandb:        train/lr 0
+wandb:       val/r2_c0 0.1233
+wandb:       val/r2_c1 0.02331
+wandb:      val/r2_c10 0.03141
+wandb:      val/r2_c11 0.03101
+wandb:      val/r2_c12 0.0293
+wandb:      val/r2_c13 0.02684
+wandb:      val/r2_c14 0.02608
+wandb:             +13 ...
+wandb: 
+wandb: 🚀 View run armF_movesr4_frozen at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/4u5y6lju
+wandb: ⭐️ View project at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260813_014608-4u5y6lju/logs

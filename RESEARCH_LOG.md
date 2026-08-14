@@ -4425,3 +4425,30 @@ the SAME random 4-ply openings (off-manifold openings, blunder-free
 trajectories).
 - P56 (55%): k=18 top1 on those positions >= .50 -> crater is mostly
   own-error feedback; < .50 -> exogenous shift alone breaks deep readouts.
+
+## 2026-08-14 ~20:40 — P56 GRADED NO (.395 < .50): exogenous opening shift is the main crater
+
+probe_stitch_gap.py --p56: distilled plays BOTH sides from the same
+Random(2000+g) 4-ply openings; stitch ref-ranks measured passively at
+player-1 decisions (n=1774). Results:
+- spectate k=0:  top1 .839, P(rank>5) .001 (vs val .923, own-play .861)
+- spectate k=18: top1 .395, P(rank>5) .130 (vs val .610, own-play .317)
+
+P56 predicted >= .50 at 55% -> NO. Decomposition of the k=18 crater
+(.610 val -> .317 own-play, total drop .293): exogenous opening shift
+accounts for .215 (~73%), own-error feedback for the remaining .078
+(~27%). Blunder tail same split (.067 -> .130 -> .173). So deep readouts
+break on off-manifold POSITIONS per se, even along blunder-free
+expert trajectories; the feedback spiral is real but secondary.
+
+Interpretation: training games all start from the distilled net's own
+openings; random 4-ply openings put the game outside the position
+manifold the deep adapters were fit on, and the containment never
+recovers even as expert play continues (it isn't a transient — plies
+after the opening are still expert-chosen). Shallow k=0 barely cares
+(.923 -> .839): occupancy readout is position-universal.
+
+Obvious fix if we want deep stitch play: augment training games with
+random-opening self-play (same gen_games.py machinery, opening_plies=4)
+and re-polish. That is a multi-hour run -> needs checklist + approval;
+not launching autonomously.

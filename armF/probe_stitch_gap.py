@@ -80,6 +80,51 @@ def replay_cut(backbone, ads, tok, student, k, mu, sd, n_games,
 
 
 @torch.no_grad()
+def spectate_distilled(backbone, ads, tok, student, ks, mu, sd, n_games,
+                       opening_plies=4):
+    """P56: distilled plays BOTH sides from the same random openings;
+    stitch ref-ranks measured passively at player-1 decisions."""
+    from hexhex.logic.hexboard import Board
+    dist = B.make_bn_player(student, [0])
+    ranks = {k: [] for k in ks}
+    for g in range(n_games):
+        opening = None
+        rng = random.Random(2000 + g)
+        while opening is None:
+            b = Board(11, switch_allowed=False)
+            mvs = []
+            for _ in range(opening_plies):
+                mv = rng.choice(sorted(b.legal_moves))
+                mvs.append(mv)
+                b.set_stone(mv)
+            if not b.winner:
+                opening = mvs
+        b = Board(11, switch_allowed=False)
+        moves = []
+        for mv in opening:
+            b.set_stone(mv)
+            moves.append(mv)
+        while not b.winner:
+            if b.player == 1:
+                bb = b.board_tensor.unsqueeze(0).float().to(DEV)
+                ref = student(bb)[0]
+                occ = bb[0, :, 1:-1, 1:-1].sum(0).reshape(121)
+                refm = ref - 1000.0 * occ
+                hs = SP.hidden_last(backbone, tok, list(moves))
+                for k in ks:
+                    st = SR4.chat_to_logits(student, ads, hs[5 + k][None],
+                                            k, mu, sd)[0]
+                    st = st - 1000.0 * occ
+                    r = ref_rank(st, refm, occ)
+                    if r is not None:
+                        ranks[k].append(r)
+            mv = dist(b, moves)
+            b.set_stone(mv)
+            moves.append(mv)
+    return ranks
+
+
+@torch.no_grad()
 def val_ranks(backbone, ads, tok, student, games, mu, sd, ks, n_games,
               seed=7):
     rng = random.Random(seed)
@@ -123,12 +168,30 @@ def summarize(name, ranks):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--p56", action="store_true",
+                    help="spectate distilled-vs-distilled games only")
+    args = ap.parse_args()
+
     cnn = W.load_model()
     student = R4.load_student(cnn)
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained("Qwen/Qwen3-1.7B")
     backbone, ads, mu, sd, step = SP.load_trained(
         "checkpoints/armF_polish19b/final.pt")
+
+    if args.p56:
+        random.seed(0)
+        sr = spectate_distilled(backbone, ads, tok, student, [0, 18],
+                                mu, sd, 40)
+        res = {"spectate_k0": summarize("spectate k=0", sr[0]),
+               "spectate_k18": summarize("spectate k=18", sr[18])}
+        Path("armF/results/probe_stitch_p56.json").write_text(
+            json.dumps(res, indent=1))
+        print("wrote armF/results/probe_stitch_p56.json")
+        return
+
     games = torch.load("armF/data/games.pt", weights_only=False)["games"]
     games += torch.load("armF/data/games2.pt", weights_only=False)["games"]
 

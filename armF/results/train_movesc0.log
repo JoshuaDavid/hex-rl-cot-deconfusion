@@ -1,0 +1,89 @@
+4400 seqs, maxlen 789
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<01:58,  2.61it/s]Loading weights:  17%|█▋        | 54/310 [00:00<00:01, 145.54it/s]Loading weights:  27%|██▋       | 85/310 [00:00<00:01, 185.78it/s]Loading weights:  37%|███▋      | 115/310 [00:00<00:01, 174.58it/s]Loading weights:  45%|████▌     | 140/310 [00:00<00:00, 190.91it/s]Loading weights:  53%|█████▎    | 165/310 [00:00<00:00, 200.30it/s]Loading weights:  61%|██████    | 189/310 [00:01<00:00, 210.23it/s]Loading weights:  69%|██████▊   | 213/310 [00:01<00:00, 177.34it/s]Loading weights:  76%|███████▌  | 235/310 [00:01<00:00, 187.48it/s]Loading weights:  83%|████████▎ | 256/310 [00:01<00:00, 190.70it/s]Loading weights:  92%|█████████▏| 284/310 [00:01<00:00, 211.24it/s]Loading weights:  99%|█████████▉| 307/310 [00:01<00:00, 216.11it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 182.78it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: joshuadavid to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run 3mpzxyie
+wandb: Tracking run with wandb version 0.28.1
+wandb: Run data is saved locally in /workspace/hex-rl-cot-deconfusion/wandb/run-20260813_060709-3mpzxyie
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run armF_movesc0
+wandb: ⭐️ View project at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: 🚀 View run at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/3mpzxyie
+step 0 val c0 R2 -0.2469
+step 25 loss 1.1480 (0.29s/step)
+step 50 loss 0.9802 (0.28s/step)
+step 75 loss 1.0487 (0.28s/step)
+step 100 loss 0.9076 (0.28s/step)
+step 100 val c0 R2 0.0575
+step 125 loss 0.9429 (0.29s/step)
+step 150 loss 0.6696 (0.28s/step)
+step 175 loss 0.6869 (0.28s/step)
+step 200 loss 0.6291 (0.28s/step)
+step 200 val c0 R2 0.2621
+step 225 loss 0.8098 (0.28s/step)
+step 250 loss 0.6297 (0.28s/step)
+step 275 loss 0.7826 (0.28s/step)
+step 300 loss 0.6272 (0.28s/step)
+step 300 val c0 R2 0.4134
+step 325 loss 0.5238 (0.28s/step)
+step 350 loss 0.4136 (0.28s/step)
+step 375 loss 0.6035 (0.28s/step)
+step 400 loss 0.3892 (0.28s/step)
+step 400 val c0 R2 0.5252
+step 425 loss 0.3314 (0.29s/step)
+step 450 loss 0.4999 (0.29s/step)
+step 475 loss 0.5485 (0.28s/step)
+step 500 loss 0.3448 (0.28s/step)
+step 500 val c0 R2 0.6040
+step 525 loss 0.4160 (0.29s/step)
+step 550 loss 0.2728 (0.28s/step)
+step 575 loss 0.3022 (0.28s/step)
+step 600 loss 0.2571 (0.28s/step)
+step 600 val c0 R2 0.6804
+step 625 loss 0.4488 (0.29s/step)
+step 650 loss 0.2609 (0.28s/step)
+step 675 loss 0.2163 (0.28s/step)
+step 700 loss 0.3213 (0.28s/step)
+step 700 val c0 R2 0.7514
+step 725 loss 0.2345 (0.29s/step)
+step 750 loss 0.2272 (0.28s/step)
+step 775 loss 0.1966 (0.28s/step)
+step 800 loss 0.2326 (0.28s/step)
+step 800 val c0 R2 0.8120
+step 825 loss 0.1478 (0.29s/step)
+step 850 loss 0.1600 (0.29s/step)
+step 875 loss 0.1665 (0.29s/step)
+step 900 loss 0.1009 (0.29s/step)
+step 900 val c0 R2 0.8726
+step 925 loss 0.0817 (0.29s/step)
+step 950 loss 0.0972 (0.29s/step)
+step 975 loss 0.0975 (0.29s/step)
+step 1000 loss 0.1116 (0.29s/step)
+step 1000 val c0 R2 0.9096
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb: train/grad_norm ▂▁▅▃▄▄▄▃▅▄▆▆▄▅█▅▅▆▇▅▆▅▅▄█▆▆▆▆▇▆▆▅▆▅▄▃▄▅▅
+wandb:      train/loss █▇▇▆▇▅▅▅▆▅▆▅▄▃▄▃▃▄▄▃▃▂▂▂▃▂▂▃▂▂▂▂▁▂▂▁▁▁▁▁
+wandb:        train/lr ▁▃▆█████████████████████████████████████
+wandb:       val/r2_c0 ▁▃▄▅▆▆▇▇▇██
+wandb: 
+wandb: Run summary:
+wandb: train/grad_norm 5.36464
+wandb:      train/loss 0.11157
+wandb:        train/lr 0.01
+wandb:       val/r2_c0 0.90963
+wandb: 
+wandb: 🚀 View run armF_movesc0 at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/3mpzxyie
+wandb: ⭐️ View project at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260813_060709-3mpzxyie/logs

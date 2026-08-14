@@ -1,0 +1,451 @@
+N 11000 train 10265 val 400
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<00:59,  5.20it/s]Loading weights:  17%|█▋        | 53/310 [00:00<00:01, 222.52it/s]Loading weights:  27%|██▋       | 84/310 [00:00<00:00, 247.27it/s]Loading weights:  37%|███▋      | 114/310 [00:00<00:00, 255.71it/s]Loading weights:  51%|█████     | 157/310 [00:00<00:00, 249.28it/s]Loading weights:  60%|██████    | 186/310 [00:00<00:00, 260.16it/s]Loading weights:  69%|██████▉   | 214/310 [00:00<00:00, 264.77it/s]Loading weights:  78%|███████▊  | 242/310 [00:01<00:00, 261.99it/s]Loading weights:  87%|████████▋ | 269/310 [00:01<00:00, 261.71it/s]Loading weights:  97%|█████████▋| 301/310 [00:01<00:00, 274.65it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 255.64it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: joshuadavid to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run hgoecgxn
+wandb: Tracking run with wandb version 0.28.1
+wandb: Run data is saved locally in /workspace/hex-rl-cot-deconfusion/wandb/run-20260812_071800-hgoecgxn
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run armF_moves_r2
+wandb: ⭐️ View project at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: 🚀 View run at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/hgoecgxn
+step 0 val R2 mean: col -28.5165 pca -34.4291 render -0.1724
+step 25 loss 2.2442 col 2.743 pca 3.112 render 0.878 (0.59s/step)
+step 50 loss 0.8836 col 0.776 pca 1.033 render 0.842 (0.59s/step)
+step 75 loss 0.7644 col 0.676 pca 0.895 render 0.722 (0.59s/step)
+step 100 loss 0.7463 col 0.680 pca 0.876 render 0.683 (0.59s/step)
+step 125 loss 0.7950 col 0.683 pca 0.939 render 0.762 (0.59s/step)
+step 150 loss 0.7415 col 0.644 pca 0.887 render 0.693 (0.59s/step)
+step 175 loss 0.7432 col 0.674 pca 0.902 render 0.653 (0.59s/step)
+step 200 loss 0.7392 col 0.652 pca 0.910 render 0.656 (0.59s/step)
+step 225 loss 0.7426 col 0.627 pca 0.902 render 0.699 (0.58s/step)
+step 250 loss 0.6574 col 0.586 pca 0.812 render 0.574 (0.59s/step)
+step 250 val R2 mean: col 0.3639 pca -0.0039 render 0.3875
+step 275 loss 0.7240 col 0.636 pca 0.913 render 0.622 (0.62s/step)
+step 300 loss 0.6948 col 0.615 pca 0.858 render 0.611 (0.62s/step)
+step 325 loss 0.6990 col 0.605 pca 0.891 render 0.601 (0.61s/step)
+step 350 loss 0.7248 col 0.621 pca 0.902 render 0.652 (0.62s/step)
+step 375 loss 0.7291 col 0.654 pca 0.900 render 0.633 (0.64s/step)
+step 400 loss 0.6619 col 0.579 pca 0.830 render 0.577 (0.64s/step)
+step 425 loss 0.6718 col 0.574 pca 0.812 render 0.629 (0.64s/step)
+step 450 loss 0.6967 col 0.609 pca 0.858 render 0.624 (0.64s/step)
+step 475 loss 0.6899 col 0.597 pca 0.853 render 0.619 (0.63s/step)
+step 500 loss 0.6878 col 0.660 pca 0.842 render 0.561 (0.63s/step)
+step 500 val R2 mean: col 0.4068 pca 0.0404 render 0.4414
+step 525 loss 0.7096 col 0.611 pca 0.848 render 0.669 (0.65s/step)
+step 550 loss 0.6271 col 0.541 pca 0.786 render 0.554 (0.64s/step)
+step 575 loss 0.6675 col 0.580 pca 0.833 render 0.589 (0.64s/step)
+step 600 loss 0.7288 col 0.633 pca 0.901 render 0.653 (0.64s/step)
+step 625 loss 0.6432 col 0.555 pca 0.809 render 0.566 (0.64s/step)
+step 650 loss 0.6009 col 0.515 pca 0.727 render 0.560 (0.64s/step)
+step 675 loss 0.6028 col 0.507 pca 0.732 render 0.569 (0.63s/step)
+step 700 loss 0.6251 col 0.534 pca 0.834 render 0.507 (0.63s/step)
+step 725 loss 0.5989 col 0.542 pca 0.757 render 0.499 (0.63s/step)
+step 750 loss 0.6618 col 0.576 pca 0.829 render 0.581 (0.63s/step)
+step 750 val R2 mean: col 0.4421 pca 0.0710 render 0.4659
+step 775 loss 0.6687 col 0.580 pca 0.826 render 0.600 (0.64s/step)
+step 800 loss 0.6398 col 0.538 pca 0.809 render 0.572 (0.64s/step)
+step 825 loss 0.6626 col 0.593 pca 0.840 render 0.554 (0.64s/step)
+step 850 loss 0.6433 col 0.551 pca 0.830 render 0.549 (0.64s/step)
+step 875 loss 0.6341 col 0.558 pca 0.819 render 0.525 (0.64s/step)
+step 900 loss 0.6030 col 0.510 pca 0.785 render 0.513 (0.64s/step)
+step 925 loss 0.5924 col 0.514 pca 0.753 render 0.511 (0.64s/step)
+step 950 loss 0.6100 col 0.552 pca 0.758 render 0.521 (0.63s/step)
+step 975 loss 0.6279 col 0.540 pca 0.781 render 0.563 (0.63s/step)
+step 1000 loss 0.6590 col 0.577 pca 0.843 render 0.557 (0.63s/step)
+step 1000 val R2 mean: col 0.4632 pca 0.1090 render 0.4858
+step 1025 loss 0.5868 col 0.508 pca 0.738 render 0.514 (0.64s/step)
+step 1050 loss 0.5955 col 0.498 pca 0.789 render 0.499 (0.64s/step)
+step 1075 loss 0.6052 col 0.504 pca 0.762 render 0.550 (0.64s/step)
+step 1100 loss 0.5851 col 0.495 pca 0.744 render 0.516 (0.64s/step)
+step 1125 loss 0.5819 col 0.497 pca 0.725 render 0.524 (0.64s/step)
+step 1150 loss 0.6041 col 0.542 pca 0.767 render 0.503 (0.63s/step)
+step 1175 loss 0.6408 col 0.557 pca 0.804 render 0.561 (0.63s/step)
+step 1200 loss 0.5643 col 0.465 pca 0.740 render 0.488 (0.63s/step)
+step 1225 loss 0.6456 col 0.572 pca 0.822 render 0.543 (0.63s/step)
+step 1250 loss 0.5635 col 0.483 pca 0.738 render 0.470 (0.63s/step)
+step 1250 val R2 mean: col 0.4916 pca 0.1459 render 0.5051
+step 1275 loss 0.5819 col 0.506 pca 0.769 render 0.471 (0.64s/step)
+step 1300 loss 0.5514 col 0.470 pca 0.702 render 0.482 (0.64s/step)
+step 1325 loss 0.5967 col 0.507 pca 0.771 render 0.512 (0.64s/step)
+step 1350 loss 0.6302 col 0.524 pca 0.779 render 0.587 (0.64s/step)
+step 1375 loss 0.4859 col 0.407 pca 0.607 render 0.444 (0.64s/step)
+step 1400 loss 0.5518 col 0.467 pca 0.695 render 0.493 (0.64s/step)
+step 1425 loss 0.5283 col 0.456 pca 0.643 render 0.486 (0.64s/step)
+step 1450 loss 0.5897 col 0.503 pca 0.747 render 0.518 (0.64s/step)
+step 1475 loss 0.5762 col 0.506 pca 0.720 render 0.503 (0.63s/step)
+step 1500 loss 0.5216 col 0.417 pca 0.637 render 0.511 (0.63s/step)
+step 1500 val R2 mean: col 0.5093 pca 0.1738 render 0.5195
+step 1525 loss 0.5871 col 0.532 pca 0.751 render 0.478 (0.64s/step)
+step 1550 loss 0.5316 col 0.448 pca 0.654 render 0.493 (0.64s/step)
+step 1575 loss 0.5630 col 0.473 pca 0.687 render 0.529 (0.64s/step)
+step 1600 loss 0.5586 col 0.449 pca 0.664 render 0.563 (0.64s/step)
+step 1625 loss 0.5447 col 0.439 pca 0.669 render 0.527 (0.64s/step)
+step 1650 loss 0.5515 col 0.459 pca 0.693 render 0.503 (0.64s/step)
+step 1675 loss 0.6271 col 0.557 pca 0.802 render 0.523 (0.64s/step)
+step 1700 loss 0.6061 col 0.528 pca 0.735 render 0.555 (0.64s/step)
+step 1725 loss 0.5237 col 0.462 pca 0.667 render 0.442 (0.64s/step)
+step 1750 loss 0.5619 col 0.508 pca 0.703 render 0.475 (0.63s/step)
+step 1750 val R2 mean: col 0.5249 pca 0.2078 render 0.5320
+step 1775 loss 0.5796 col 0.528 pca 0.706 render 0.504 (0.64s/step)
+step 1800 loss 0.5408 col 0.461 pca 0.672 render 0.490 (0.64s/step)
+step 1825 loss 0.5581 col 0.469 pca 0.696 render 0.509 (0.64s/step)
+step 1850 loss 0.5551 col 0.505 pca 0.688 render 0.472 (0.64s/step)
+step 1875 loss 0.5647 col 0.479 pca 0.692 render 0.523 (0.64s/step)
+step 1900 loss 0.5814 col 0.511 pca 0.710 render 0.522 (0.64s/step)
+step 1925 loss 0.5482 col 0.468 pca 0.682 render 0.494 (0.64s/step)
+step 1950 loss 0.5691 col 0.483 pca 0.718 render 0.506 (0.63s/step)
+step 1975 loss 0.5341 col 0.477 pca 0.653 render 0.472 (0.63s/step)
+step 2000 loss 0.5295 col 0.449 pca 0.664 render 0.475 (0.63s/step)
+step 2000 val R2 mean: col 0.5367 pca 0.2354 render 0.5380
+step 2025 loss 0.5404 col 0.472 pca 0.672 render 0.477 (0.64s/step)
+step 2050 loss 0.5628 col 0.503 pca 0.705 render 0.481 (0.64s/step)
+step 2075 loss 0.5363 col 0.479 pca 0.656 render 0.473 (0.64s/step)
+step 2100 loss 0.5640 col 0.522 pca 0.670 render 0.500 (0.64s/step)
+step 2125 loss 0.5113 col 0.429 pca 0.640 render 0.465 (0.64s/step)
+step 2150 loss 0.5520 col 0.461 pca 0.677 render 0.518 (0.64s/step)
+step 2175 loss 0.5403 col 0.497 pca 0.678 render 0.446 (0.64s/step)
+step 2200 loss 0.4995 col 0.443 pca 0.620 render 0.436 (0.63s/step)
+step 2225 loss 0.5057 col 0.423 pca 0.597 render 0.498 (0.63s/step)
+step 2250 loss 0.5272 col 0.450 pca 0.644 render 0.487 (0.63s/step)
+step 2250 val R2 mean: col 0.5461 pca 0.2660 render 0.5441
+step 2275 loss 0.5736 col 0.500 pca 0.698 render 0.523 (0.64s/step)
+step 2300 loss 0.5220 col 0.432 pca 0.635 render 0.499 (0.64s/step)
+step 2325 loss 0.5505 col 0.482 pca 0.683 render 0.486 (0.64s/step)
+step 2350 loss 0.5386 col 0.459 pca 0.636 render 0.521 (0.64s/step)
+step 2375 loss 0.4845 col 0.393 pca 0.565 render 0.495 (0.64s/step)
+step 2400 loss 0.5048 col 0.436 pca 0.597 render 0.482 (0.64s/step)
+step 2425 loss 0.5196 col 0.500 pca 0.632 render 0.427 (0.64s/step)
+step 2450 loss 0.4462 col 0.381 pca 0.544 render 0.414 (0.63s/step)
+step 2475 loss 0.5279 col 0.444 pca 0.618 render 0.521 (0.63s/step)
+step 2500 loss 0.5010 col 0.447 pca 0.591 render 0.465 (0.63s/step)
+step 2500 val R2 mean: col 0.5544 pca 0.2928 render 0.5463
+step 2525 loss 0.6010 col 0.537 pca 0.706 render 0.560 (0.64s/step)
+step 2550 loss 0.5172 col 0.450 pca 0.616 render 0.485 (0.64s/step)
+step 2575 loss 0.4165 col 0.341 pca 0.470 render 0.438 (0.64s/step)
+step 2600 loss 0.5141 col 0.467 pca 0.633 render 0.442 (0.64s/step)
+step 2625 loss 0.5170 col 0.470 pca 0.607 render 0.474 (0.64s/step)
+step 2650 loss 0.5395 col 0.479 pca 0.643 render 0.496 (0.63s/step)
+step 2675 loss 0.4353 col 0.368 pca 0.504 render 0.433 (0.63s/step)
+step 2700 loss 0.4906 col 0.428 pca 0.598 render 0.446 (0.63s/step)
+step 2725 loss 0.4581 col 0.405 pca 0.540 render 0.429 (0.63s/step)
+step 2750 loss 0.5078 col 0.456 pca 0.617 render 0.450 (0.63s/step)
+step 2750 val R2 mean: col 0.5613 pca 0.3146 render 0.5559
+step 2775 loss 0.4861 col 0.415 pca 0.553 render 0.490 (0.64s/step)
+step 2800 loss 0.4614 col 0.405 pca 0.541 render 0.437 (0.64s/step)
+step 2825 loss 0.5536 col 0.492 pca 0.666 render 0.503 (0.64s/step)
+step 2850 loss 0.4234 col 0.369 pca 0.476 render 0.425 (0.64s/step)
+step 2875 loss 0.4939 col 0.430 pca 0.572 render 0.480 (0.63s/step)
+step 2900 loss 0.4831 col 0.432 pca 0.561 render 0.457 (0.63s/step)
+step 2925 loss 0.4903 col 0.426 pca 0.569 render 0.475 (0.63s/step)
+step 2950 loss 0.5069 col 0.459 pca 0.603 render 0.459 (0.63s/step)
+step 2975 loss 0.4365 col 0.383 pca 0.510 render 0.417 (0.63s/step)
+step 3000 loss 0.4385 col 0.376 pca 0.502 render 0.438 (0.63s/step)
+step 3000 val R2 mean: col 0.5707 pca 0.3385 render 0.5633
+step 3025 loss 0.4667 col 0.408 pca 0.540 render 0.452 (0.64s/step)
+step 3050 loss 0.5142 col 0.450 pca 0.600 render 0.493 (0.64s/step)
+step 3075 loss 0.5018 col 0.461 pca 0.611 render 0.434 (0.64s/step)
+step 3100 loss 0.4443 col 0.384 pca 0.510 render 0.439 (0.64s/step)
+step 3125 loss 0.4962 col 0.453 pca 0.599 render 0.437 (0.64s/step)
+step 3150 loss 0.4231 col 0.367 pca 0.471 render 0.431 (0.63s/step)
+step 3175 loss 0.4321 col 0.369 pca 0.471 render 0.455 (0.63s/step)
+step 3200 loss 0.5134 col 0.475 pca 0.604 render 0.461 (0.63s/step)
+step 3225 loss 0.4920 col 0.446 pca 0.568 render 0.462 (0.63s/step)
+step 3250 loss 0.4429 col 0.384 pca 0.495 render 0.450 (0.63s/step)
+step 3250 val R2 mean: col 0.5743 pca 0.3518 render 0.5694
+step 3275 loss 0.4241 col 0.369 pca 0.460 render 0.443 (0.64s/step)
+step 3300 loss 0.4790 col 0.418 pca 0.545 render 0.474 (0.64s/step)
+step 3325 loss 0.4490 col 0.397 pca 0.505 render 0.446 (0.64s/step)
+step 3350 loss 0.5061 col 0.453 pca 0.589 render 0.476 (0.64s/step)
+step 3375 loss 0.4228 col 0.382 pca 0.473 render 0.414 (0.64s/step)
+step 3400 loss 0.4308 col 0.366 pca 0.469 render 0.458 (0.64s/step)
+step 3425 loss 0.4358 col 0.370 pca 0.461 render 0.476 (0.64s/step)
+step 3450 loss 0.4815 col 0.437 pca 0.546 render 0.461 (0.64s/step)
+step 3475 loss 0.4424 col 0.381 pca 0.506 render 0.440 (0.63s/step)
+step 3500 loss 0.5046 col 0.459 pca 0.572 render 0.483 (0.63s/step)
+step 3500 val R2 mean: col 0.5800 pca 0.3695 render 0.5729
+step 3525 loss 0.4499 col 0.381 pca 0.498 render 0.470 (0.64s/step)
+step 3550 loss 0.4123 col 0.351 pca 0.451 render 0.434 (0.64s/step)
+step 3575 loss 0.4609 col 0.411 pca 0.533 render 0.439 (0.64s/step)
+step 3600 loss 0.4231 col 0.373 pca 0.466 render 0.430 (0.64s/step)
+step 3625 loss 0.4401 col 0.375 pca 0.471 render 0.475 (0.64s/step)
+step 3650 loss 0.4920 col 0.426 pca 0.553 render 0.498 (0.64s/step)
+step 3675 loss 0.4223 col 0.378 pca 0.463 render 0.427 (0.64s/step)
+step 3700 loss 0.4350 col 0.388 pca 0.492 render 0.425 (0.64s/step)
+step 3725 loss 0.4583 col 0.409 pca 0.515 render 0.451 (0.63s/step)
+step 3750 loss 0.3880 col 0.347 pca 0.451 render 0.366 (0.63s/step)
+step 3750 val R2 mean: col 0.5859 pca 0.3886 render 0.5775
+step 3775 loss 0.4618 col 0.411 pca 0.506 render 0.468 (0.64s/step)
+step 3800 loss 0.3880 col 0.337 pca 0.411 render 0.416 (0.64s/step)
+step 3825 loss 0.4518 col 0.412 pca 0.515 render 0.428 (0.64s/step)
+step 3850 loss 0.4283 col 0.389 pca 0.490 render 0.406 (0.64s/step)
+step 3875 loss 0.3971 col 0.352 pca 0.443 render 0.397 (0.64s/step)
+step 3900 loss 0.4859 col 0.431 pca 0.548 render 0.478 (0.64s/step)
+step 3925 loss 0.4255 col 0.371 pca 0.461 render 0.445 (0.64s/step)
+step 3950 loss 0.4612 col 0.405 pca 0.507 render 0.472 (0.64s/step)
+step 3975 loss 0.4751 col 0.420 pca 0.524 render 0.482 (0.64s/step)
+step 4000 loss 0.4313 col 0.389 pca 0.482 render 0.423 (0.63s/step)
+step 4000 val R2 mean: col 0.5900 pca 0.3977 render 0.5809
+step 4025 loss 0.3997 col 0.353 pca 0.447 render 0.400 (0.64s/step)
+step 4050 loss 0.4309 col 0.380 pca 0.477 render 0.436 (0.64s/step)
+step 4075 loss 0.4020 col 0.344 pca 0.440 render 0.422 (0.64s/step)
+step 4100 loss 0.4092 col 0.361 pca 0.443 render 0.424 (0.64s/step)
+step 4125 loss 0.4245 col 0.366 pca 0.447 render 0.461 (0.64s/step)
+step 4150 loss 0.3893 col 0.335 pca 0.428 render 0.405 (0.64s/step)
+step 4175 loss 0.3899 col 0.339 pca 0.413 render 0.418 (0.64s/step)
+step 4200 loss 0.4042 col 0.364 pca 0.450 render 0.399 (0.64s/step)
+step 4225 loss 0.4615 col 0.400 pca 0.492 render 0.493 (0.64s/step)
+step 4250 loss 0.4264 col 0.394 pca 0.458 render 0.427 (0.63s/step)
+step 4250 val R2 mean: col 0.5937 pca 0.4095 render 0.5824
+step 4275 loss 0.4585 col 0.420 pca 0.514 render 0.441 (0.64s/step)
+step 4300 loss 0.4349 col 0.396 pca 0.470 render 0.439 (0.64s/step)
+step 4325 loss 0.3649 col 0.312 pca 0.384 render 0.399 (0.64s/step)
+step 4350 loss 0.4225 col 0.367 pca 0.453 render 0.448 (0.64s/step)
+step 4375 loss 0.4659 col 0.419 pca 0.524 render 0.454 (0.64s/step)
+step 4400 loss 0.4779 col 0.455 pca 0.573 render 0.406 (0.64s/step)
+step 4425 loss 0.3839 col 0.334 pca 0.407 render 0.411 (0.64s/step)
+step 4450 loss 0.4836 col 0.439 pca 0.530 render 0.481 (0.64s/step)
+step 4475 loss 0.4030 col 0.388 pca 0.422 render 0.400 (0.63s/step)
+step 4500 loss 0.3814 col 0.341 pca 0.418 render 0.385 (0.63s/step)
+step 4500 val R2 mean: col 0.5987 pca 0.4187 render 0.5880
+step 4525 loss 0.4324 col 0.386 pca 0.464 render 0.448 (0.64s/step)
+step 4550 loss 0.3243 col 0.289 pca 0.334 render 0.350 (0.64s/step)
+step 4575 loss 0.4364 col 0.400 pca 0.470 render 0.439 (0.64s/step)
+step 4600 loss 0.4164 col 0.360 pca 0.437 render 0.452 (0.64s/step)
+step 4625 loss 0.4182 col 0.371 pca 0.450 render 0.434 (0.64s/step)
+step 4650 loss 0.4441 col 0.414 pca 0.518 render 0.400 (0.64s/step)
+step 4675 loss 0.4271 col 0.383 pca 0.447 render 0.451 (0.64s/step)
+step 4700 loss 0.3797 col 0.339 pca 0.405 render 0.395 (0.64s/step)
+step 4725 loss 0.3735 col 0.331 pca 0.409 render 0.380 (0.64s/step)
+step 4750 loss 0.4368 col 0.386 pca 0.458 render 0.466 (0.63s/step)
+step 4750 val R2 mean: col 0.6012 pca 0.4270 render 0.5886
+step 4775 loss 0.4373 col 0.412 pca 0.488 render 0.412 (0.64s/step)
+step 4800 loss 0.4406 col 0.430 pca 0.510 render 0.382 (0.64s/step)
+step 4825 loss 0.3639 col 0.313 pca 0.373 render 0.406 (0.64s/step)
+step 4850 loss 0.4035 col 0.356 pca 0.443 render 0.412 (0.64s/step)
+step 4875 loss 0.3880 col 0.358 pca 0.415 render 0.391 (0.64s/step)
+step 4900 loss 0.4194 col 0.373 pca 0.447 render 0.438 (0.64s/step)
+step 4925 loss 0.4217 col 0.375 pca 0.446 render 0.444 (0.64s/step)
+step 4950 loss 0.4013 col 0.367 pca 0.444 render 0.393 (0.64s/step)
+step 4975 loss 0.4212 col 0.387 pca 0.446 render 0.431 (0.64s/step)
+step 5000 loss 0.3786 col 0.322 pca 0.399 render 0.414 (0.63s/step)
+step 5000 val R2 mean: col 0.6045 pca 0.4347 render 0.5926
+step 5025 loss 0.3849 col 0.325 pca 0.386 render 0.444 (0.64s/step)
+step 5050 loss 0.4350 col 0.399 pca 0.475 render 0.431 (0.64s/step)
+step 5075 loss 0.4397 col 0.396 pca 0.469 render 0.454 (0.64s/step)
+step 5100 loss 0.3802 col 0.336 pca 0.401 render 0.404 (0.64s/step)
+step 5125 loss 0.4166 col 0.389 pca 0.434 render 0.427 (0.64s/step)
+step 5150 loss 0.3999 col 0.350 pca 0.413 render 0.436 (0.64s/step)
+step 5175 loss 0.4193 col 0.386 pca 0.467 render 0.405 (0.64s/step)
+step 5200 loss 0.3787 col 0.340 pca 0.397 render 0.399 (0.64s/step)
+step 5225 loss 0.3687 col 0.340 pca 0.384 render 0.382 (0.64s/step)
+step 5250 loss 0.4221 col 0.365 pca 0.436 render 0.466 (0.64s/step)
+step 5250 val R2 mean: col 0.6067 pca 0.4426 render 0.5931
+step 5275 loss 0.4215 col 0.391 pca 0.452 render 0.421 (0.64s/step)
+step 5300 loss 0.4122 col 0.361 pca 0.446 render 0.430 (0.64s/step)
+step 5325 loss 0.4259 col 0.381 pca 0.441 render 0.456 (0.64s/step)
+step 5350 loss 0.3916 col 0.355 pca 0.401 render 0.419 (0.64s/step)
+step 5375 loss 0.4113 col 0.365 pca 0.419 render 0.449 (0.64s/step)
+step 5400 loss 0.3660 col 0.318 pca 0.370 render 0.411 (0.64s/step)
+step 5425 loss 0.4391 col 0.386 pca 0.460 render 0.472 (0.64s/step)
+step 5450 loss 0.3450 col 0.304 pca 0.353 render 0.378 (0.64s/step)
+step 5475 loss 0.3926 col 0.352 pca 0.421 render 0.405 (0.64s/step)
+step 5500 loss 0.4004 col 0.362 pca 0.412 render 0.427 (0.64s/step)
+step 5500 val R2 mean: col 0.6108 pca 0.4487 render 0.5967
+step 5525 loss 0.3850 col 0.364 pca 0.402 render 0.389 (0.64s/step)
+step 5550 loss 0.3913 col 0.354 pca 0.422 render 0.399 (0.64s/step)
+step 5575 loss 0.3942 col 0.344 pca 0.402 render 0.436 (0.64s/step)
+step 5600 loss 0.3611 col 0.324 pca 0.384 render 0.375 (0.64s/step)
+step 5625 loss 0.4000 col 0.357 pca 0.404 render 0.439 (0.64s/step)
+step 5650 loss 0.4020 col 0.356 pca 0.424 render 0.426 (0.64s/step)
+step 5675 loss 0.3882 col 0.360 pca 0.386 render 0.418 (0.64s/step)
+step 5700 loss 0.3875 col 0.356 pca 0.425 render 0.382 (0.64s/step)
+step 5725 loss 0.3661 col 0.320 pca 0.369 render 0.410 (0.64s/step)
+step 5750 loss 0.4171 col 0.377 pca 0.437 render 0.437 (0.64s/step)
+step 5750 val R2 mean: col 0.6127 pca 0.4553 render 0.5987
+step 5775 loss 0.4102 col 0.382 pca 0.443 render 0.406 (0.64s/step)
+step 5800 loss 0.4380 col 0.405 pca 0.485 render 0.424 (0.64s/step)
+step 5825 loss 0.4131 col 0.367 pca 0.426 render 0.446 (0.64s/step)
+step 5850 loss 0.3593 col 0.321 pca 0.363 render 0.393 (0.64s/step)
+step 5875 loss 0.3490 col 0.318 pca 0.366 render 0.363 (0.64s/step)
+step 5900 loss 0.3962 col 0.353 pca 0.412 render 0.424 (0.64s/step)
+step 5925 loss 0.4019 col 0.351 pca 0.404 render 0.450 (0.64s/step)
+step 5950 loss 0.3376 col 0.292 pca 0.349 render 0.372 (0.64s/step)
+step 5975 loss 0.4142 col 0.365 pca 0.418 render 0.460 (0.64s/step)
+step 6000 loss 0.3510 col 0.319 pca 0.359 render 0.375 (0.64s/step)
+step 6000 val R2 mean: col 0.6142 pca 0.4602 render 0.5994
+step 6025 loss 0.4008 col 0.375 pca 0.416 render 0.412 (0.64s/step)
+step 6050 loss 0.3638 col 0.316 pca 0.379 render 0.397 (0.64s/step)
+step 6075 loss 0.3913 col 0.375 pca 0.419 render 0.380 (0.64s/step)
+step 6100 loss 0.4193 col 0.395 pca 0.431 render 0.432 (0.64s/step)
+step 6125 loss 0.3823 col 0.329 pca 0.386 render 0.431 (0.64s/step)
+step 6150 loss 0.3394 col 0.300 pca 0.346 render 0.372 (0.64s/step)
+step 6175 loss 0.3494 col 0.300 pca 0.355 render 0.394 (0.64s/step)
+step 6200 loss 0.4200 col 0.390 pca 0.450 render 0.420 (0.64s/step)
+step 6225 loss 0.3536 col 0.307 pca 0.350 render 0.404 (0.64s/step)
+step 6250 loss 0.3843 col 0.337 pca 0.399 render 0.416 (0.64s/step)
+step 6250 val R2 mean: col 0.6163 pca 0.4643 render 0.6010
+step 6275 loss 0.3485 col 0.302 pca 0.357 render 0.387 (0.64s/step)
+step 6300 loss 0.4059 col 0.385 pca 0.434 render 0.399 (0.64s/step)
+step 6325 loss 0.3866 col 0.339 pca 0.395 render 0.426 (0.64s/step)
+step 6350 loss 0.3009 col 0.265 pca 0.301 render 0.336 (0.64s/step)
+step 6375 loss 0.3895 col 0.349 pca 0.411 render 0.409 (0.64s/step)
+step 6400 loss 0.3788 col 0.351 pca 0.398 render 0.388 (0.64s/step)
+step 6425 loss 0.3705 col 0.340 pca 0.388 render 0.384 (0.64s/step)
+step 6450 loss 0.3410 col 0.299 pca 0.347 render 0.377 (0.64s/step)
+step 6475 loss 0.3685 col 0.328 pca 0.365 render 0.413 (0.64s/step)
+step 6500 loss 0.4126 col 0.398 pca 0.443 render 0.397 (0.64s/step)
+step 6500 val R2 mean: col 0.6177 pca 0.4689 render 0.6035
+step 6525 loss 0.3827 col 0.344 pca 0.389 render 0.415 (0.64s/step)
+step 6550 loss 0.3531 col 0.324 pca 0.372 render 0.363 (0.64s/step)
+step 6575 loss 0.3555 col 0.334 pca 0.372 render 0.361 (0.64s/step)
+step 6600 loss 0.3997 col 0.355 pca 0.403 render 0.441 (0.64s/step)
+step 6625 loss 0.4101 col 0.379 pca 0.426 render 0.426 (0.64s/step)
+step 6650 loss 0.3773 col 0.342 pca 0.374 render 0.416 (0.64s/step)
+step 6675 loss 0.3669 col 0.345 pca 0.376 render 0.380 (0.64s/step)
+step 6700 loss 0.3884 col 0.356 pca 0.410 render 0.399 (0.64s/step)
+step 6725 loss 0.3808 col 0.351 pca 0.397 render 0.394 (0.64s/step)
+step 6750 loss 0.4046 col 0.376 pca 0.396 render 0.442 (0.64s/step)
+step 6750 val R2 mean: col 0.6190 pca 0.4715 render 0.6050
+step 6775 loss 0.3596 col 0.328 pca 0.376 render 0.374 (0.64s/step)
+step 6800 loss 0.3965 col 0.359 pca 0.409 render 0.421 (0.64s/step)
+step 6825 loss 0.3292 col 0.301 pca 0.318 render 0.369 (0.64s/step)
+step 6850 loss 0.3593 col 0.316 pca 0.348 render 0.413 (0.64s/step)
+step 6875 loss 0.3780 col 0.353 pca 0.397 render 0.384 (0.64s/step)
+step 6900 loss 0.3439 col 0.311 pca 0.345 render 0.376 (0.64s/step)
+step 6925 loss 0.3924 col 0.384 pca 0.428 render 0.365 (0.64s/step)
+step 6950 loss 0.3784 col 0.362 pca 0.391 render 0.382 (0.64s/step)
+step 6975 loss 0.3700 col 0.331 pca 0.370 render 0.409 (0.64s/step)
+step 7000 loss 0.3212 col 0.297 pca 0.319 render 0.348 (0.63s/step)
+step 7000 val R2 mean: col 0.6201 pca 0.4734 render 0.6055
+step 7025 loss 0.3535 col 0.301 pca 0.345 render 0.414 (0.64s/step)
+step 7050 loss 0.3866 col 0.361 pca 0.403 render 0.396 (0.64s/step)
+step 7075 loss 0.3991 col 0.364 pca 0.413 render 0.421 (0.64s/step)
+step 7100 loss 0.3758 col 0.351 pca 0.382 render 0.394 (0.64s/step)
+step 7125 loss 0.3735 col 0.341 pca 0.394 render 0.385 (0.64s/step)
+step 7150 loss 0.3893 col 0.346 pca 0.394 render 0.428 (0.64s/step)
+step 7175 loss 0.3611 col 0.319 pca 0.357 render 0.408 (0.64s/step)
+step 7200 loss 0.4059 col 0.362 pca 0.404 render 0.452 (0.64s/step)
+step 7225 loss 0.4169 col 0.388 pca 0.425 render 0.438 (0.63s/step)
+step 7250 loss 0.3981 col 0.360 pca 0.402 render 0.432 (0.63s/step)
+step 7250 val R2 mean: col 0.6208 pca 0.4751 render 0.6064
+step 7275 loss 0.3388 col 0.307 pca 0.334 render 0.375 (0.64s/step)
+step 7300 loss 0.3743 col 0.331 pca 0.381 render 0.410 (0.64s/step)
+step 7325 loss 0.3570 col 0.329 pca 0.378 render 0.365 (0.64s/step)
+step 7350 loss 0.3538 col 0.333 pca 0.366 render 0.363 (0.64s/step)
+step 7375 loss 0.3978 col 0.378 pca 0.420 render 0.395 (0.64s/step)
+step 7400 loss 0.3314 col 0.287 pca 0.326 render 0.381 (0.64s/step)
+step 7425 loss 0.3528 col 0.317 pca 0.345 render 0.397 (0.64s/step)
+step 7450 loss 0.3655 col 0.316 pca 0.352 render 0.429 (0.64s/step)
+step 7475 loss 0.3248 col 0.297 pca 0.328 render 0.350 (0.63s/step)
+step 7500 loss 0.3749 col 0.350 pca 0.390 render 0.385 (0.63s/step)
+step 7500 val R2 mean: col 0.6218 pca 0.4785 render 0.6075
+step 7525 loss 0.3589 col 0.321 pca 0.362 render 0.394 (0.64s/step)
+step 7550 loss 0.3222 col 0.288 pca 0.321 render 0.357 (0.64s/step)
+step 7575 loss 0.3203 col 0.287 pca 0.316 render 0.358 (0.64s/step)
+step 7600 loss 0.3707 col 0.354 pca 0.377 render 0.381 (0.64s/step)
+step 7625 loss 0.4041 col 0.367 pca 0.414 render 0.431 (0.64s/step)
+step 7650 loss 0.3749 col 0.349 pca 0.383 render 0.392 (0.64s/step)
+step 7675 loss 0.3559 col 0.317 pca 0.350 render 0.401 (0.64s/step)
+step 7700 loss 0.4075 col 0.369 pca 0.414 render 0.440 (0.64s/step)
+step 7725 loss 0.3608 col 0.317 pca 0.356 render 0.410 (0.64s/step)
+step 7750 loss 0.3686 col 0.328 pca 0.363 render 0.415 (0.63s/step)
+step 7750 val R2 mean: col 0.6223 pca 0.4793 render 0.6078
+step 7775 loss 0.3897 col 0.352 pca 0.400 render 0.417 (0.64s/step)
+step 7800 loss 0.3908 col 0.361 pca 0.411 render 0.400 (0.64s/step)
+step 7825 loss 0.3832 col 0.339 pca 0.375 render 0.435 (0.64s/step)
+step 7850 loss 0.3722 col 0.353 pca 0.398 render 0.366 (0.64s/step)
+step 7875 loss 0.3732 col 0.349 pca 0.395 render 0.376 (0.64s/step)
+step 7900 loss 0.3314 col 0.298 pca 0.332 render 0.365 (0.63s/step)
+step 7925 loss 0.4139 col 0.387 pca 0.434 render 0.421 (0.63s/step)
+step 7950 loss 0.3940 col 0.354 pca 0.397 render 0.431 (0.63s/step)
+step 7975 loss 0.3799 col 0.348 pca 0.392 render 0.400 (0.63s/step)
+step 8000 loss 0.3614 col 0.327 pca 0.368 render 0.389 (0.63s/step)
+step 8000 val R2 mean: col 0.6227 pca 0.4809 render 0.6090
+step 8025 loss 0.3435 col 0.316 pca 0.349 render 0.366 (0.64s/step)
+step 8050 loss 0.3725 col 0.335 pca 0.363 render 0.419 (0.64s/step)
+step 8075 loss 0.3250 col 0.304 pca 0.344 render 0.327 (0.64s/step)
+step 8100 loss 0.3500 col 0.312 pca 0.351 render 0.387 (0.64s/step)
+step 8125 loss 0.3515 col 0.316 pca 0.345 render 0.394 (0.63s/step)
+step 8150 loss 0.3905 col 0.365 pca 0.408 render 0.398 (0.63s/step)
+step 8175 loss 0.3474 col 0.317 pca 0.339 render 0.386 (0.63s/step)
+step 8200 loss 0.3532 col 0.314 pca 0.360 render 0.386 (0.63s/step)
+step 8225 loss 0.3943 col 0.375 pca 0.414 render 0.395 (0.63s/step)
+step 8250 loss 0.3382 col 0.293 pca 0.329 render 0.393 (0.63s/step)
+step 8250 val R2 mean: col 0.6229 pca 0.4815 render 0.6092
+step 8275 loss 0.3553 col 0.321 pca 0.366 render 0.379 (0.64s/step)
+step 8300 loss 0.3964 col 0.383 pca 0.417 render 0.390 (0.64s/step)
+step 8325 loss 0.3637 col 0.325 pca 0.354 render 0.412 (0.64s/step)
+step 8350 loss 0.3424 col 0.312 pca 0.336 render 0.379 (0.64s/step)
+step 8375 loss 0.3623 col 0.331 pca 0.360 render 0.396 (0.63s/step)
+step 8400 loss 0.3300 col 0.302 pca 0.331 render 0.356 (0.63s/step)
+step 8425 loss 0.3718 col 0.330 pca 0.376 render 0.410 (0.63s/step)
+step 8450 loss 0.3176 col 0.266 pca 0.288 render 0.399 (0.63s/step)
+step 8475 loss 0.3278 col 0.297 pca 0.341 render 0.346 (0.63s/step)
+step 8500 loss 0.3437 col 0.292 pca 0.327 render 0.412 (0.63s/step)
+step 8500 val R2 mean: col 0.6232 pca 0.4817 render 0.6097
+step 8525 loss 0.3996 col 0.380 pca 0.421 render 0.398 (0.64s/step)
+step 8550 loss 0.3790 col 0.346 pca 0.392 render 0.399 (0.64s/step)
+step 8575 loss 0.3888 col 0.379 pca 0.400 render 0.387 (0.64s/step)
+step 8600 loss 0.3519 col 0.310 pca 0.341 render 0.405 (0.64s/step)
+step 8625 loss 0.3689 col 0.337 pca 0.379 render 0.391 (0.63s/step)
+step 8650 loss 0.3548 col 0.338 pca 0.374 render 0.352 (0.63s/step)
+step 8675 loss 0.3712 col 0.351 pca 0.381 render 0.382 (0.63s/step)
+step 8700 loss 0.3113 col 0.263 pca 0.297 render 0.373 (0.63s/step)
+step 8725 loss 0.3670 col 0.328 pca 0.350 render 0.423 (0.63s/step)
+step 8750 loss 0.3356 col 0.298 pca 0.325 render 0.383 (0.63s/step)
+step 8750 val R2 mean: col 0.6232 pca 0.4820 render 0.6097
+step 8775 loss 0.3394 col 0.312 pca 0.360 render 0.346 (0.64s/step)
+step 8800 loss 0.3570 col 0.328 pca 0.363 render 0.380 (0.64s/step)
+step 8825 loss 0.3171 col 0.299 pca 0.318 render 0.334 (0.64s/step)
+step 8850 loss 0.3819 col 0.339 pca 0.379 render 0.428 (0.64s/step)
+step 8875 loss 0.3797 col 0.334 pca 0.383 render 0.422 (0.64s/step)
+step 8900 loss 0.3552 col 0.324 pca 0.337 render 0.405 (0.63s/step)
+step 8925 loss 0.3628 col 0.330 pca 0.375 render 0.384 (0.63s/step)
+step 8950 loss 0.3891 col 0.339 pca 0.377 render 0.451 (0.63s/step)
+step 8975 loss 0.3835 col 0.358 pca 0.388 render 0.404 (0.63s/step)
+step 9000 loss 0.3573 col 0.332 pca 0.359 render 0.381 (0.63s/step)
+step 9000 val R2 mean: col 0.6232 pca 0.4820 render 0.6097
+step 9000 val R2 mean: col 0.6232 pca 0.4820 render 0.6097
+wandb: updating run metadata
+wandb: uploading wandb-summary.json; uploading config.yaml; uploading output.log
+wandb: uploading history steps 360-360, summary, console lines 397-397
+wandb: 
+wandb: Run history:
+wandb:  train/grad_norm █▅▄▅▄▃▃▃▃▃▃▄▄▄▃▃▃▃▃▃▃▃▂▂▃▃▂▂▂▂▂▂▂▂▁▁▁▁▁▁
+wandb:       train/loss ██▇▇▆▆▆▅▆▅▆▆▆▆▅▅▃▄▃▃▃▄▃▄▃▂▂▃▃▃▂▃▂▂▂▂▂▁▂▁
+wandb:         train/lr ███████▇▇▇▇▇▇▆▆▆▆▅▅▅▅▄▄▃▃▃▂▂▂▂▁▁▁▁▁▁▁▁▁▁
+wandb:    train/mse_col ▇█▇█▇▇▆▇▆▇▆▄▄▅▄▄▅▃▄▃▂▂▄▃▃▃▂▂▂▂▂▂▃▂▃▂▂▂▁▂
+wandb:    train/mse_pca ██▇█▇▆▆▅▅▄▄▄▄▃▄▂▃▃▃▄▂▂▂▃▂▂▂▂▂▁▁▂▂▁▂▂▁▂▁▁
+wandb: train/mse_render ▆█▆▅▅▆▆▅▅▃▃▃▅▄▄▅▄▃▂▃▂▂▂▄▃▂▃▂▃▂▂▂▄▂▂▄▂▂▁▃
+wandb:  val/r2_col_mean ▁████████████████████████████████████
+wandb:    val/r2_col_z0 ▁▆▆▆▆▇▇▇▇▇▇▇▇▇▇▇▇▇███████████████████
+wandb:   val/r2_col_z18 ▁████████████████████████████████████
+wandb:    val/r2_col_z9 ▁████████████████████████████████████
+wandb:               +8 ...
+wandb: 
+wandb: Run summary:
+wandb:  train/grad_norm 1.26001
+wandb:       train/loss 0.35725
+wandb:         train/lr 0
+wandb:    train/mse_col 0.33206
+wandb:    train/mse_pca 0.35875
+wandb: train/mse_render 0.38095
+wandb:  val/r2_col_mean 0.62318
+wandb:    val/r2_col_z0 0.78563
+wandb:   val/r2_col_z18 0.5819
+wandb:    val/r2_col_z9 0.52683
+wandb:               +8 ...
+wandb: 
+wandb: 🚀 View run armF_moves_r2 at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/hgoecgxn
+wandb: ⭐️ View project at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260812_071800-hgoecgxn/logs

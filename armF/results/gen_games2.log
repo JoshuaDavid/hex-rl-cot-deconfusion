@@ -1,0 +1,13 @@
+game 200/2200 (len 79)
+game 400/2200 (len 90)
+game 600/2200 (len 49)
+game 800/2200 (len 54)
+game 1000/2200 (len 59)
+game 1200/2200 (len 55)
+game 1400/2200 (len 59)
+game 1600/2200 (len 55)
+game 1800/2200 (len 49)
+game 2000/2200 (len 119)
+game 2200/2200 (len 108)
+2200 games, plies min/med/max 33/73/121, total 168182
+wrote armF/data/games2.pt

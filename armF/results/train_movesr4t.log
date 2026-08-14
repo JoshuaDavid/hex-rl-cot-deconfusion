@@ -1,0 +1,187 @@
+4400 seqs, maxlen 789, X-tokens/seq ~38.5
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:\n\nPlayer: X\n1. which X\n2. print O\n3. case X\n4. per O\n5. their 
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:\n\nPlayer: X\n1. ass X\n2. per O\n3. they X\n4. private O\n5. off X\n
+--- sample ---
+Hex game on an 11x11 board. X connects top to bottom, O connects left to right. Each cell's lower-left and upper-right diagonal neighbors are adjacent. Moves in the order played, first player first:\n\nPlayer: X\n1. reg X\n2. for O\n3. one X\n4. with O\n5. pre X\n6. g
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<01:29,  3.45it/s]Loading weights:  19%|█▊        | 58/310 [00:00<00:01, 189.07it/s]Loading weights:  29%|██▉       | 91/310 [00:00<00:00, 223.88it/s]Loading weights:  40%|███▉      | 123/310 [00:00<00:00, 199.78it/s]Loading weights:  48%|████▊     | 149/310 [00:00<00:00, 210.11it/s]Loading weights:  56%|█████▌    | 174/310 [00:00<00:00, 180.24it/s]Loading weights:  63%|██████▎   | 196/310 [00:01<00:00, 188.53it/s]Loading weights:  70%|███████   | 218/310 [00:01<00:00, 195.33it/s]Loading weights:  77%|███████▋  | 240/310 [00:01<00:00, 201.38it/s]Loading weights:  85%|████████▍ | 262/310 [00:01<00:00, 205.46it/s]Loading weights:  93%|█████████▎| 287/310 [00:01<00:00, 217.26it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 219.85it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 193.88it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: joshuadavid to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run kpow9u1t
+wandb: Tracking run with wandb version 0.28.1
+wandb: Run data is saved locally in /workspace/hex-rl-cot-deconfusion/wandb/run-20260813_052950-kpow9u1t
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run armF_movesr4t
+wandb: ⭐️ View project at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: 🚀 View run at https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/kpow9u1t
+step 0 val R2 mean -27.8806 | c0:-0.23 c3:-0.34 c6:-1.27 c9:-3.08 c12:-9.85 c15:-46.66 c18:-191.70 c18:-191.70
+step 25 loss 2.8621 (0.73s/step)
+step 50 loss 1.1460 (0.71s/step)
+step 75 loss 1.1076 (0.71s/step)
+step 100 loss 1.0719 (0.71s/step)
+step 125 loss 1.1054 (0.71s/step)
+step 150 loss 0.9951 (0.70s/step)
+step 175 loss 1.0315 (0.70s/step)
+step 200 loss 0.9991 (0.70s/step)
+step 225 loss 1.0717 (0.70s/step)
+step 250 loss 1.0342 (0.71s/step)
+step 275 loss 0.9824 (0.71s/step)
+step 300 loss 1.0071 (0.71s/step)
+step 325 loss 1.0369 (0.71s/step)
+step 350 loss 0.9599 (0.71s/step)
+step 375 loss 1.0370 (0.71s/step)
+step 400 loss 0.9892 (0.71s/step)
+step 425 loss 0.9739 (0.71s/step)
+step 450 loss 0.9868 (0.71s/step)
+step 475 loss 1.0042 (0.70s/step)
+step 500 loss 1.0124 (0.70s/step)
+step 500 val R2 mean 0.0114 | c0:0.15 c3:0.02 c6:0.01 c9:0.01 c12:-0.00 c15:-0.01 c18:-0.02 c18:-0.02
+step 525 loss 1.0111 (0.71s/step)
+step 550 loss 0.9923 (0.71s/step)
+step 575 loss 0.9291 (0.71s/step)
+step 600 loss 0.9738 (0.71s/step)
+step 625 loss 1.0105 (0.71s/step)
+step 650 loss 0.9623 (0.71s/step)
+step 675 loss 0.9265 (0.71s/step)
+step 700 loss 1.0056 (0.71s/step)
+step 725 loss 0.9090 (0.71s/step)
+step 750 loss 0.8816 (0.71s/step)
+step 775 loss 0.9364 (0.71s/step)
+step 800 loss 0.9486 (0.71s/step)
+step 825 loss 0.9542 (0.71s/step)
+step 850 loss 0.9467 (0.71s/step)
+step 875 loss 0.9184 (0.71s/step)
+step 900 loss 0.8741 (0.71s/step)
+step 925 loss 0.9047 (0.71s/step)
+step 950 loss 0.8825 (0.71s/step)
+step 975 loss 0.8523 (0.71s/step)
+step 1000 loss 0.9312 (0.71s/step)
+step 1000 val R2 mean 0.1129 | c0:0.44 c3:0.11 c6:0.10 c9:0.10 c12:0.08 c15:0.08 c18:0.08 c18:0.08
+step 1025 loss 0.8434 (0.72s/step)
+step 1050 loss 0.8330 (0.72s/step)
+step 1075 loss 0.8561 (0.72s/step)
+step 1100 loss 0.8444 (0.72s/step)
+step 1125 loss 0.9021 (0.72s/step)
+step 1150 loss 0.8618 (0.72s/step)
+step 1175 loss 0.8146 (0.72s/step)
+step 1200 loss 0.8306 (0.72s/step)
+step 1225 loss 0.7961 (0.72s/step)
+step 1250 loss 0.8494 (0.72s/step)
+step 1275 loss 0.8096 (0.72s/step)
+step 1300 loss 0.7717 (0.72s/step)
+step 1325 loss 0.8305 (0.72s/step)
+step 1350 loss 0.7986 (0.72s/step)
+step 1375 loss 0.7740 (0.72s/step)
+step 1400 loss 0.7768 (0.72s/step)
+step 1425 loss 0.7288 (0.72s/step)
+step 1450 loss 0.7475 (0.72s/step)
+step 1475 loss 0.7480 (0.72s/step)
+step 1500 loss 0.8225 (0.72s/step)
+step 1500 val R2 mean 0.2062 | c0:0.70 c3:0.19 c6:0.18 c9:0.18 c12:0.17 c15:0.17 c18:0.15 c18:0.15
+step 1525 loss 0.7998 (0.72s/step)
+step 1550 loss 0.8021 (0.72s/step)
+step 1575 loss 0.7826 (0.72s/step)
+step 1600 loss 0.7662 (0.72s/step)
+step 1625 loss 0.7008 (0.72s/step)
+step 1650 loss 0.7395 (0.72s/step)
+step 1675 loss 0.8004 (0.72s/step)
+step 1700 loss 0.7298 (0.72s/step)
+step 1725 loss 0.7576 (0.72s/step)
+step 1750 loss 0.7394 (0.72s/step)
+step 1775 loss 0.7422 (0.72s/step)
+step 1800 loss 0.6823 (0.72s/step)
+step 1825 loss 0.7164 (0.72s/step)
+step 1850 loss 0.7412 (0.72s/step)
+step 1875 loss 0.6922 (0.72s/step)
+step 1900 loss 0.6924 (0.72s/step)
+step 1925 loss 0.6911 (0.72s/step)
+step 1950 loss 0.7079 (0.72s/step)
+step 1975 loss 0.6842 (0.72s/step)
+step 2000 loss 0.7531 (0.72s/step)
+step 2000 val R2 mean 0.2631 | c0:0.82 c3:0.25 c6:0.24 c9:0.24 c12:0.22 c15:0.21 c18:0.20 c18:0.20
+step 2025 loss 0.7086 (0.72s/step)
+step 2050 loss 0.6788 (0.72s/step)
+step 2075 loss 0.7495 (0.72s/step)
+step 2100 loss 0.6349 (0.72s/step)
+step 2125 loss 0.7390 (0.72s/step)
+step 2150 loss 0.6400 (0.72s/step)
+step 2175 loss 0.6602 (0.72s/step)
+step 2200 loss 0.7346 (0.72s/step)
+step 2225 loss 0.6974 (0.72s/step)
+step 2250 loss 0.7669 (0.72s/step)
+step 2275 loss 0.7286 (0.72s/step)
+step 2300 loss 0.6746 (0.72s/step)
+step 2325 loss 0.6242 (0.72s/step)
+step 2350 loss 0.7162 (0.72s/step)
+step 2375 loss 0.6242 (0.72s/step)
+step 2400 loss 0.6705 (0.72s/step)
+step 2425 loss 0.5950 (0.72s/step)
+step 2450 loss 0.6195 (0.72s/step)
+step 2475 loss 0.6235 (0.72s/step)
+step 2500 loss 0.6972 (0.72s/step)
+step 2500 val R2 mean 0.2942 | c0:0.88 c3:0.27 c6:0.27 c9:0.26 c12:0.25 c15:0.24 c18:0.23 c18:0.23
+step 2525 loss 0.6664 (0.72s/step)
+step 2550 loss 0.6625 (0.72s/step)
+step 2575 loss 0.6481 (0.72s/step)
+step 2600 loss 0.6773 (0.72s/step)
+step 2625 loss 0.5811 (0.72s/step)
+step 2650 loss 0.6566 (0.72s/step)
+step 2675 loss 0.6791 (0.72s/step)
+step 2700 loss 0.6597 (0.72s/step)
+step 2725 loss 0.6842 (0.72s/step)
+step 2750 loss 0.6211 (0.72s/step)
+step 2775 loss 0.6278 (0.72s/step)
+step 2800 loss 0.5873 (0.72s/step)
+step 2825 loss 0.6182 (0.72s/step)
+step 2850 loss 0.6770 (0.72s/step)
+step 2875 loss 0.6741 (0.72s/step)
+step 2900 loss 0.5788 (0.72s/step)
+step 2925 loss 0.6534 (0.72s/step)
+step 2950 loss 0.6686 (0.72s/step)
+step 2975 loss 0.6437 (0.72s/step)
+step 3000 loss 0.6366 (0.72s/step)
+step 3000 val R2 mean 0.3180 | c0:0.91 c3:0.29 c6:0.29 c9:0.29 c12:0.28 c15:0.27 c18:0.25 c18:0.25
+step 3000 val R2 mean 0.3180 | c0:0.91 c3:0.29 c6:0.29 c9:0.29 c12:0.28 c15:0.27 c18:0.25 c18:0.25
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading output.log; uploading wandb-summary.json
+wandb: 
+wandb: Run history:
+wandb: train/grad_norm ▆▁▅▄█▁▃▂▄▁▃▂▂▃▃▃▂▂▃▄▃▃▄▃▂▃▂▃▃▄▂▂▃▃▄▅▄▅▄▅
+wandb:      train/loss █▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:        train/lr ▁▃██████████████████████████████████████
+wandb:       val/r2_c0 ▁▃▅▇▇██
+wandb:       val/r2_c1 ▁▅▆▇▇██
+wandb:      val/r2_c10 ▁██████
+wandb:      val/r2_c11 ▁██████
+wandb:      val/r2_c12 ▁██████
+wandb:      val/r2_c13 ▁██████
+wandb:      val/r2_c14 ▁██████
+wandb:             +13 ...
+wandb: 
+wandb: Run summary:
+wandb: train/grad_norm 5.19648
+wandb:      train/loss 0.63656
+wandb:        train/lr 0.001
+wandb:       val/r2_c0 0.90872
+wandb:       val/r2_c1 0.30241
+wandb:      val/r2_c10 0.28683
+wandb:      val/r2_c11 0.27815
+wandb:      val/r2_c12 0.27687
+wandb:      val/r2_c13 0.26964
+wandb:      val/r2_c14 0.26345
+wandb:             +13 ...
+wandb: 
+wandb: 🚀 View run armF_movesr4t at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion/runs/kpow9u1t
+wandb: ⭐️ View project at: https://wandb.ai/joshuadavid/hex-rl-cot-deconfusion
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260813_052950-kpow9u1t/logs

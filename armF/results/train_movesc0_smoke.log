@@ -1,0 +1,12 @@
+4400 seqs, maxlen 789
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/310 [00:00<?, ?it/s]Loading weights:   0%|          | 1/310 [00:00<02:09,  2.39it/s]Loading weights:  19%|█▉        | 60/310 [00:00<00:01, 151.99it/s]Loading weights:  31%|███       | 95/310 [00:00<00:01, 164.80it/s]Loading weights:  40%|███▉      | 123/310 [00:00<00:01, 185.07it/s]Loading weights:  48%|████▊     | 150/310 [00:01<00:00, 172.53it/s]Loading weights:  56%|█████▌    | 173/310 [00:01<00:00, 184.09it/s]Loading weights:  63%|██████▎   | 196/310 [00:01<00:00, 193.46it/s]Loading weights:  71%|███████   | 220/310 [00:01<00:00, 204.32it/s]Loading weights:  78%|███████▊  | 243/310 [00:01<00:00, 210.53it/s]Loading weights:  86%|████████▌ | 266/310 [00:01<00:00, 215.21it/s]Loading weights:  93%|█████████▎| 289/310 [00:01<00:00, 176.20it/s]Loading weights: 100%|██████████| 310/310 [00:01<00:00, 180.62it/s]
+[transformers] [1mQwen3Model LOAD REPORT[0m from: Qwen/Qwen3-1.7B
+Key            | Status     |  | 
+---------------+------------+--+-
+lm_head.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+step 0 val c0 R2 -0.2196
+smoke loss 1.002, mem 10.5GB
