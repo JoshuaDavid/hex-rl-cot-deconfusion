@@ -4316,3 +4316,38 @@ deferred to asymptote.
 
 Restart: armF_polish19b from polish19/best.pt, lr 7.5e-5 / adapter-lr
 2.5e-4 (halved again), warmup 250, steps 11000 (remaining cap), same guards.
+
+## 2026-08-14 ~18:45 — P53 GRADED: chain-then-joint polish sweeps 4/4; best containment artifact to date
+
+armF_polish19b early-stopped clean at 7500 (window .0049, ZERO spikes at lr
+7.5e-5 — consistent with the doubling pattern: predicted spike ~39k, run
+ended first). Total polish budget 26.5k steps (19k @1.5e-4 + 7.5k @7.5e-5).
+Final: c0 .9963 / c1 .8879 / c2 .7849 / c3 .7542 / c4 .7329 / c5 .7223 /
+c6 .7093 / c7 .7034 / c8 .6961 / c9 .6861 / c10 .6790 / c11 .6748 /
+c12 .6724 / c13 .6732 / c14 .6796 / c15 .6888 / c16 .6962 / c17 .7105 /
+c18 .6724, mean .7274.
+
+- **P53a YES (70%)**: mean .7274 >= .55. Ladder: joint-r4 .402 -> chain .486
+  -> polish .7274.
+- **P53b YES (75%)**: c1 .8879 — not only no crater, it EXCEEDS the
+  dedicated surgical run C (.8771 @ 20k) and jointhead3 (.8666).
+- **P53c YES (60%)**: c18 .6724, double chain's .332, well above
+  joint-r4's best deep layer (.461).
+- **P53d YES (55%)**: 19/19 layers above max(chain, joint-r4) — polish
+  dominates both parents everywhere, and beats every dedicated/small-group
+  run at its own layer.
+
+Interpretation: the 19-loss crowd was never the problem — full-stack joint
+supervision is the BEST configuration at every layer, provided (a) a decent
+init (chain) and (b) LR low enough for the instability horizon. Full-joint
+r4's failure decomposes as bad-init optimization pathology (P52) + too-hot
+constant LR (P51-P53 restarts). The chain's entire value = producing the
+init. Profile is now nearly flat .67-.73 mid/deep with the c1 wall gone —
+the depth-trough largely erased.
+
+Artifact: checkpoints/armF_polish19b/final.pt (= best, 3.0G). Instability
+never observed at 7.5e-5.
+
+Next (standing directive, cheap): stitch/play eval of the polished backbone
+vs the distilled CNN (eval_stitch_r4.py protocol) — r4's mean .402 gave
+pooled 22.5%; does .7274 buy parity?
