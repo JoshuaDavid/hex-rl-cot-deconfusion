@@ -4533,3 +4533,42 @@ documented pkill -f self-match trap; bracket patterns work.
 v1 val-NLL curves (valid): polish_full 1.016@1k -> 1.114@2k overfit;
 polish_top 1.196@1k, 1.452@2k (worse + faster overfit than full).
 v2 relaunched, same P60a-d predictions stand (gen metric now cell-only).
+
+## 2026-08-15 ~11:50 — P60 GRADED 0/4 (one ambiguous): LM FT CANNOT tap the contained policy — clean C3 null
+
+v2 grid, 2k steps, lr 5e-5, loss on cell tokens only, cell-only gen
+metric, 100 val prefixes (top1 = greedy cell vs distilled argmax):
+
+  arm          final val NLL | gen top1 @500/1000/2000 (legal@2000)
+  polish_full     1.103      |  .133 / .134 / .092  (.98)
+  base_full       0.984      |  .140 / .090 / .120  (1.00)
+  polish_top      1.428      |  .067 / .133 / .066  (.76)
+  base_top        1.094      |  .071 / .101 / .060  (1.00)
+
+- P60a NO @75%: base_full BEATS polish_full on NLL (.984 vs 1.103).
+- P60b NO @55%: polish_top .066 << base_full .120.
+- P60c AMBIG->NO @70%: base_top worst on final gen (.060) but polish_top
+  worst on NLL (1.428); differences within noise — no clear worst arm.
+- P60d NO @60%: polish_full peak .134, final .092 — nowhere near .45.
+
+Verdict: at equal budget the contained CNN state provides ZERO advantage
+for verbalizing the policy — all 4 arms converge to the same weak
+.06-.14 band (vs .027 zero-shot format-copying, .011 random-legal,
+.478 available to a fresh linear head at the same layer). Polished
+bottoms are a consistent NLL HANDICAP (on-domain text pathway was cooked
+by containment and 2k steps don't repair it). Presence of the concept in
+the residual stream != cheap verbalizability through the existing LM
+head. C3-relevant: concept and verbalization are SEPARATE couplings; SGD
+on LM loss finds text-statistics solutions rather than routing to the
+adjacent contained computation.
+
+Caveats on record: (1) lm_head/embeddings frozen (tied) — verbalization
+had to rotate hidden states into a FIXED readout; a trainable fresh head
+gets .478, so the constraint is real but shared fairly by all arms.
+(2) 2k steps may be below the repair+exploit threshold for polish arms —
+equal-budget verdict only. (3) val-NLL floor is the temp-schedule
+entropy of the generator, not 0; NLL gaps near floor compress.
+All arms overfit (val NLL rises, gen top1 peaks ~500-1000 then decays);
+game corpus (~4.1k train games) is the binding constraint.
+Artifacts: checkpoints/armF_p60/{polish,base}_{full,top}.pt (trainable
+bf16), armF/results/p60_*.json, run log p60_run.log.
