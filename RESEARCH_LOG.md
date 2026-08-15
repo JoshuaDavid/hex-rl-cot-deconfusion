@@ -4485,3 +4485,32 @@ Nuance for the fix: training data already contains 18% FULLY-random
 games, but "random opening then expert continuation" positions are in
 neither cluster — augmentation must generate exactly that hybrid
 (gen_games with random_only first 4 plies then temp/argmax play).
+
+## 2026-08-15 ~01:10 — P59 rungs 1-2: policy IS linearly recoverable from acts; text pathway is COOKED on-domain
+
+Question (Joshua): is the policy recoverable from Qwen acts as text —
+could we FT this Qwen to say "next move: X"?
+
+P59a (70%: spliced LM emits >=90% format-legal moves, top1<.15): NO,
+wrong in an interesting direction. Spliced polish LM (blocks 0-22
+polished, top blocks/norm/lm_head original — eval_language recipe) emits
+pure GIBBERISH on d04n prefixes (fmt rate 0.000/200; samples: " FTroke
+top  A B {"). Base Qwen control: fmt .605, legal .560, correct color
+alternation — but top1|legal .027, median ref-rank 24 (format copying,
+zero policy). GSM check showed spliced LM fluent OFF-domain -> containment
+scrambled the LM pathway exactly where it repurposed the stream: ON hex
+text. Language survives globally; the domain itself is sacrificed.
+
+P59b (65%: direct linear 2048->121 probe on hs[23] top1 >= .50): NO by
+.022 — k18 .478 (top3 .746). Depth curve k0/.258 k6/.404 k12/.471
+k18/.478 (600 train games, 23k pos). Adapter+CNN-head path gets .61 at
+the same depth -> the CNN policy head's nonlinearity is worth ~.13 top1;
+the state is there, one linear map is ALMOST enough.
+
+Net answer: zero-shot NO (text head can't route the contained state,
+and on-domain text competence was destroyed by containment); linearly
+YES to .48 top1 / .75 top3. Rung 3 (registered as next, needs design):
+LM-loss FT on next-move text, polish backbone vs base Qwen A/B at equal
+budget — C3-flavored (concept present, verbalization absent; how cheap
+is coupling them?). Base-Qwen control anchors: .027 top1 from pure
+format-copying.
