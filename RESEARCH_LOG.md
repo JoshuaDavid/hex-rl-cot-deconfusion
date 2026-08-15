@@ -4452,3 +4452,36 @@ Obvious fix if we want deep stitch play: augment training games with
 random-opening self-play (same gen_games.py machinery, opening_plies=4)
 and re-polish. That is a multi-hour run -> needs checklist + approval;
 not launching autonomously.
+
+## 2026-08-15 ~00:20 — P57 GRADED 0/2, P58 GRADED 1/2: argmax play acquitted, random openings reconvicted
+
+P57 (eval_stitch_vs_orig.py, stitch second vs orig@temp-schedule, no
+random openings): baseline distilled t=0 in the same seat wins only 5/40
+(first-move advantage in no-swap 11x11 is brutal). cut18: 1/40, top1
+.364, P(rank>5) .211 -> P57a NO (<.50), P57b NO (1 < 2.5). cut0: 7/40 —
+ABOVE the distilled baseline in the same seat — top1 .856.
+
+The .364 raised a confound alarm: every condition so far containing
+argmax play sat ~.32-.40 (P56 spectate .395, own-play .317, P57 .364)
+while val (temp-play games) sat .610 — maybe the P56 "73% opening shift"
+was really argmax-TRAJECTORY shift (val games are temp-sampled).
+
+P58 (p58_spectate_policies.py, spectate-only, 40 games each):
+- A: orig@temp both sides, exact training generator, fresh seed:
+  k18 top1 .613, tail .035 — matches val .610 exactly. P58a YES @75%.
+- B: temp openings (6 plies) then ARGMAX both sides:
+  k18 top1 .647, tail .034 — no crater; slightly ABOVE A. P58b NO @60%.
+
+Verdict: argmax mid-game play is innocent — deep readout is fine on
+argmax trajectories from policy-shaped openings. The P56 crater (.395)
+is therefore genuinely the RANDOM OPENINGS (positions reachable only
+via off-policy starts), and P57's .364 is opening-fine but
+feedback-contaminated (the stitch's own blunders sit in the trajectory
+from ply 1). Coherent ladder: on-manifold .61-.65 | random-open
+expert-play .395 | own-play (feedback) .317-.364. P56's decomposition
+stands: ~73% position-manifold shift, ~27% feedback.
+
+Nuance for the fix: training data already contains 18% FULLY-random
+games, but "random opening then expert continuation" positions are in
+neither cluster — augmentation must generate exactly that hybrid
+(gen_games with random_only first 4 plies then temp/argmax play).
