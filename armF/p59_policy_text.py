@@ -53,9 +53,11 @@ def gen_eval(backbone, tok, student, games, n_prefixes=200, seed=7):
         for t in range(1, T, 2):  # odd move-count: O to move
             prefixes.append((gi, t))
     prefixes = rng.sample(prefixes, n_prefixes)
-    pat = re.compile(r"^\n([A-K])(\d{2}) O")
+    # cell only: FT with color tokens excluded from loss unlearns " O",
+    # so requiring it undercounts (P60 lesson)
+    pat = re.compile(r"^\n([A-K])(\d{2})")
     n_fmt = n_legal = n_top1 = 0
-    ranks = []
+    ranks, samples = [], []
     for gi, t in prefixes:
         g = games[gi]
         moves = [tuple(m) for m in g["moves"][:t].tolist()]
@@ -66,6 +68,8 @@ def gen_eval(backbone, tok, student, games, n_prefixes=200, seed=7):
             out = backbone.generate(ids, max_new_tokens=6, do_sample=False,
                                     pad_token_id=tok.eos_token_id)
         cont = tok.decode(out[0, ids.shape[1]:])
+        if len(samples) < 3:
+            samples.append(cont)
         m = pat.match(cont)
         # canonical-frame reference for O to move (player 1)
         bb = g["boards"][t - 1].unsqueeze(0).float().to(DEV)
@@ -90,7 +94,8 @@ def gen_eval(backbone, tok, student, games, n_prefixes=200, seed=7):
     res = {"n": n, "fmt_rate": n_fmt / n, "legal_rate": n_legal / n,
            "top1_given_legal": n_top1 / max(n_legal, 1),
            "mean_rank_given_legal": t_r.mean().item() if len(t_r) else None,
-           "median_rank": t_r.median().item() if len(t_r) else None}
+           "median_rank": t_r.median().item() if len(t_r) else None,
+           "samples": samples}
     print(f"gen: n {n} fmt {res['fmt_rate']:.3f} legal {res['legal_rate']:.3f}"
           f" top1|legal {res['top1_given_legal']:.3f} "
           f"mean rank {res['mean_rank_given_legal']} "

@@ -4514,3 +4514,22 @@ LM-loss FT on next-move text, polish backbone vs base Qwen A/B at equal
 budget — C3-flavored (concept present, verbalization absent; how cheap
 is coupling them?). Base-Qwen control anchors: .027 top1 from pure
 format-copying.
+
+## 2026-08-15 ~09:40 — P60 v1 scrapped: metric artifact (loss-masked color token unlearned), rerunning
+
+v1 arms showed a wild dissociation: polish_full val move-NLL 1.016 yet
+0/100 "legal" generations at every checkpoint. Eyes-on-samples (patched
+mid-run) resolved it: generations are '\nG0800', '\nD081\n', '\nH061\n' —
+plausible CELLS, but no " O" suffix. Cause: color tokens were excluded
+from the FT loss, so 2000 steps of cell-only gradient UNLEARNED emitting
+them, and the gen regex required " O" -> fmt 0.000. LESSON (general):
+tokens you mask out of the loss decay out of free-running generation;
+never make an eval parser depend on them. Also: v1 saved no models, so
+mis-scored arms were unrecoverable -> v2 saves trainable-params bf16.
+Ops: base_full OOM'd on step-1 backward from allocator fragmentation
+(identical batches ran fine in polish_full) -> v2 sets
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True. Also re-hit the
+documented pkill -f self-match trap; bracket patterns work.
+v1 val-NLL curves (valid): polish_full 1.016@1k -> 1.114@2k overfit;
+polish_top 1.196@1k, 1.452@2k (worse + faster overfit than full).
+v2 relaunched, same P60a-d predictions stand (gen metric now cell-only).
