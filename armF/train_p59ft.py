@@ -63,7 +63,7 @@ def batch_nll(model, recs, idxs, pad_id):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--init", choices=["polish", "base"], required=True)
-    ap.add_argument("--scope", choices=["full", "top"], required=True)
+    ap.add_argument("--scope", choices=["full", "top", "head"], required=True)
     ap.add_argument("--steps", type=int, default=2000)
     ap.add_argument("--bs", type=int, default=8)
     ap.add_argument("--lr", type=float, default=5e-5)
@@ -98,8 +98,18 @@ def main():
             if i < 23:
                 for p in blk.parameters():
                     p.requires_grad_(False)
-    model.gradient_checkpointing_enable(
-        gradient_checkpointing_kwargs={"use_reentrant": False})
+    elif args.scope == "head":
+        # untie: fresh independent lm_head initialized from embeddings;
+        # ONLY it trains — linear probe through the real generation path
+        import torch.nn as nn
+        model.lm_head.weight = nn.Parameter(
+            model.model.embed_tokens.weight.detach().clone())
+        for p in model.model.parameters():
+            p.requires_grad_(False)
+        model.lm_head.weight.requires_grad_(True)
+    if args.scope != "head":
+        model.gradient_checkpointing_enable(
+            gradient_checkpointing_kwargs={"use_reentrant": False})
     model.train()
 
     games = torch.load("armF/data/games.pt", weights_only=False)["games"]

@@ -4572,3 +4572,40 @@ All arms overfit (val NLL rises, gen top1 peaks ~500-1000 then decays);
 game corpus (~4.1k train games) is the binding constraint.
 Artifacts: checkpoints/armF_p60/{polish,base}_{full,top}.pt (trainable
 bf16), armF/results/p60_*.json, run log p60_run.log.
+
+## 2026-08-20 — P61 GRADED 0/3, but the diagnostic NAILED the mechanism: block 23 annihilates the contained policy
+
+Untied-head arms (scope=head: lm_head cloned from embeddings, ONLY it
+trains, lr 1e-3, 2k steps):
+  polish_head: val NLL 1.291, gen top1 .118@500 -> .070@2000 (legal .57)
+  base_head:   val NLL 1.057, gen top1 .062@2000 (legal .97)
+- P61a NO @55% (polish_head peak .118 < .25)
+- P61b NO @70% (no polish-over-base gap; polish again WORSE on NLL)
+
+Depth probe on the spliced full model (p61_depth_probe.py, linear
+2048->121 at X-move tokens, 600 train games):
+  hs[23] .476 | hs[24] .156 | hs[25] .137 | hs[26] .113 | hs[27] .112 |
+  hs[28] post-norm (lm_head input) .116
+- P61c NO @60% (.116 << .40). hs[23] .476 reproduces the earlier .478
+  (different model object, same splice) — probe validity anchor.
+
+MECHANISM: the contained policy is linearly present at block 22's output
+(.476) and is destroyed by the very FIRST original top block — block 23,
+whose pretrained weights never saw these repurposed hidden states,
+scrambles them to .156 in one hop; blocks 24-27 grind the rest to ~.11.
+The lm_head input NEVER contains the policy. This retro-explains the
+whole P60/P61 null grid: head-only and top-only arms were fitting scraps
+(hence base==polish); and full-FT had to repair block 23 BEFORE it could
+exploit the state — SGD on LM loss instead converged to the same
+text-statistics solution base finds (lazy optimization, not absence of
+signal). "Concept adjacent to the readout" was wrong by one block:
+adjacency is necessary but the intervening ORIGINAL blocks are an active
+eraser, not a passive pipe.
+
+Untying the head was the wrong knife: the bottleneck sits between hs[23]
+and hs[24], not at the vocab projection. The surgical follow-up (if ever
+wanted): FT with the LM loss wired to hs[23] directly (skip blocks
+23-27), or polish blocks 23-27 too. Not launching — question answered:
+the policy is NOT recoverable as text without either bypassing or
+retraining the top blocks, and LM-loss SGD won't do it on its own at
+this budget.
