@@ -1,0 +1,27 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:31,  2.05it/s]Loading weights:  15%|█▌        | 48/311 [00:00<00:02, 108.06it/s]Loading weights:  24%|██▍       | 76/311 [00:00<00:01, 148.45it/s]Loading weights:  33%|███▎      | 104/311 [00:00<00:01, 145.93it/s]Loading weights:  42%|████▏     | 130/311 [00:00<00:01, 171.67it/s]Loading weights:  50%|████▉     | 154/311 [00:01<00:00, 187.63it/s]Loading weights:  57%|█████▋    | 178/311 [00:01<00:00, 197.14it/s]Loading weights:  65%|██████▍   | 202/311 [00:01<00:00, 167.46it/s]Loading weights:  72%|███████▏  | 224/311 [00:01<00:00, 179.57it/s]Loading weights:  79%|███████▉  | 245/311 [00:01<00:00, 185.68it/s]Loading weights:  86%|████████▌ | 268/311 [00:01<00:00, 194.86it/s]Loading weights:  93%|█████████▎| 290/311 [00:01<00:00, 163.07it/s]Loading weights: 100%|██████████| 311/311 [00:01<00:00, 163.73it/s]
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[polish_head_a400_all_slab] trainable params 311M
+[polish_head_a400_all_slab] step 200 train 2.5375 val_nll 2.3745
+gen: n 100 fmt 0.880 legal 0.480 top1|legal 0.292 mean rank 5.625 median 2.0
+[polish_head_a400_all_slab] step 250 gen legal 0.480 top1|legal 0.292
+[polish_head_a400_all_slab] step 400 train 1.4940 val_nll 1.5007
+gen: n 100 fmt 0.960 legal 0.530 top1|legal 0.302 mean rank 5.4528303146362305 median 2.0
+[polish_head_a400_all_slab] step 500 gen legal 0.530 top1|legal 0.302
+[polish_head_a400_all_slab] step 600 train 1.2420 val_nll 1.1637
+[polish_head_a400_all_slab] step 800 train 1.0514 val_nll 1.0250
+[polish_head_a400_all_slab] step 1000 train 0.9311 val_nll 0.9446
+gen: n 100 fmt 0.970 legal 0.610 top1|legal 0.279 mean rank 9.114753723144531 median 2.0
+[polish_head_a400_all_slab] step 1000 gen legal 0.610 top1|legal 0.279
+[polish_head_a400_all_slab] step 1200 train 0.9263 val_nll 0.8994
+[polish_head_a400_all_slab] step 1400 train 0.8778 val_nll 0.8745
+gen: n 100 fmt 0.970 legal 0.580 top1|legal 0.276 mean rank 9.103447914123535 median 2.0
+[polish_head_a400_all_slab] step 1500 gen legal 0.580 top1|legal 0.276
+[polish_head_a400_all_slab] step 1600 train 0.8943 val_nll 0.8564
+[polish_head_a400_all_slab] step 1800 train 0.7743 val_nll 0.8387
+[polish_head_a400_all_slab] step 2000 train 0.8875 val_nll 0.8293
+gen: n 100 fmt 0.990 legal 0.610 top1|legal 0.295 mean rank 8.26229476928711 median 2.0
+[polish_head_a400_all_slab] step 2000 gen legal 0.610 top1|legal 0.295
+[polish_head_a400_all_slab] wrote armF/results/p60_polish_head_a400_all_slab.json
+[polish_head_a400_all_slab] saved checkpoints/armF_p60/polish_head_a400_all_slab.pt

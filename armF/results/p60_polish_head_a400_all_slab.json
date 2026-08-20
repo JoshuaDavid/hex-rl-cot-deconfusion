@@ -1,0 +1,125 @@
+{
+ "args": {
+  "init": "polish",
+  "scope": "head",
+  "steps": 2000,
+  "bs": 8,
+  "lr": 0.001,
+  "gen_steps": "250,500,1000,1500,2000",
+  "ckpt": "checkpoints/armF_polish19b/final.pt",
+  "alpha": 400.0,
+  "loss_all_tokens": true,
+  "labels": "stitched"
+ },
+ "hist": {
+  "val_nll": [
+   [
+    200,
+    2.3745155334472656
+   ],
+   [
+    400,
+    1.5007148742675782
+   ],
+   [
+    600,
+    1.1637336969375611
+   ],
+   [
+    800,
+    1.024987816810608
+   ],
+   [
+    1000,
+    0.9445850849151611
+   ],
+   [
+    1200,
+    0.8993662238121033
+   ],
+   [
+    1400,
+    0.8744926810264587
+   ],
+   [
+    1600,
+    0.8564054489135742
+   ],
+   [
+    1800,
+    0.8386664390563965
+   ],
+   [
+    2000,
+    0.829291307926178
+   ]
+  ],
+  "gen": {
+   "250": {
+    "n": 100,
+    "fmt_rate": 0.88,
+    "legal_rate": 0.48,
+    "top1_given_legal": 0.2916666666666667,
+    "mean_rank_given_legal": 5.625,
+    "median_rank": 2.0,
+    "samples": [
+     "\nH04 O\n",
+     "\nF04 O\n",
+     "\nG04 O\n"
+    ]
+   },
+   "500": {
+    "n": 100,
+    "fmt_rate": 0.96,
+    "legal_rate": 0.53,
+    "top1_given_legal": 0.3018867924528302,
+    "mean_rank_given_legal": 5.4528303146362305,
+    "median_rank": 2.0,
+    "samples": [
+     "\nH04 O\n",
+     "\nG03 O\n",
+     "\nG03 O\n"
+    ]
+   },
+   "1000": {
+    "n": 100,
+    "fmt_rate": 0.97,
+    "legal_rate": 0.61,
+    "top1_given_legal": 0.2786885245901639,
+    "mean_rank_given_legal": 9.114753723144531,
+    "median_rank": 2.0,
+    "samples": [
+     "\nH03 O\n",
+     "\nF03 O\n",
+     "\nF03 O\n"
+    ]
+   },
+   "1500": {
+    "n": 100,
+    "fmt_rate": 0.97,
+    "legal_rate": 0.58,
+    "top1_given_legal": 0.27586206896551724,
+    "mean_rank_given_legal": 9.103447914123535,
+    "median_rank": 2.0,
+    "samples": [
+     "\nH03 O\n",
+     "\nG03 O\n",
+     "\nF03 O\n"
+    ]
+   },
+   "2000": {
+    "n": 100,
+    "fmt_rate": 0.99,
+    "legal_rate": 0.61,
+    "top1_given_legal": 0.29508196721311475,
+    "mean_rank_given_legal": 8.26229476928711,
+    "median_rank": 2.0,
+    "samples": [
+     "\nH03 O\n",
+     "\nF03 O\n",
+     "\nF03 O\n"
+    ]
+   }
+  }
+ }
+}

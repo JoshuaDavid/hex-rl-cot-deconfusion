@@ -1,0 +1,14 @@
+{
+ "agree": {
+  "n": 60,
+  "legal": 34,
+  "hit_s": 11,
+  "hit_d": 11
+ },
+ "disagree": {
+  "n": 40,
+  "legal": 26,
+  "hit_s": 2,
+  "hit_d": 7
+ }
+}

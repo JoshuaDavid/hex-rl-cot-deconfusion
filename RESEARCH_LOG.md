@@ -4716,3 +4716,49 @@ P68 launched (Joshua's faithfulness ask): labels = model's OWN stitched
 readout (hs[23]@color -> adapter18 -> distilled head argmax), no board oracle
 in the target path. P68a (70%) top1-vs-stitched >= .35; P68b (60%)
 vs-stitched > vs-distilled on same gens.
+
+## 2026-08-20 — P68 graded 0/2, and the miss is the finding: the stream won't verbalize the adapter's errors
+
+P68 (stitched self-readout labels, `--labels stitched`, head-only α=400 all-token,
+2k steps, tag polish_head_a400_all_slab; crashed once on adapter format — polish
+ckpt stores per-layer ads dicts, fixed via eval_stitch_polish.load_trained):
+train converged cleanly (val NLL 2.37→0.83), in-run gen legal .610.
+
+Rescore on the seed-7 100 prefixes (p68_rescore.py, both refs on same gens):
+legal 60, **top1_vs_stitched .217, top1_vs_distilled .300**, stitch-distilled
+agreement .60 (matches P54 val ~.61).
+
+- P68a (70%): vs-stitched ≥ .35 → **NO** (.217).
+- P68b (60%): vs-stitched > vs-distilled → **NO**, inverted (.217 < .300).
+
+Decomposition by agreement (p68_decomp.json): on agree positions hit .324 (both
+refs, same target). On DISAGREE positions — the only place the objectives
+differ — hit_stitched 2/26 (.077) vs hit_distilled 7/26 (.269 ≈ the agree-rate).
+The head was TRAINED on the stitched labels and still outputs the distilled
+answer wherever they part ways. (n small; but headline .217 vs .300 concurs.)
+
+Interpretation: Joshua's faithfulness ask ("if frankenqwen misreads the board I
+want the misread move output") is not achievable by supervising on the adapter18
+readout, because **the adapter's errors are substantially readout artifacts, not
+stream properties**. What survives to the emission slots (hs[28]@α400, through
+the slot-decay channel) decodes to something closer to the true distilled
+computation than the 2048→1024 affine adapter's view of hs[23]. The 311M lm_head
+is a far bigger probe than the adapter and, trained through the actual
+generation path, finds the cleaner decode; the 40% idiosyncratic labels behave
+as unlearnable structured noise (fit rate .077) while the 60% signal component
+generalizes to .27-.32 everywhere. Corollary: the "model's own belief" defined
+as adapter18∘hs[23] is partly an artifact of that particular affine window —
+the stream contains a better policy than the stitch plays. This retro-colors
+P54/P55: some of the stitched player's blunders may be adapter noise, not
+contained-state corruption.
+
+Label ladder final: corpus .156 → stitched .217 → distilled-oracle .283 (P67)
+/ .300-vs-distilled here, vs slot-probe ceiling ~.406. Both label-swap runs
+land at the same ~.28-.30 vs distilled — consistent with slot decay (letter
+.467 × digit .571 ≈ .267) being the binding constraint, not label choice.
+
+Open levers (unchanged + one new): (a) single-token move encoding, predicted
+~.40 recovery; (b) if faithfulness-to-readout is still wanted, the supervisor
+must be a bigger/nonlinear readout of the stream itself (e.g. distill the
+lm_head's OWN logits back — circular) or accept that "frankenqwen's belief" is
+better operationalized by the emission-path decode than by adapter18.

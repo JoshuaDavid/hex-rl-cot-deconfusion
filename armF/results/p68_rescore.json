@@ -1,0 +1,7 @@
+{
+ "n": 100,
+ "legal": 60,
+ "top1_vs_stitched": 0.21666666666666667,
+ "top1_vs_distilled": 0.3,
+ "stitched_distilled_agree": 0.6
+}
