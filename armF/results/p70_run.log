@@ -1,0 +1,27 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:05,  4.74it/s]Loading weights:  10%|█         | 32/311 [00:00<00:02, 127.77it/s]Loading weights:  17%|█▋        | 54/311 [00:00<00:01, 158.80it/s]Loading weights:  26%|██▌       | 81/311 [00:00<00:01, 151.76it/s]Loading weights:  33%|███▎      | 104/311 [00:00<00:01, 173.00it/s]Loading weights:  40%|████      | 125/311 [00:00<00:01, 180.20it/s]Loading weights:  47%|████▋     | 145/311 [00:00<00:00, 185.24it/s]Loading weights:  54%|█████▍    | 169/311 [00:01<00:00, 197.58it/s]Loading weights:  61%|██████▏   | 191/311 [00:01<00:00, 203.63it/s]Loading weights:  68%|██████▊   | 213/311 [00:01<00:00, 168.03it/s]Loading weights:  76%|███████▌  | 235/311 [00:01<00:00, 179.62it/s]Loading weights:  83%|████████▎ | 257/311 [00:01<00:00, 188.82it/s]Loading weights:  90%|████████▉ | 279/311 [00:01<00:00, 194.90it/s]Loading weights:  97%|█████████▋| 302/311 [00:01<00:00, 202.48it/s]Loading weights: 100%|██████████| 311/311 [00:01<00:00, 181.37it/s]
+[polish_top_all_dlab] trainable params 252M
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+[polish_top_all_dlab] step 200 train 0.7884 val_nll 0.8127
+gen: n 100 fmt 1.000 legal 0.610 top1|legal 0.262 mean rank 7.901639461517334 median 3.0
+[polish_top_all_dlab] step 250 gen legal 0.610 top1|legal 0.262
+[polish_top_all_dlab] step 400 train 0.7440 val_nll 0.7800
+gen: n 100 fmt 1.000 legal 0.580 top1|legal 0.293 mean rank 6.0 median 1.0
+[polish_top_all_dlab] step 500 gen legal 0.580 top1|legal 0.293
+[polish_top_all_dlab] step 600 train 0.6992 val_nll 0.7609
+[polish_top_all_dlab] step 800 train 0.6455 val_nll 0.7746
+[polish_top_all_dlab] step 1000 train 0.6413 val_nll 0.7823
+gen: n 100 fmt 1.000 legal 0.740 top1|legal 0.405 mean rank 4.621621608734131 median 1.0
+[polish_top_all_dlab] step 1000 gen legal 0.740 top1|legal 0.405
+[polish_top_all_dlab] step 1200 train 0.4607 val_nll 0.8070
+[polish_top_all_dlab] step 1400 train 0.3566 val_nll 0.8529
+gen: n 100 fmt 1.000 legal 0.680 top1|legal 0.471 mean rank 4.220588207244873 median 1.0
+[polish_top_all_dlab] step 1500 gen legal 0.680 top1|legal 0.471
+[polish_top_all_dlab] step 1600 train 0.4191 val_nll 0.8547
+[polish_top_all_dlab] step 1800 train 0.3029 val_nll 0.8685
+[polish_top_all_dlab] step 2000 train 0.3754 val_nll 0.9060
+gen: n 100 fmt 1.000 legal 0.710 top1|legal 0.465 mean rank 4.070422649383545 median 1.0
+[polish_top_all_dlab] step 2000 gen legal 0.710 top1|legal 0.465
+[polish_top_all_dlab] wrote armF/results/p60_polish_top_all_dlab.json
+[polish_top_all_dlab] saved checkpoints/armF_p60/polish_top_all_dlab.pt

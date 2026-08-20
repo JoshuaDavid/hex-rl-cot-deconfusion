@@ -1,0 +1,125 @@
+{
+ "args": {
+  "init": "polish",
+  "scope": "top",
+  "steps": 2000,
+  "bs": 8,
+  "lr": 5e-05,
+  "gen_steps": "250,500,1000,1500,2000",
+  "ckpt": "checkpoints/armF_polish19b/final.pt",
+  "alpha": 0.0,
+  "loss_all_tokens": true,
+  "labels": "distilled"
+ },
+ "hist": {
+  "val_nll": [
+   [
+    200,
+    0.8126754045486451
+   ],
+   [
+    400,
+    0.7799920558929443
+   ],
+   [
+    600,
+    0.7608847975730896
+   ],
+   [
+    800,
+    0.7746248245239258
+   ],
+   [
+    1000,
+    0.7823443412780762
+   ],
+   [
+    1200,
+    0.8069787383079529
+   ],
+   [
+    1400,
+    0.8528999567031861
+   ],
+   [
+    1600,
+    0.8547072410583496
+   ],
+   [
+    1800,
+    0.8684595346450805
+   ],
+   [
+    2000,
+    0.9060433149337769
+   ]
+  ],
+  "gen": {
+   "250": {
+    "n": 100,
+    "fmt_rate": 1.0,
+    "legal_rate": 0.61,
+    "top1_given_legal": 0.26229508196721313,
+    "mean_rank_given_legal": 7.901639461517334,
+    "median_rank": 3.0,
+    "samples": [
+     "\nG03 O\n",
+     "\nG03 O\n",
+     "\nG03 O\n"
+    ]
+   },
+   "500": {
+    "n": 100,
+    "fmt_rate": 1.0,
+    "legal_rate": 0.58,
+    "top1_given_legal": 0.29310344827586204,
+    "mean_rank_given_legal": 6.0,
+    "median_rank": 1.0,
+    "samples": [
+     "\nI03 O\n",
+     "\nG03 O\n",
+     "\nG04 O\n"
+    ]
+   },
+   "1000": {
+    "n": 100,
+    "fmt_rate": 1.0,
+    "legal_rate": 0.74,
+    "top1_given_legal": 0.40540540540540543,
+    "mean_rank_given_legal": 4.621621608734131,
+    "median_rank": 1.0,
+    "samples": [
+     "\nG05 O\n",
+     "\nG03 O\n",
+     "\nG03 O\n"
+    ]
+   },
+   "1500": {
+    "n": 100,
+    "fmt_rate": 1.0,
+    "legal_rate": 0.68,
+    "top1_given_legal": 0.47058823529411764,
+    "mean_rank_given_legal": 4.220588207244873,
+    "median_rank": 1.0,
+    "samples": [
+     "\nH03 O\n",
+     "\nG03 O\n",
+     "\nG03 O\n"
+    ]
+   },
+   "2000": {
+    "n": 100,
+    "fmt_rate": 1.0,
+    "legal_rate": 0.71,
+    "top1_given_legal": 0.4647887323943662,
+    "mean_rank_given_legal": 4.070422649383545,
+    "median_rank": 1.0,
+    "samples": [
+     "\nF05 O\n",
+     "\nG03 O\n",
+     "\nG07 O\n"
+    ]
+   }
+  }
+ }
+}

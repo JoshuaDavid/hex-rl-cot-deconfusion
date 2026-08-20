@@ -4789,3 +4789,45 @@ removed (masked-token loss, corpus-label .21 ceiling). Predictions:
 - P70a (45%): final gen top1-vs-distilled ≥ .35 (beats α=400 head ladder).
 - P70b (15%): ≥ .48 (anchor ceiling — slot decay fully bypassed by re-fetch).
 - P70c (55%): > P67's .283.
+
+## 2026-08-20 — P70/P71 graded: SGD builds Joshua's 4-step pipeline in one layer; slot decay was a frozen-blocks artifact
+
+P70 (scope=top: blocks 23-27 + norm trainable, tied head frozen, α=1,
+all-token loss, distilled labels, 2k steps, tag polish_top_all_dlab):
+gen trajectory .262 @250 → .405 @1000 → **.471 @1500 (peak)** → .465 @2000,
+legal .710. Val NLL overfits from ~step 800 (.76→.91) while gen top1 keeps
+climbing — corpus-token NLL and payload-readout quality fully decouple.
+
+- P70a (45%): ≥ .35 → **YES** (.465).
+- P70b (15%): ≥ .48 → **NO by .015** (peak .471 vs anchor-probe ceiling .478
+  — reached the ceiling to within noise, just not the arbitrary bar).
+- P70c (55%): > P67 .283 → **YES**.
+
+Ladder: head-only α=400 ~.28-.30 (slot decay binding) → trainable 23-27 α=1
+.465-.471 ≈ the .478 hs[23]@anchor ceiling. The slot-decay "tax" (letter .467
+× digit .571 = .267) was 100% an artifact of frozen blocks — 2k steps of
+5-block training rebuilds position transfer entirely. Also kills the α hack:
+no stream rescale needed once blocks can read (RMSNorm'd, scale-invariant)
+and re-write at native volume. Amplification by computation, as predicted.
+
+P71 (attn audit of trained blocks, p71_attn_audit_trained.json vs P69
+baseline): P71a (50%: nl→lastX ≥.30) **YES**, P71b (70%: letter-slot ≥.10)
+**YES** — and not marginally:
+- nl slot:     L27H2 .097 → **.993** (sink .273→.002); L27H1 → .981.
+- letter slot: best .020 → L27H2 **.884**, L27H1 .730.
+- digit1 slot: best .005 → L27H6 **.997**, L27H0 .944.
+SGD found the ONE head with pre-existing lean toward the last ' X' token
+(L27H2) and saturated it, recruited L27H1, and built a separate specialized
+pair (L27H6/H0) for the digit2 slot — all in L27, the layer feeding the
+unembedding. Joshua's 4-step mechanism (key last state → write decodable v →
+transfer per emission slot → unembed) is implemented literally, per-slot,
+in the final layer. Sink mass on transfer heads ~0.
+
+C3 status update: "concept present in-stream but not verbalizable" now has a
+precise anatomy AND a cheap repair — verbalization failure was (i) norm
+drowning (P62/63), (ii) missing per-slot transfer heads (P69), both fixed by
+training 5 blocks for 2k steps against readable labels. The hard part was
+never the concept or the head; it was the position-transfer wiring.
+Artifacts: checkpoints/armF_p60/polish_top_all_dlab.pt,
+armF/results/{p60_polish_top_all_dlab.json,p69_attn_audit.json,
+p71_attn_audit_trained.json}.
