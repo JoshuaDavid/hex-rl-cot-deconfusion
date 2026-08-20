@@ -4655,3 +4655,15 @@ just outshouted. Diminishing returns past ~400 expected (f is only
 ~scale-invariant; attn softmax + massive-activation dims break exact
 invariance). Deconfusion cashed: a one-scalar intervention moves
 policy recoverability at the generation interface from .12 to .39.
+
+## 2026-08-20 — norm anatomy follow-up (Joshua: "low norms specifically on hex inputs?")
+One-forward-pass check of ||hs23|| per token, spliced polish model vs base Qwen.
+NOT a uniform hex-input collapse — containment stamped a per-token-ROLE hierarchy:
+' X' color tokens (anchored readout slots) 17-21 | ' O' 118-150 | newlines
+215-665 | cell letter/digit tokens 3,000-16,000 (10x ABOVE native — unanchored
+compute positions free to grow) | same model on English ~324 flat | base Qwen
+~1,100-1,300 flat everywhere. Off-domain only ~4x uniform quieting (RMSNorm
+indifferent -> fluent). Key: the ~20-norm slot is exactly the position that
+predicts the next move line in d04n, so block 23's native-volume write drowns
+the payload at precisely the lm_head-relevant position. Quiet readout slot
+inside a screaming stream, not a quiet stream.
