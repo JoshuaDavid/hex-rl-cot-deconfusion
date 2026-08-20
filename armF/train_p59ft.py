@@ -160,7 +160,8 @@ def main():
         from hexhex.utils.utils import correct_position1d
         if args.labels == "stitched":
             import eval_stitch_r4 as ER4
-            sbb, ads, mu, sd, _ = ER4.load_trained(args.ckpt)
+            import eval_stitch_polish as SPm
+            sbb, ads, mu, sd, _ = SPm.load_trained(args.ckpt)
             srecs = build_d04.build_seqs_d(tok, games, numbers=False)
         alt_cells = []
         with torch.no_grad():
