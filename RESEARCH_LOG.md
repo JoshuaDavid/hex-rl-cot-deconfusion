@@ -4889,3 +4889,41 @@ would eliminate 100% of the observed failure class; remaining gap would
 then be pure off-manifold payload quality (P55/P56 territory).
 Artifacts: armF/{eval_textplay.py,p72_whichmove.py},
 armF/results/{p72_textplay.json,p72_whichmove.json,p72_run.log}.
+
+## 2026-08-20 — P73 graded 0/3: constrained decoding does NOT rescue — payload is gone off-manifold
+
+Setup (armF/p73_constrained.py): occupancy-constrained decoding — score all
+legal cells' 3 tokens (after forced \n), play argmax; illegal emissions
+impossible by construction. Same protocol/opponent as P72. Side probe at
+every position: what greedy WOULD emit, and whether the constrained pick
+equals the masked distilled argmax.
+
+Predictions: P73a (65%) pick_eq_masked_am >= .25; P73b (50%) >= 4/40 vs
+distilled 4-ply; P73c (20%) >= 10/40.
+
+Result (armF/results/p73_constrained.json): vs random 12/20; vs distilled
+4-ply **3/40** — EXACTLY stitch-k18's 3/40. pick_eq_masked_am .132 pooled,
+.150 on the distilled-game phase alone (316/2108) vs .40-.465 on-manifold.
+Greedy probe: occupied-emission rate .82 during these games (own-move copy
+still dominant, 2222 own vs 330 other); greedy-when-legal agrees with the
+constrained pick .92 (495/540) — scoring and generation are consistent.
+- P73a NO (.15 << .25). P73b NO (3/40, ties k18, doesn't beat). P73c NO.
+
+Interpretation: the copy spike is a SYMPTOM, not the cause. Banning occupied
+cells removes 100% of the illegal-move failure class and recovers almost no
+play: the constrained pick matches the masked argmax at only .15 on own-play
+boards. The off-manifold containment payload at hs[23] is substantially
+DESTROYED (P55's k18 crater .61->.317, compounded here by a weak-player
+feedback spiral down to ~.15), and the trained transfer heads copy from
+context because there is nothing to fetch. Convergent check: text-emission
+path (blocks 23-27 + trained wiring) == adapter18-stitch path == 3/40 when
+both are occupancy-masked — the emission machinery is NOT the bottleneck;
+deep containment brittleness is. Answer to Joshua's "surprised exclusion
+isn't learnable": (i) it was never trained (teacher-forced legal labels =
+zero counterfactual pressure, and the LM copy prior has the wrong sign);
+(ii) it also wouldn't have mattered — a model with perfect exclusion plays
+3/40. Fixing this means fixing off-manifold containment (the un-launched
+random-opening + expert-continuation re-polish lever from P58), not the
+decoder.
+Artifacts: armF/p73_constrained.py, armF/results/{p73_constrained.json,
+p73_run.log}.

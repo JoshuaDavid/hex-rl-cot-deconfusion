@@ -1,0 +1,18 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 9303.92it/s]
+vs random: 12/20  {'n': 1002, 'pick_eq_am': 95, 'g_legal': 268, 'g_legal_eq_pick': 250, 'g_malformed': 0, 'g_occ_own': 549, 'g_occ_other': 185}
+vs distilled 4-ply: 3/40  {'n': 3110, 'pick_eq_am': 411, 'g_legal': 540, 'g_legal_eq_pick': 495, 'g_malformed': 18, 'g_occ_own': 2222, 'g_occ_other': 330}
+{
+ "vs_random": "12/20",
+ "vs_dist_4ply": "3/40",
+ "n": 3110,
+ "pick_eq_am": 411,
+ "g_legal": 540,
+ "g_legal_eq_pick": 495,
+ "g_malformed": 18,
+ "g_occ_own": 2222,
+ "g_occ_other": 330,
+ "pick_eq_masked_am": 0.13215434083601285,
+ "greedy_occ_rate": 0.8205787781350482
+}

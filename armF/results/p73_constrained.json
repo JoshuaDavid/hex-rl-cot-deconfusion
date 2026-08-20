@@ -1,0 +1,13 @@
+{
+ "vs_random": "12/20",
+ "vs_dist_4ply": "3/40",
+ "n": 3110,
+ "pick_eq_am": 411,
+ "g_legal": 540,
+ "g_legal_eq_pick": 495,
+ "g_malformed": 18,
+ "g_occ_own": 2222,
+ "g_occ_other": 330,
+ "pick_eq_masked_am": 0.13215434083601285,
+ "greedy_occ_rate": 0.8205787781350482
+}
