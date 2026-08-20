@@ -1,0 +1,14 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 10229.13it/s]
+vs random: 16/20 (illegal so far 582/979)
+vs distilled 4-ply: 0/40 (illegal so far 2026/2806)
+vs distilled 1-ply: 0/40 (illegal so far 3465/4697)
+{
+ "vs_random": "16/20",
+ "vs_dist_4ply": "0/40",
+ "vs_dist_1ply": "0/40",
+ "text_moves": 4697,
+ "illegal_or_unparseable": 3465,
+ "illegal_rate": 0.7377049180327869
+}

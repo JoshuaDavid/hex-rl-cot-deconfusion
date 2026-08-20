@@ -4844,3 +4844,48 @@ plus illegal-fallback blunders on top of .465 val agreement.
 - P72b (50%): illegal/unparseable rate > 10% of text moves.
 - P72c (45%): ≥ 4/40 (beats stitch-k18's 3/40).
 - P72d (75%): ≥ 16/20 vs random.
+
+## 2026-08-20 — P72 graded 2/4: text player collapses; anatomy = stale O-line copy
+
+Result (armF/results/p72_textplay.json): vs random 16/20; vs distilled
+**0/40** (4-ply) and **0/40** (1-ply — so NOT opening-shift); overall
+illegal/unparseable .738 of 4697 text moves.
+- P72a NO (0/40 < 6/40; was 25%). P72b YES (.738 >> .10; was 50%).
+- P72c NO (0/40 < 4/40 — LOSES to stitch-k18's 3/40; was 45%).
+- P72d YES (16/20; was 75%). Ledger 2/4.
+
+Failure anatomy (replay + discriminators, p72_whichmove.py):
+- Format is PERFECT: 0 malformed, 0 out-of-board. Every failure is an
+  OCCUPIED cell.
+- Occupied emissions are NOT the unmasked distilled argmax (0/120 — every
+  reference path applies -1000*occ before argmax; hypothesis "model
+  faithfully reads out unmasked policy" REJECTED).
+- NOT recency copy: in-last-3 .042; own-LAST-move (offset 2) .028.
+- They ARE the model's OWN earlier O moves: .958 (115/120), confirmed at
+  scale 397/404 occupied in 12-game replay; opponent X cells almost never
+  copied (7/404 = .017).
+- WHICH own move: ~uniform over the whole game, slight early bias (mean
+  copied-move position .38 of current ply; offsets 2..82 flat).
+- Legal emissions match the masked distilled argmax at .40 ≈ the .465
+  teacher-forced number — when the machinery works, it works as trained.
+
+Interpretation: an O-LINE-SELECTIVE STALE FETCH. P71 showed the trained
+transfer heads (L27H2/H1, L27H6/H0) key on line/slot structure to fetch the
+payload at the LAST ' X' token. On own-play boards (off-manifold from ply ~2
+onward: the model's own + random-fallback moves leave distilled self-play
+distribution), the fresh payload degrades and the heads' queries mis-bind to
+an ARBITRARY earlier O line, copying the cell literally written there — by
+construction one of the model's own past emissions. Selectivity for O lines
+over X lines (.958 vs .017) matches the trained key structure; near-uniform
+offset rules out induction-on-recent and positional locality.
+
+So the P70 verbalization wiring is real but BRITTLE: it transfers the
+contained state only where the containment itself is intact (on-manifold),
+and off-manifold it degrades to context copying rather than noise — the
+LM's copy prior is the failure mode's shape. Note the trivially available
+patch (not run): occupancy-constrained decoding (ban occupied cells at
+generation, exactly the -1000*occ mask every non-text path already gets)
+would eliminate 100% of the observed failure class; remaining gap would
+then be pure off-manifold payload quality (P55/P56 territory).
+Artifacts: armF/{eval_textplay.py,p72_whichmove.py},
+armF/results/{p72_textplay.json,p72_whichmove.json,p72_run.log}.
