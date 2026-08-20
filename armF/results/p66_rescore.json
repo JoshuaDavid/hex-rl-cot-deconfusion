@@ -1,0 +1,7 @@
+{
+ "n": 100,
+ "legal": 61,
+ "top1_vs_distilled": 0.09836065573770492,
+ "top1_vs_orig": 0.01639344262295082,
+ "orig_distilled_agree": 0.15
+}

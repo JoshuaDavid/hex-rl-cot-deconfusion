@@ -4667,3 +4667,31 @@ indifferent -> fluent). Key: the ~20-norm slot is exactly the position that
 predicts the next move line in d04n, so block 23's native-volume write drowns
 the payload at precisely the lm_head-relevant position. Quiet readout slot
 inside a screaming stream, not a quiet stream.
+
+## 2026-08-20 — P64 graded (0/2), P65 flips the bottleneck, P66 kills the text-stats confound
+P64 (head-only FT, alpha=400, all-token loss, 2k steps): legal .640 (P64b NO,
+<.90), gen top1|legal .043/.088/.083/.089/.156 at 250/500/1000/1500/2000 —
+P64a NO (.156 < .25) but escaped the alpha=1 band (.07-.12) with a late jump,
+still rising at 2k. val NLL 11.2 -> 0.94.
+P65 (p65_newline_probe.py): does payload reach the newline slot (where the
+cell letter is emitted)? hs[23]@color .478 (anchor) | hs[23]@newline .414 |
+hs[28]@newline alpha=400 .406. P65a YES (>=.15, hugely), P65b NO (>.24).
+The polished blocks ALREADY transfer the payload one slot forward (prev-record
+attn channel); only 13% attenuation; .406 linearly decodable at the exact
+position+input the head reads. Transfer is NOT the bottleneck.
+P66 (p66_rescore.py) — two corrections. (1) Metric mis-calibration on record:
+corpus = ORIG-CNN temp play; orig argmax vs distilled argmax agree only .213
+on corpus boards (per-sample corpus-move vs distilled argmax: .083). All gen
+top1 numbers scored vs distilled (P60/P61/P64) had a ~.21 text-statistics
+ceiling, not 1.0. (2) Triangulation on P64 gens (same 100 prefixes): top1 vs
+distilled .098 | vs orig .016 (~chance) | orig-distilled agree .15 there.
+Generations track DISTILLED 6:1 over ORIG -> the head's signal is genuine
+payload readout, not corpus statistics (with alpha=400 the stream contains no
+orig-CNN pathway anyway). bf16-vs-fp32 greedy drift noted (.156 in-run vs
+.098 rescore, same prefixes).
+REFRAME: the head was never trained toward the payload's answers — LM loss
+targets corpus moves that match distilled argmax 8% of the time. Probe hit
+.406 because it trained on distilled-argmax targets directly. P67 registered
+(75%): head-only FT, alpha=400, same teacher-forced contexts but loss labels
+at move-line positions swapped to distilled argmax -> gen top1 vs distilled
+>= .30.
