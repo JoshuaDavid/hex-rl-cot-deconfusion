@@ -4609,3 +4609,31 @@ wanted): FT with the LM loss wired to hs[23] directly (skip blocks
 the policy is NOT recoverable as text without either bypassing or
 retraining the top blocks, and LM-loss SGD won't do it on its own at
 this budget.
+
+## 2026-08-20 — P62: "erasure" = DROWNING. Polish quieted the stream 55x; block 23 writes at native volume
+
+Joshua asked: erases HOW? Block 23 is residual (hs24 = hs23 + f(hs23)) —
+addition can't delete. Probes (p62_what_survives.py, spliced model,
+X-move tokens): occupancy (per-cell 3-class) hs23 .793 (occupied-only
+.591) -> hs24 .585 (.261) -> hs28 .566 (.228); c18 ridge R2 .596 ->
+NEGATIVE (-.354). P62a NO @65% (board state does NOT survive either);
+P62b YES @60%.
+
+Mechanism (the decisive numbers): ||f(hs23)||/||hs23|| = 57.5 mean in
+the spliced model vs 0.32 in base Qwen on the same text. Norms:
+spliced ||hs23|| ~ 19.6 vs base ~ 1079 (55x quieter!); one block later
+spliced ||hs24|| ~ 1019 = right back at base scale. Story: containment
+training (MSE on per-dim-normalized targets, adapters absorb scale) let
+the polished blocks collapse the residual-stream norm ~55x. Original
+block 23 has RMSNorm at input (scale-invariant read) so it fires
+normally and writes at NATIVE volume — a base-typical ~1000-norm write
+lands on a ~20-norm stream. Everything the polish computed — policy,
+board state, c18 geometry — is still additively present but drowned
+50:1. Not an active eraser; a loudspeaker next to a whisper. Also
+retro-explains P59 zero-shot gibberish on-domain.
+
+Falsifiable corollary (P63, registered): RMSNorm makes f scale-
+invariant, so multiplying hs23 by ~55 before block 23 should leave
+f unchanged while making the payload survive the residual add.
+- P63 (65%): with alpha ~= 55 rescale between blocks 22/23, policy
+  linear top1 at hs[28] recovers to >= .35 (from .116).
