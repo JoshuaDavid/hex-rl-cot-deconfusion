@@ -4695,3 +4695,24 @@ targets corpus moves that match distilled argmax 8% of the time. Probe hit
 (75%): head-only FT, alpha=400, same teacher-forced contexts but loss labels
 at move-line positions swapped to distilled argmax -> gen top1 vs distilled
 >= .30.
+
+## 2026-08-20 — P67 graded NO by .017; mechanism = payload attrition across emission slots
+P67 (head-only, alpha=400, all-token loss, labels = distilled ARGMAX at O-ply
+move cells): gen top1|legal .265/.286/.250/.254/.283 at 250/500/1000/1500/2000
+(legal .49-.60). P67a NO (.283 < .30 bar, 75% pred) — but the label ladder is
+the finding: corpus labels .156 -> oracle labels .283 vs probe ceiling .406.
+Pointing the loss at the payload's answers 2x'd extraction instantly (step-250
+.265 > P64's FINAL .156 at 1/8 budget).
+Breakdown (bf16 rescore, full-cell .267): letter|legal .467 | digit|letter
+.571 | median rank of emitted move = 2 (near-misses, recognizable hex).
+Slot probes at hs[28] alpha=400: newline .405 / letter .305 / digit1 .215 —
+payload DECAYS one hop per emitted token (prev-record transfer attrition).
+Letter read at newline slot extracts ~everything present; digits read at
+letter/digit slots are payload-starved. .467 x .571 = .267: gap fully
+accounted. NOT SGD laziness — factorized text emission pays the transfer tax
+at every token. Corollary: single-token move encoding (or reading all 3
+decisions from the newline slot) should recover ~.40.
+P68 launched (Joshua's faithfulness ask): labels = model's OWN stitched
+readout (hs[23]@color -> adapter18 -> distilled head argmax), no board oracle
+in the target path. P68a (70%) top1-vs-stitched >= .35; P68b (60%)
+vs-stitched > vs-distilled on same gens.
