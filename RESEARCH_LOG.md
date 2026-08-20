@@ -4762,3 +4762,30 @@ Open levers (unchanged + one new): (a) single-token move encoding, predicted
 must be a bigger/nonlinear readout of the stream itself (e.g. distill the
 lm_head's OWN logits back — circular) or accept that "frankenqwen's belief" is
 better operationalized by the emission-path decode than by adapter18.
+
+## 2026-08-20 — P69 attn audit of blocks 23-27 (graded), P70 launched: trainable transfer heads at α=1
+
+Joshua's 4-step pipeline (k identifies last state → v writes decodable info →
+later head transfers to emission position → unembed reads) prompted two notes
+on the current regime: α=400 short-circuits any 23-27 machinery (writes land
+1:400 vs the amplified pass-through — the trained head is a probe on hs[23]
+content at the final position), and the position-transfer that exists is an
+incidental blocks-0-22 deposit that decays across emission slots
+(.405/.305/.215) — step 3 fails for slots 2-3 specifically.
+
+P69 (armF/results/p69_attn_audit.json, original 23-27 heads, patterns are
+α-invariant): P69a (40%: some head ≥.10 mean attn nl→last ' X') **NO by .003**
+— best is L27H2 at .097 (.151 on the full last line). P69b (15%: ≥.30) NO.
+Findings: (i) ALL top heads are in L27, the last layer; (ii) re-fetch decays
+across slots exactly like the payload ladder (max lastX .097→.020→.005 at
+nl/letter/digit1) while sink mass rises (.186→.262→.304). The step-3 gap is
+visible in the attention patterns themselves; L27H2 is raw material.
+
+P70 launched: scope=top (blocks 23-27 + norm trainable, tied head frozen),
+α=1 (reads are RMSNorm'd so payload visible; blocks must learn to re-write it
+at native volume — amplification by computation), all-token loss, distilled
+labels, 2k steps. This retests P60's scope=top null with every confound since
+removed (masked-token loss, corpus-label .21 ceiling). Predictions:
+- P70a (45%): final gen top1-vs-distilled ≥ .35 (beats α=400 head ladder).
+- P70b (15%): ≥ .48 (anchor ceiling — slot decay fully bypassed by re-fetch).
+- P70c (55%): > P67's .283.
