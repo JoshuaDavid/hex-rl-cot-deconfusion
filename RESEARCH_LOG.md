@@ -4637,3 +4637,21 @@ invariant, so multiplying hs23 by ~55 before block 23 should leave
 f unchanged while making the payload survive the residual add.
 - P63 (65%): with alpha ~= 55 rescale between blocks 22/23, policy
   linear top1 at hs[28] recovers to >= .35 (from .116).
+
+## 2026-08-20 — P63: rescale-splice confirms drowning quantitatively; alpha=400 carries .39 to the lm_head input
+
+Hook multiplying hs23 by alpha before block 23 (RMSNorm read => f
+~unchanged). Policy linear top1:
+  alpha:      1     55    150    400
+  hs[24]:  .156   .305   .339   .387
+  hs[28]:  .116   .214   .303   .394   (hs[23] ceiling .476)
+P63 NO on threshold at alpha=55 (.214 < .35) — my SNR arithmetic was
+lazy (55x makes payload EQUAL to the ~1000-norm write, 0 dB, not
+dominant) — but the monotone alpha curve is exactly the drowning
+model's signature, and alpha=400 recovers .394 at the lm_head input
+(83% of the hs[23] ceiling) THROUGH all five original blocks with zero
+training. Interference, not transformation: nothing was destroyed,
+just outshouted. Diminishing returns past ~400 expected (f is only
+~scale-invariant; attn softmax + massive-activation dims break exact
+invariance). Deconfusion cashed: a one-scalar intervention moves
+policy recoverability at the generation interface from .12 to .39.
