@@ -24,7 +24,7 @@ import p59_policy_text as P59  # noqa: E402
 DEV = "cuda"
 
 
-def tokenize_games(tok, games):
+def tokenize_games(tok, games, all_tokens=False):
     pre = tok(build_d04.RM.PREAMBLE_M + build_d04.R4X.HDR,
               add_special_tokens=False)["input_ids"]
     out = []
@@ -36,7 +36,10 @@ def tokenize_games(tok, games):
                     f"{'X' if t % 2 == 0 else 'O'}")
             lids = tok(line, add_special_tokens=False)["input_ids"]
             ids += lids
-            mask += [1] * (len(lids) - 1) + [0]
+            if all_tokens:
+                mask += [1] * len(lids)
+            else:
+                mask += [1] * (len(lids) - 1) + [0]
         out.append((torch.tensor(ids), torch.tensor(mask)))
     return out
 
@@ -69,8 +72,15 @@ def main():
     ap.add_argument("--lr", type=float, default=5e-5)
     ap.add_argument("--gen-steps", default="500,1000,2000")
     ap.add_argument("--ckpt", default="checkpoints/armF_polish19b/final.pt")
+    ap.add_argument("--alpha", type=float, default=0.0,
+                    help="rescale hs going into block 23 (0 = off)")
+    ap.add_argument("--loss-all-tokens", action="store_true")
     args = ap.parse_args()
     tag = f"{args.init}_{args.scope}"
+    if args.alpha:
+        tag += f"_a{args.alpha:g}"
+    if args.loss_all_tokens:
+        tag += "_all"
 
     from transformers import AutoTokenizer, AutoModelForCausalLM
     tok = AutoTokenizer.from_pretrained("Qwen/Qwen3-1.7B")
@@ -110,11 +120,15 @@ def main():
     if args.scope != "head":
         model.gradient_checkpointing_enable(
             gradient_checkpointing_kwargs={"use_reentrant": False})
+    if args.alpha:
+        a = args.alpha
+        model.model.layers[23].register_forward_pre_hook(
+            lambda m, ar: (ar[0] * a,) + ar[1:])
     model.train()
 
     games = torch.load("armF/data/games.pt", weights_only=False)["games"]
     games += torch.load("armF/data/games2.pt", weights_only=False)["games"]
-    recs = tokenize_games(tok, games)
+    recs = tokenize_games(tok, games, all_tokens=args.loss_all_tokens)
     val_idx = [i for i in range(len(recs)) if i % 15 == 0][:40]
     tr_idx = [i for i in range(len(recs)) if i % 15 != 0]
     pad_id = tok.eos_token_id
