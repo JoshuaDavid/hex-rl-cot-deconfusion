@@ -4831,3 +4831,16 @@ never the concept or the head; it was the position-transfer wiring.
 Artifacts: checkpoints/armF_p60/polish_top_all_dlab.pt,
 armF/results/{p60_polish_top_all_dlab.json,p69_attn_audit.json,
 p71_attn_audit_trained.json}.
+
+## 2026-08-20 — P72 registered & launched: the text-path model plays
+
+eval_textplay.py: P70 model (polish blocks 0-22 + trained 23-27, tied head)
+emits moves as TEXT (greedy 6 tokens, parsed; illegal/unparseable -> random
+legal + counter), plays second vs distilled argmax, eval_stitch_polish
+protocol (seeds 2000+g) — comparable to P54 stitch cuts (k18 3/40 on 4-ply,
+k0 26/40). Expect off-manifold degradation on own-play positions (P55/P56)
+plus illegal-fallback blunders on top of .465 val agreement.
+- P72a (25%): ≥ 6/40 vs distilled, 4-ply openings.
+- P72b (50%): illegal/unparseable rate > 10% of text moves.
+- P72c (45%): ≥ 4/40 (beats stitch-k18's 3/40).
+- P72d (75%): ≥ 16/20 vs random.
