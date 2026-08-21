@@ -4975,3 +4975,43 @@ Predictions:
 - P74c (35%): h2h vs distilled >= 158/242 (65% — clearly stronger).
 - P74d (40%): h2h vs orig t=0 >= 85/242 (35%).
 - P74e (30%): ladder Elo(tx t=0) within 100 of Elo(orig t=0).
+
+## 2026-08-21 — P74 graded 4/5: 12L/d1024 transformer CRUSHES the distilled CNN (93.4%) and reaches statistical parity with the ORIGINAL teacher in ~10h A100
+
+Run txT12: 20k steps, 8.34h, final val_kl .0936, val top1-vs-orig .630.
+Play probes during training: parity with distilled by step 2500 (15/30),
+clearly ahead by 5000 (25/30), ~28/30 by the end.
+
+Final eval (tx_eval.py, all paths rot-avg + explicitly masked, 121 paired
+1-ply openings both colors = 242 games at t=0):
+- tx vs DISTILLED: 226/242 = 93.4%.
+- tx vs ORIGINAL teacher: 119/242 = 49.2% — parity to within noise.
+- Ladder Elo (anchor orig t1.0=1500): orig t0 2299 | tx t0 2204 | dist t0
+  1882 | tx t.5 1862 ~= orig t.5 1855 | dist t.5 1605. tx sits ~320 Elo
+  above the distilled net; the 95-Elo ladder gap to orig is smaller in the
+  direct 242-game h2h (49.2% ~= +6 Elo) — ladder pairs are 20 games each.
+- P74a NO (.630 < .70) | P74b YES (93.4% >> 50%) | P74c YES (>> 65%) |
+  P74d YES (49.2% >= 35%) | P74e YES (95 <= 100). Ledger 4/5.
+
+Notes:
+- P74a-NO + teacher-parity play = r1's lesson again from the opposite side:
+  top1 move-match (.63) badly understates decision quality; KL-distilled
+  policies can play at teacher level while disagreeing on 37% of argmaxes.
+- The distilled CNN's published 1867 was ~= its Elo here (1882); but orig t=0
+  on the MASKED ladder is 2299 vs ~1900 published — consistent with the
+  policy_logits masking bug depressing low-temp orig entries in the legacy
+  ladder (unmasked argmax -> random-move fallback). The "280-370 Elo gap,
+  1-19 h2h" between orig and dist was real; its Elo placement was not.
+- What mattered vs fingerE's stuck students (val KL .178, 20/60): 2M
+  positions (~9x data, was data-bound), 152M params w/ attention (vs 20M MLP
+  chain), 20k steps batch 1024, DAgger refreshes. Off-manifold brittleness
+  (P55/P56's crater) never appeared: the h2h uses NO random openings and tx
+  still wins 93.4% — end-to-end training on broad-manifold data + DAgger
+  beats containment-style pipelines at robustness, as suspected.
+- Answer to Joshua's question: YES — 12 layers / d1024 (152M) is not just
+  competitive but ~teacher-parity, in ~10 of the 12 budgeted hours (1.5h
+  data+calib, 8.3h train, 0.1h eval). Remaining headroom would need
+  better-than-teacher labels (search/RL), not more distillation.
+Artifacts: armF/{tx_gen_data,tx_train,tx_eval}.py,
+checkpoints/armF_txT12/{best,last}.pt (610M each),
+armF/results/{tx_eval_txT12.json,txT12_run.log,tx_gen.log}, wandb armF_txT12.
