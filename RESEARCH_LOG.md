@@ -5033,3 +5033,34 @@ Baseline predictions:
 - P75c (55%): pretrained minus random-init mean-R2 gap >= .05 (arm F found
   frozen-probe deep R2 ~all reservoir artifact; matched architecture might
   finally give pretraining a real edge — this is the interesting one).
+
+## 2026-08-21 — P75 graded 2/3 + P76 registered & launched: joint tx-in-Qwen containment
+
+P75 results (armF/results/p75_baselines.json):
+- P75a YES: no rank detonation — map-PR h0->h1 46.4->63.2 (1.36x vs CNN
+  skiplayer0's 5.8x); guest stream is a gentle hill (map_rank90 peak ~1800 at
+  h9-10) with a policy funnel at h12 (map-PR 7.8 ~= CNN z18's 7.4);
+  var@2048 >= .92 everywhere -> per-token 2048-dim host readout suffices.
+- P75b NO: pretrained frozen-probe mean .400 < .45.
+- P75c YES: pretrained - randinit = .094 (uniform-ish over depth). BUT the
+  flatboard+pos affine control lands at .407 ~= pretrained .400 — frozen-probe
+  R2 is again mostly board-affine+reservoir; pretraining's real edge is
+  deep-only (h12 .295 vs control .234). Reservoir lesson holds across guests.
+
+P76 (train_txcontain.py, tag p76): r1 recipe verbatim (batch 16, blocks lr
+1e-5, adapters 1e-3 ridge-warm-start, cosine, 9k steps), guest txT12,
+backbone truncated to 17 blocks, h_l<->hs[5+l], readout at copy-2 cells + 7
+register-slot tokens, PLUS P62 norm guard (RMS pinned to init, wt .05) and
+spike-skip guard. Step-0 pipeline check passes (.387 ~= probe .400 on the
+128-board smoke val). Throughput ~1 it/s -> ~2.5h.
+
+Equal-budget rungs on record: r1 (CNN guest, z-space, inflated) .773@9k;
+r4 (distilled guest, honest c-space) .402@9k; chain+polish lineage .727 at
+~3-4x that compute. Predictions:
+- P76a (65%): mean val R2 >= .60 by step 3000.
+- P76b (55%): final >= .773 (r1's number, but in honest guest space).
+- P76c (70%): final >= .727 — one 9k joint run beats the whole chain+polish
+  lineage (the "matched architecture is 3-5x cheaper" claim).
+- P76d (60%): no crater — min per-layer final R2 >= .45.
+- P76e (50%): full-depth stitch (adapter@h12 -> guest head) >= 40% vs pure
+  txT12, 40 games, 1-ply openings.
