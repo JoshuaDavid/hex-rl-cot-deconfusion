@@ -4927,3 +4927,51 @@ random-opening + expert-continuation re-polish lever from P58), not the
 decoder.
 Artifacts: armF/p73_constrained.py, armF/results/{p73_constrained.json,
 p73_run.log}.
+
+## 2026-08-21 — P74 registered & launched: finger T — can a ≤18L/d1024 from-scratch transformer match the distilled CNN in 12h A100?
+
+Joshua's ask: transformer, ≤18 layers, d_model=1024, competitive with the
+rank-1024 distilled CNN (bottleneck_anchored_ext, Elo 1867 @ t=0); 12h A100
+all-in, any technique. Design: distill from the ORIGINAL CNN (stronger
+teacher; beat-the-distilled = get closer to orig than it did), from-scratch
+encoder transformer over 121 cell tokens (empty/own/opp + pos emb), 7 learned
+register tokens (pad to 128 — SDPA-with-bias needs alignment; 121 forces the
+math backend, 1.6x slower), per-layer per-head learned 2D relative-position
+bias (442 buckets), SwiGLU d_inter 2752, per-cell scalar head. KL(teacher||
+student) on masked logits. Data: tx_gen_data.py batched self-play — 2M unique
+positions in ~6 min GPU (45% temp-schedule / 25% sharp t=.3 / 20% random-open
+k∈2..8 + expert-continue [P58 lever] / 10% random), teacher logits
+precomputed. DAgger refreshes mid-run: student self-play positions,
+teacher-labeled, appended (off-manifold robustness — the failure mode that
+killed every containment stitch).
+
+BUG FOUND on the way (infra, affects old scripts): hexhex_wrap.policy_logits
+docstring claims "illegal-masked" but RotationWrapperModel does NO masking,
+and the CNN puts high logits on occupied cells (verified: 1-stone board,
+occupied cell logit 3.48 vs best-legal -2.43). gen_positions.py sampled from
+unmasked logits (extra random-fallback noise in old corpora); elo_temp*.py
+pick_move argmaxes unmasked orig logits with random fallback on illegal —
+published orig-ladder Elos may be depressed at low temp. Finger T uses
+explicit masking everywhere (tx_gen_data.masked_teacher_logits).
+
+Calibration (equal-wallclock 9-min arms, constant lr): per-STEP val-KL curves
+IDENTICAL for 18L/2752 (.45 it/s), 12L/2752 (.67), 18L/1536 (.55), 8L/2752
+(1.00) — regime is optimization-bound, depth not binding at this horizon;
+lr 1e-3 strictly worse per-step than 6e-4 at 12L. Picked 12L/2752 (152M,
+depth insurance for the asymptote) over 8L despite 8L's wallclock lead.
+18L needs activation checkpointing at batch 1024 (SwiGLU acts ~2.4G/block).
+
+Main run (tag txT12): 20k steps, batch 1024, lr 6e-4 WSD (warmup 500,
+anneal last 20%), wd .01, DAgger 150k @ steps {7k, 11k, 15k}, val 8192,
+periodic 30-game play-vs-distilled probe. Budget: ~1.5h used (gen + calib),
+run ~8.7h, eval ~0.8h → ~11h of the 12h cap. Final eval tx_eval.py: all-121
+paired 1-ply openings both colors at t=0 (242 games; 4-ply-random flatters —
+finger E caveat), vs distilled AND vs orig, + joint BT mini-ladder
+{orig,dist,tx}x{0,.5,1}, everything rot-avg + masked.
+
+Predictions:
+- P74a (60%): final val top1 vs orig teacher >= .70.
+- P74b (65%): h2h vs distilled t=0 >= 121/242 — the "competitive" bar.
+- P74c (35%): h2h vs distilled >= 158/242 (65% — clearly stronger).
+- P74d (40%): h2h vs orig t=0 >= 85/242 (35%).
+- P74e (30%): ladder Elo(tx t=0) within 100 of Elo(orig t=0).
