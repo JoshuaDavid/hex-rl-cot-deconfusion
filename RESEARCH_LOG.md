@@ -5015,3 +5015,21 @@ Notes:
 Artifacts: armF/{tx_gen_data,tx_train,tx_eval}.py,
 checkpoints/armF_txT12/{best,last}.pt (610M each),
 armF/results/{tx_eval_txT12.json,txT12_run.log,tx_gen.log}, wandb armF_txT12.
+
+## 2026-08-21 — P75 registered: tx-in-Qwen containment baselines (finger T2 opens)
+
+Joshua approved the tx-in-Qwen pipeline (contain txT12's residual stream in
+Qwen's, per-token affine adapters, two-copy render + 7 register-slot tokens,
+h_l <-> hs[5+l] for l=0..12). Baselines first (~1h GPU), then joint run.
+Speed claim on the table: matched architecture (token-aligned, 1024<2048,
+residual-delta structure both sides) should cut steps-to-milestone 3-5x vs
+the CNN-guest lineage and skip the chain/polish dance entirely.
+
+Baseline predictions:
+- P75a (70%): no skiplayer0-analog rank detonation — full-map PR ratio
+  h1/h0 < 3x (CNN skiplayer0 was 89->513 = 5.8x).
+- P75b (60%): pretrained frozen-probe mean R2 (13 layers, guest-normalized,
+  cells+registers) >= .45.
+- P75c (55%): pretrained minus random-init mean-R2 gap >= .05 (arm F found
+  frozen-probe deep R2 ~all reservoir artifact; matched architecture might
+  finally give pretraining a real edge — this is the interesting one).
