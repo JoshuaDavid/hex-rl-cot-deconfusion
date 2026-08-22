@@ -5064,3 +5064,43 @@ r4 (distilled guest, honest c-space) .402@9k; chain+polish lineage .727 at
 - P76d (60%): no crater — min per-layer final R2 >= .45.
 - P76e (50%): full-depth stitch (adapter@h12 -> guest head) >= 40% vs pure
   txT12, 40 games, 1-ply openings.
+
+## 2026-08-22 — P76 graded 3/5: tx-in-Qwen containment is ~30x cheaper to train; deep-cut play failure REPRODUCES but with a different mechanism
+
+Run p76 finished clean: 9k steps, 1.91h, ZERO spike-skips, no surgical
+interventions, final mean val R2 .7657 [h0 .995, h1 .988, h2 .938 ... h10
+.622 (min), h12 .700], rms_pen .046 peak -> .008 final (norm guard held; no
+P62 drowning).
+- P76a YES (.60 bar crossed at step ~1500, .698 @ 3k).
+- P76b NO by .008 (.7657 < .773 — r1's z-space number just barely stands,
+  but in a metric arm F showed is redundancy-inflated for the CNN guest).
+- P76c YES (.727 = polish19b's mean, crossed at step ~4300 ~= 55 MINUTES of
+  training vs the ~30h chain+polish lineage).
+- P76d YES (min layer .622 >> .45; no crater anywhere, ever — the c1-crater
+  class of pathology simply never appeared).
+- P76e NO: stitch cut12 0/40. Full profile: cut0 12/40 | cut4 18/40 (near
+  parity) | cut8 4/40 | cut12 0/40; own-play top1 .517/.688/.394/.245.
+
+Speed answer to Joshua's question, quantified (same recipe, same budget
+class): CNN guest joint 9k (r4, honest space) .402 — the tx guest crossed
+that BEFORE STEP 250 (~3 min). Chain+polish lineage (.727, ~30h) matched in
+55 min. Final honest-space R2 1.9x r4's at equal steps. Matched architecture
+(1:1 token alignment, 1024<2048 width, residual-delta structure, RMSNorm
+both sides) removes the entire surgical playbook, not just some constant
+factor.
+
+The good miss (P76e) is the finding: deep-cut stitch play still collapses,
+but NOT via P55's manifold crater — val-dist vs own-play top1 gaps are tiny
+(cut12 .279 vs .245; compare CNN-guest k18 .610 -> .317). The tx-guest
+failure is distribution-INDEPENDENT decodability: R2 .70 at h12 does not
+give argmax fidelity inside a PR-7.8 policy funnel, and shallow cuts (h0 R2
+.995 but .549 top1) lose it through 12 layers of guest error amplification.
+Cut4 is the sweet spot both ways (.762 val top1, 45% play). Lesson pair:
+(i) off-manifold brittleness was a CNN-guest phenomenon (or is fixed by the
+DAgger-broad corpus — not separated here); (ii) R2-vs-argmax conversion in
+low-PR funnels is the guest-independent bottleneck. "Contained to R2 .7"
+still does not mean "contained as a decision-maker" — for a second,
+mechanistically different, reason.
+Artifacts: checkpoints/armF_p76/{best,last}.pt (2.4G bf16),
+armF/results/{p76_run.log,p76_r2log.json,p76_stitch.json}, wandb armF_p76,
+armF/{train_txcontain,eval_stitch_tx}.py.

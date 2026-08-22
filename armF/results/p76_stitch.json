@@ -1,0 +1,30 @@
+{
+ "ckpt": "checkpoints/armF_p76/best.pt",
+ "step": 9000,
+ "cuts": {
+  "0": {
+   "wins": 12,
+   "games": 40,
+   "own_play_top1": 0.5172,
+   "decisions": 1249
+  },
+  "4": {
+   "wins": 18,
+   "games": 40,
+   "own_play_top1": 0.6877,
+   "decisions": 1377
+  },
+  "8": {
+   "wins": 4,
+   "games": 40,
+   "own_play_top1": 0.3939,
+   "decisions": 1404
+  },
+  "12": {
+   "wins": 0,
+   "games": 40,
+   "own_play_top1": 0.2449,
+   "decisions": 1327
+  }
+ }
+}
