@@ -5126,3 +5126,29 @@ Predictions (crater = val-vs-own-play top1 gap; P76's gap at cut4 was .074):
 - P77b (60%): cut4 stitch play drops to <= 12/40 (P76: 18/40).
 - P77c (50%): mixed-val top1 at cut4 drops >= .10 below narrow-val top1
   (narrow training visibly narrows even the val-side decodability).
+
+## 2026-08-22 — P77 graded 0/3: crater does NOT return on the narrow corpus — matched architecture, not corpus breadth, explains P76's robustness
+
+P77 (narrow temp-only corpus, otherwise identical to P76): 9k steps 1.85h
+clean, final narrow-val R2 .7721 (P76 mixed-val: .7657 — same trajectory).
+Discriminating evals vs P76:
+- Own-play stitch: cut0 16/40 | cut4 17/40 | cut8 3/40 | cut12 0/40 ==
+  P76's 12/18/4/0 within noise. Own-play top1 .522/.699/.402/.252 ==
+  P76's .517/.688/.394/.245.
+- P77a NO: cut4 narrow-val-vs-own-play gap .054 (.753-.699) < .15.
+- P77b NO: cut4 play 17/40, no drop.
+- P77c NO: mixed-val top1 cut4 .760 vs narrow-val .753 — the NARROW-trained
+  containment generalizes to the broad distribution with ZERO degradation
+  (all cuts within .03).
+
+Conclusion: corpus breadth contributes ~nothing to hexformer-guest
+containment robustness — train narrow, decode broad. The P55 manifold
+crater was a CNN-guest phenomenon; with a matched (transformer) guest the
+containment payload is distribution-robust by default. The deep-cut play
+failure is now cleanly attributed to the single remaining bottleneck:
+R2->argmax decoherence in the low-PR policy funnel (guest-independent),
+NOT distribution shift. Two-bottleneck picture from P76 simplifies:
+manifold brittleness = architecture-mismatch symptom; funnel decodability
+= the fundamental one.
+Artifacts: checkpoints/armF_p77/{best,last}.pt,
+armF/results/{p77_run.log,p77_r2log.json,p77_stitch.json}, wandb armF_p77.
