@@ -5196,3 +5196,29 @@ trailing-space in "Next move: " merged into the answer token, desyncing
 labels AND making generation off-distribution — prompt must end at colon.
 - P78e (45%): contained arm at lr 1e-4 reaches gen top1 >= .30 @ 2k.
 - P78f (25%): >= .55.
+
+## 2026-08-22 — P78 graded 0/6: the tx-contained policy is NOT verbalizable at this budget — selection, not readability, is the wall
+
+lr 1e-4 retry: .031 -> .082 peak -> .070 @ 2k (loss 1.35 -> 1.18, legal .59
+— grinding board-prior statistics, no transport transition). P78e/f NO.
+Full ledger P78a-f 0/6.
+
+The clean C3 refinement, via the presence probe + P70 contrast:
+- P70 (CNN-guest, moves format) verbalized in 2k steps because the payload
+  was ALREADY at the emission-adjacent token (.478 linear pre-FT); the
+  missing wiring was fixed-slot COPYING, which SGD builds easily (P71).
+- P78 (tx-guest, board render) fails because the payload lives distributed
+  over 121 cell tokens; emission requires content-dependent SELECTION
+  (attend ∝ cell logit -> softmax ≈ argmax -> fetch winner's positional
+  identity). One head suffices in principle; SGD at scope=top, 2k steps,
+  lr {1e-5, 1e-4} does not find it. "Concept in-stream" != "concept at the
+  emission site"; the verbalization tax is the cost of MOVING it there, and
+  that cost is qualitatively higher for select-and-fetch than slot-copy.
+Next lever (proposed, NOT launched — changes the containment artifact):
+P79 = add an emission-site auxiliary target during containment (adapter
+from hs[17] at the final prompt token -> guest's 121 final logits), making
+placement part of containment; then head-only FT should read it out (P70
+regime). Predicts verbalization succeeds cheaply once the payload is AT the
+site — would pin the whole P78 failure on placement.
+Artifacts: checkpoints/armF_p78/*.pt, armF/results/{p78_*_hist.json,
+p78_probe.json,p78_*.log}, wandb armF_p78_{cont,orig,cont_hilr}.
