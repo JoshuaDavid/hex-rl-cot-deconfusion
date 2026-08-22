@@ -72,11 +72,14 @@ def capture(model, tok, boards_u8, layer=17, batch=32):
 
 
 def ridge(X, y, lam=1.0):
-    X1 = torch.cat([X, torch.ones(len(X), 1)], 1).to(DEV)
+    """NO intercept — Qwen3 q/k/v projections have no bias, so any constant
+    component must be carried by real feature directions (LN output has a
+    stable token-independent mean component to fit through)."""
+    X = X.to(DEV)
     y = y.to(DEV)
-    A = torch.linalg.solve(X1.T @ X1 + lam * torch.eye(X1.shape[1], device=DEV),
-                           X1.T @ y)
-    return A  # (2049, dy): weight rows = A[:-1].T, bias = A[-1]
+    A = torch.linalg.solve(X.T @ X + lam * torch.eye(X.shape[1], device=DEV),
+                           X.T @ y)
+    return A  # (2048, dy): weight rows = A.T
 
 
 def main():
@@ -129,41 +132,34 @@ def main():
             t = cidx[b, c].item()
             tv[b, t, c] = 1.0
             if not occ[b, c]:
-                tk[b, t] = (3.0 * (logits[b, c] - mu_l) / sd_l).clamp(-6, 6)
+                tk[b, t] = (2.0 * (logits[b, c] - mu_l) / sd_l).clamp(-8, 8)
     Xf = lnx.reshape(-1, 2048)
     Ak = ridge(Xf, torch.stack([tk.reshape(-1),
                                 torch.ones(B * T)], 1))     # dims 63,127
     Aq = ridge(Xf, torch.ones(B * T, 1))                    # dim 63
     Av = ridge(Xf, tv.reshape(-1, 121))
-    pred_k = (torch.cat([Xf, torch.ones(len(Xf), 1)], 1).to(DEV)
-              @ Ak[:, 0]).cpu()
+    pred_k = (Xf.to(DEV) @ Ak[:, 0]).cpu()
+    pred_c = (Xf.to(DEV) @ Ak[:, 1]).cpu()
+    pred_q = (Xf.to(DEV) @ Aq[:, 0]).cpu()
     corr = torch.corrcoef(torch.stack([pred_k, tk.reshape(-1)]))[0, 1]
-    print(f"k-fit corr {corr:.3f}", flush=True)
+    print(f"k-fit corr {corr:.3f} | const-fit k127 mean {pred_c.mean():.3f} "
+          f"std {pred_c.std():.3f} | q mean {pred_q.mean():.3f} "
+          f"std {pred_q.std():.3f}", flush=True)
 
     # ---- surgery (weights are bf16) ----
     with torch.no_grad():
         kw = attn.k_proj.weight  # (8*128, 2048)
         kw[0 * HD:(0 + 1) * HD] = 0
-        kw[LOW] = Ak[:-1, 0].to(kw.dtype)
-        kw[LOW + 64] = Ak[:-1, 1].to(kw.dtype)
-        if attn.k_proj.bias is not None:
-            attn.k_proj.bias[0 * HD:(0 + 1) * HD] = 0
-            attn.k_proj.bias[LOW] = Ak[-1, 0].to(kw.dtype)
-            attn.k_proj.bias[LOW + 64] = Ak[-1, 1].to(kw.dtype)
+        kw[LOW] = Ak[:, 0].to(kw.dtype)
+        kw[LOW + 64] = Ak[:, 1].to(kw.dtype)
         qw = attn.q_proj.weight  # (16*128, 2048)
         qw[0:2 * HD] = 0  # q heads 0 and 1
-        qw[LOW] = Aq[:-1, 0].to(qw.dtype)
-        if attn.q_proj.bias is not None:
-            attn.q_proj.bias[0:2 * HD] = 0
-            attn.q_proj.bias[LOW] = Aq[-1, 0].to(qw.dtype)
+        qw[LOW] = Aq[:, 0].to(qw.dtype)
         vw = attn.v_proj.weight
         vw[0 * HD:(0 + 1) * HD] = 0
-        vw[0:121] = Av[:-1].T.to(vw.dtype)
-        if attn.v_proj.bias is not None:
-            attn.v_proj.bias[0 * HD:(0 + 1) * HD] = 0
-            attn.v_proj.bias[0:121] = Av[-1].to(vw.dtype)
+        vw[0:121] = Av.T.to(vw.dtype)
         ow = attn.o_proj.weight  # (2048, 16*128)
-        code = torch.linalg.qr(torch.randn(2048, 121))[0] * 3.0
+        code = torch.linalg.qr(torch.randn(2048, 121))[0] * 25.0
         ow[:, 0:2 * HD] = 0
         ow[:, 0:121] = code.to(ow.dtype)
 
@@ -173,10 +169,9 @@ def main():
     # manual attention recompute for head 0 at the last token
     with torch.no_grad():
         lnv = ln17(hsv.to(DEV).to(torch.bfloat16)).float()
-        Xv = torch.cat([lnv, torch.ones(*lnv.shape[:2], 1, device=DEV)], -1)
-        k63 = Xv @ Ak[:, 0]
-        k127 = Xv @ Ak[:, 1]
-        q63 = Xv @ Aq[:, 0]
+        k63 = lnv @ Ak[:, 0]
+        k127 = lnv @ Ak[:, 1]
+        q63 = lnv @ Aq[:, 0]
         # post-RMSNorm sparse vectors: khat = (k/rms)*w ; scores at last tok
         krms = ((k63 ** 2 + k127 ** 2) / HD + 1e-6).sqrt()
         k63h = k63 / krms * attn.k_norm.weight[LOW].float()
