@@ -5242,3 +5242,24 @@ Predictions:
 - P79c (70%): post-FT gen top1 >= .8 x emit-head top1 (placement was the
   whole wall).
 - P79d (50%): gen top1 >= .40 (P70-class working output).
+
+## 2026-08-22 — P79/P79b killed mid-run (design flaw diagnosed); P79R registered
+
+P79 (emit head during containment, block lr 5e-6) ground at ~.02 emit-top1
+per 500 steps; P79b (3e-5) traded R2 .735->.615 for ZERO emit acceleration.
+Anatomy: placement needs trainable layers ABOVE the completed payload —
+h_12 only exists at hs[17], the containment backbone's LAST output; the
+anchored cell columns resist repurposing (that's what anchors do), and the
+unanchored ':' column alone = learn-policy-from-scratch (the P78-control
+regime that already failed). P70 had 5 free blocks above its payload;
+containment-phase placement here had none. lr was never the binding factor.
+
+P79R (the P70-isomorphic design): frozen P76 bottom (payload complete at
+hs[17]), scope=top FT of blocks 17-27 + norm (tied head frozen), answer CE
+PLUS auxiliary KL at hs[22]@':' vs guest final masked logits (fresh
+Linear(2048,121), wt 1.0, discarded at inference) — dense supervision for
+blocks 17-21 to build select-and-aggregate; blocks 22-27 verbalize from a
+fixed site. 2k steps, lr 1e-4.
+- P79Ra (70%): aux-site top1 >= .40 @ 2k.
+- P79Rb (60%): gen top1 >= .35.
+- P79Rc (50%): gen top1 >= .45 (P70-class .465).
