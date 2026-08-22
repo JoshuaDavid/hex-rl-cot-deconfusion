@@ -5175,3 +5175,24 @@ Predictions (gen top1 = greedy emission vs guest masked argmax on val):
   P60 said zero advantage for the CNN guest, with confounds).
 - P78d (65%): original-bottom control >= .15 (raw in-context board +
   11 trainable blocks learns something).
+
+## 2026-08-22 — P78 mid-grade + retry registered: both arms null at lr 1e-5; payload absent at emission position
+
+P78 contained .039 / original .055 gen top1 (both flat 2k steps, parsed
+1.000 — format fine). Presence probe (p78_probe.py, linear 121-way at last
+prompt token): contained .036-.058 across hs[17..28], original .016-.041 —
+FT arms plateaued exactly at what was linearly present; no transport circuit
+was built. KEY structural difference from P70: there the payload was ALREADY
+at the emission-adjacent anchor (.478 linear probe pre-FT); here it sits 128
+tokens upstream at copy-2 cell tokens, and verbalization needs a
+content-dependent select-and-fetch head (attend ∝ cell logit, softmax ≈
+argmax, fetch winner's positional identity — the 4-step pipeline with a
+SELECTION step). Fix candidates: lr (1e-5 may be 10x too low to build new
+wiring) before concluding the selection circuit is the hard part.
+Bugs fixed en route (both would have silently nulled everything): all-token
+loss starved 3 answer tokens under 260 render tokens (answer-only is safe
+here — prompt always teacher-provided, P60's hazard doesn't apply); BPE
+trailing-space in "Next move: " merged into the answer token, desyncing
+labels AND making generation off-distribution — prompt must end at colon.
+- P78e (45%): contained arm at lr 1e-4 reaches gen top1 >= .30 @ 2k.
+- P78f (25%): >= .55.
