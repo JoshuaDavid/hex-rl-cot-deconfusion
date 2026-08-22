@@ -92,7 +92,7 @@ def make_batch(tok, boards_u8, labels):
     for i in range(len(ids)):
         n = int(enc["attention_mask"][i].sum())
         lab[i, p_lens[i]:n] = ids[i, p_lens[i]:n]
-    return ids, enc["attention_mask"], lab
+    return ids, enc["attention_mask"], lab, torch.tensor(p_lens)
 
 
 @torch.no_grad()
@@ -131,6 +131,10 @@ def main():
     ap.add_argument("--bottom", choices=["contained", "original"],
                     default="contained")
     ap.add_argument("--ckpt", default="checkpoints/armF_p76/best.pt")
+    ap.add_argument("--aux-wt", type=float, default=0.0,
+                    help=">0: auxiliary KL at hs[--aux-layer] @ last prompt "
+                         "token vs guest final logits (P79R placement signal)")
+    ap.add_argument("--aux-layer", type=int, default=22)
     ap.add_argument("--steps", type=int, default=2000)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--lr", type=float, default=1e-5)
@@ -164,9 +168,14 @@ def main():
         wandb.init(project="hex-rl-cot-deconfusion", name=f"armF_{args.tag}",
                    config=vars(args))
 
-    opt = torch.optim.AdamW(
-        [p for p in model.parameters() if p.requires_grad],
-        lr=args.lr, weight_decay=0.0)
+    aux = None
+    if args.aux_wt > 0:
+        aux = torch.nn.Linear(2048, 121).to(DEV)
+    groups = [{"params": [p for p in model.parameters() if p.requires_grad],
+               "lr": args.lr}]
+    if aux is not None:
+        groups.append({"params": aux.parameters(), "lr": 1e-3})
+    opt = torch.optim.AdamW(groups, weight_decay=0.0)
 
     def lr_at(s):
         if s < args.warmup:
@@ -183,30 +192,70 @@ def main():
         sel = torch.randint(0, len(train_b), (args.batch,))
         bb = train_b[sel]
         labels = guest_labels(guest, bb.to(DEV))
-        ids, am, lab = make_batch(tok, bb, labels)
+        ids, am, lab, p_lens = make_batch(tok, bb, labels)
         with torch.autocast("cuda", dtype=torch.bfloat16):
             out = model(input_ids=ids.to(DEV), attention_mask=am.to(DEV),
-                        labels=lab.to(DEV))
+                        labels=lab.to(DEV),
+                        output_hidden_states=aux is not None)
+        loss = out.loss
+        aux_kl = torch.zeros((), device=DEV)
+        if aux is not None:
+            hlast = out.hidden_states[args.aux_layer][
+                torch.arange(len(bb), device=DEV), (p_lens - 1).to(DEV)]
+            st = boards_to_states(bb.to(DEV))
+            with torch.no_grad():
+                g = guest(st) - 1000.0 * (st > 0).float()
+            tp = torch.softmax(g, -1)
+            aux_kl = (tp * (torch.log_softmax(g, -1)
+                            - torch.log_softmax(aux(hlast.float()), -1))
+                      ).sum(-1).mean()
+            loss = loss + args.aux_wt * aux_kl
         opt.zero_grad(set_to_none=True)
-        out.loss.backward()
+        loss.backward()
         torch.nn.utils.clip_grad_norm_(
-            [p for p in model.parameters() if p.requires_grad], 1.0)
+            [p for p in model.parameters() if p.requires_grad]
+            + (list(aux.parameters()) if aux is not None else []), 1.0)
         opt.step()
         if (s + 1) % 50 == 0 and use_wandb:
             import wandb
-            wandb.log({"loss": out.loss.item()}, step=s + 1)
+            wandb.log({"loss": out.loss.item(), "aux_kl": aux_kl.item()},
+                      step=s + 1)
         if (s + 1) % args.eval_every == 0 or s + 1 == args.steps:
             top1, legalr, parsedr = gen_eval(model, tok, guest, val_b)
+            aux_t1 = float("nan")
+            if aux is not None:
+                model.eval()
+                hits = 0
+                with torch.no_grad():
+                    refs = guest_labels(guest, val_b.to(DEV))
+                    for i in range(0, len(val_b), 32):
+                        vb = val_b[i:i + 32]
+                        vids, vam, _vl, vpl = make_batch(
+                            tok, vb, refs[i:i + 32])
+                        vo = model(input_ids=vids.to(DEV),
+                                   attention_mask=vam.to(DEV),
+                                   output_hidden_states=True)
+                        h = vo.hidden_states[args.aux_layer][
+                            torch.arange(len(vb), device=DEV),
+                            (vpl - 1).to(DEV)]
+                        hits += (aux(h.float()).argmax(1)
+                                 == refs[i:i + 32]).sum().item()
+                aux_t1 = hits / len(val_b)
+                model.train()
             hist.append({"step": s + 1, "top1": round(top1, 4),
                          "legal": round(legalr, 4),
-                         "parsed": round(parsedr, 4)})
+                         "parsed": round(parsedr, 4),
+                         "aux_top1": None if aux is None
+                         else round(aux_t1, 4)})
             print(f"step {s+1}/{args.steps} loss {out.loss.item():.4f} "
+                  f"aux_kl {aux_kl.item():.4f} aux_top1 {aux_t1:.3f} "
                   f"gen top1 {top1:.3f} legal {legalr:.3f} parsed "
                   f"{parsedr:.3f} ({(s+1)/(time.time()-t0):.2f} it/s)",
                   flush=True)
             if use_wandb:
                 import wandb
-                wandb.log({"gen_top1": top1, "gen_legal": legalr}, step=s + 1)
+                wandb.log({"gen_top1": top1, "gen_legal": legalr,
+                           "aux_top1": aux_t1}, step=s + 1)
 
     outdir = Path("checkpoints/armF_p78")
     outdir.mkdir(parents=True, exist_ok=True)
