@@ -118,7 +118,7 @@ def guest_final_logits(guest, boards_u8):
 
 @torch.no_grad()
 def evaluate(backbone, adapters, tok, guest, boards, mu, sd, batch=32,
-             emit=None, tail=""):
+             emit=None, tail="", cellhead=None):
     backbone.eval()
     sse = torch.zeros(L, device=DEV)
     ssum = torch.zeros(L, D_G, device=DEV)
@@ -141,12 +141,21 @@ def evaluate(backbone, adapters, tok, guest, boards, mu, sd, batch=32,
             ref = guest_final_logits(guest, bb).argmax(1)
             emit_top1 += (emit(hlast.float()).argmax(1) == ref).sum().item()
             emit_n += len(bb)
+        if cellhead is not None:
+            hc = gather_tok(hs[5 + L - 1].float(), idx)[:, :121]
+            pred = cellhead(hc).squeeze(-1)
+            pred = pred - 1000.0 * (boards_to_states(bb) > 0).float()
+            ref = guest_final_logits(guest, bb).argmax(1)
+            emit_top1 += (pred.argmax(1) == ref).sum().item()
+            emit_n += len(bb)
         n += len(bb) * 128
     mean = ssum / n
     sstot = (ssq - n * mean * mean).sum(-1)
     backbone.train()
     r2 = (1 - sse / sstot).cpu()
-    return (r2, emit_top1 / emit_n) if emit is not None else r2
+    if emit is not None or cellhead is not None:
+        return r2, emit_top1 / emit_n
+    return r2
 
 
 def main():
@@ -168,6 +177,9 @@ def main():
                     help=">0 enables emission-site head (KL vs guest final "
                          "logits at the last 'Next move:' token)")
     ap.add_argument("--emit-lr", type=float, default=1e-3)
+    ap.add_argument("--cellhead-wt", type=float, default=0.0,
+                    help=">0: per-cell scalar logit head at each cell token "
+                         "(fixed-slot), assembled KL vs guest masked softmax")
     ap.add_argument("--resume-ckpt", default=None,
                     help="warm-restart backbone+adapters (weights only)")
     ap.add_argument("--probe", default="armF/results/p75_probe_pretrained.pt")
@@ -197,6 +209,8 @@ def main():
     print("adapters warm-started from probe", flush=True)
     tail = EMIT_TAIL if args.emit_wt > 0 else ""
     emit = torch.nn.Linear(2048, 121).to(DEV) if args.emit_wt > 0 else None
+    cellhead = (torch.nn.Linear(2048, 1).to(DEV)
+                if args.cellhead_wt > 0 else None)
     if args.resume_ckpt:
         ck = torch.load(args.resume_ckpt, map_location=DEV, weights_only=False)
         backbone.load_state_dict({k: v.float() for k, v in ck["backbone"].items()})
@@ -229,6 +243,8 @@ def main():
     ]
     if emit is not None:
         groups.append({"params": emit.parameters(), "lr": args.emit_lr})
+    if cellhead is not None:
+        groups.append({"params": cellhead.parameters(), "lr": args.emit_lr})
     opt = torch.optim.AdamW(groups, weight_decay=0.0)
 
     def lr_scale(step):
@@ -273,7 +289,19 @@ def main():
             emit_kl = (tp * (torch.log_softmax(tgt, -1)
                              - torch.log_softmax(emit(hlast.float()), -1))
                        ).sum(-1).mean()
-        total = loss + args.norm_wt * rms_pen + args.emit_wt * emit_kl
+        cell_kl = torch.zeros((), device=DEV)
+        if cellhead is not None:
+            hc = gather_tok(hs[5 + L - 1].float(), idx)[:, :121]  # cells only
+            pred = cellhead(hc).squeeze(-1)  # (B,121)
+            occ = (boards_to_states(bb) > 0).float()
+            pred = pred - 1000.0 * occ
+            with torch.no_grad():
+                tgt = guest_final_logits(guest, bb)
+            tp = torch.softmax(tgt, -1)
+            cell_kl = (tp * (torch.log_softmax(tgt, -1)
+                             - torch.log_softmax(pred, -1))).sum(-1).mean()
+        total = (loss + args.norm_wt * rms_pen + args.emit_wt * emit_kl
+                 + args.cellhead_wt * cell_kl)
 
         med = sorted(hist)[len(hist) // 2] if len(hist) >= 50 else None
         if med is not None and loss.item() > args.skip_mult * med:
@@ -289,8 +317,10 @@ def main():
 
         opt.zero_grad(set_to_none=True)
         total.backward()
-        train_params = list(qwen_params) + list(adapters.parameters()) + (
-            list(emit.parameters()) if emit is not None else [])
+        train_params = (list(qwen_params) + list(adapters.parameters())
+                        + (list(emit.parameters()) if emit is not None else [])
+                        + (list(cellhead.parameters())
+                           if cellhead is not None else []))
         gn = torch.nn.utils.clip_grad_norm_(train_params, 1.0)
         opt.step()
         sched.step()
@@ -303,15 +333,17 @@ def main():
                        "lr": sched.get_last_lr()[0]}, step=step)
         if step % args.eval_every == 0 or step == args.steps:
             ev = evaluate(backbone, adapters, tok, guest, val_b, mu, sd,
-                          emit=emit, tail=tail)
-            r2, emit_t1 = ev if emit is not None else (ev, float("nan"))
+                          emit=emit, tail=tail, cellhead=cellhead)
+            has_head = emit is not None or cellhead is not None
+            r2, emit_t1 = ev if has_head else (ev, float("nan"))
             r2_log.append({"step": step, "r2": [round(v, 4) for v in r2.tolist()],
                            "emit_top1": None if emit is None
                            else round(emit_t1, 4)})
             sps = step / (time.time() - t0)
             print(f"step {step}/{args.steps} loss {loss.item():.4f} "
                   f"rms_pen {rms_pen.item():.4f} emit_kl {emit_kl.item():.4f} "
-                  f"emit_top1 {emit_t1:.3f} mean R2 {r2.mean():.4f} "
+                  f"cell_kl {cell_kl.item():.4f} "
+                  f"head_top1 {emit_t1:.3f} mean R2 {r2.mean():.4f} "
                   f"[{' '.join(f'{v:.3f}' for v in r2.tolist())}] "
                   f"({sps:.2f} it/s)", flush=True)
             if use_wandb:
@@ -320,20 +352,22 @@ def main():
                            "emit_top1": emit_t1,
                            **{f"val_r2_h{l}": r2[l].item() for l in range(L)}},
                           step=step)
-            score = r2.mean().item() + (emit_t1 if emit is not None else 0)
+            score = r2.mean().item() + (emit_t1 if has_head else 0)
+            extra = {**({"emit": emit.state_dict()} if emit is not None else {}),
+                     **({"cellhead": cellhead.state_dict()}
+                        if cellhead is not None else {})}
             if score > best:
                 best = score
                 torch.save({"backbone": bf16_sd(backbone),
-                            "adapters": adapters.state_dict(),
-                            **({"emit": emit.state_dict()}
-                               if emit is not None else {}),
+                            "adapters": adapters.state_dict(), **extra,
                             "mu": mu.cpu(), "sd": sd.cpu(), "step": step,
                             "r2": r2.tolist()}, outdir / "best.pt")
         if step % args.save_every == 0 or step == args.steps:
+            extra = {**({"emit": emit.state_dict()} if emit is not None else {}),
+                     **({"cellhead": cellhead.state_dict()}
+                        if cellhead is not None else {})}
             torch.save({"backbone": bf16_sd(backbone),
-                        "adapters": adapters.state_dict(),
-                        **({"emit": emit.state_dict()}
-                           if emit is not None else {}),
+                        "adapters": adapters.state_dict(), **extra,
                         "mu": mu.cpu(), "sd": sd.cpu(), "step": step},
                        outdir / "last.pt")
             Path(f"armF/results/{args.tag}_r2log.json").write_text(
