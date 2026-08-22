@@ -5152,3 +5152,26 @@ manifold brittleness = architecture-mismatch symptom; funnel decodability
 = the fundamental one.
 Artifacts: checkpoints/armF_p77/{best,last}.pt,
 armF/results/{p77_run.log,p77_r2log.json,p77_stitch.json}, wandb armF_p77.
+
+## 2026-08-22 — P78 registered: can the tx-contained model SAY the move? (C3 replay, confound-free)
+
+Joshua: "can it output the next move too?" Setup: full Qwen with blocks 0-16
+replaced by P76 containment bottom (frozen), blocks 17-27 + final norm
+trainable, tied head + embeddings frozen (P70 scope=top), all-token CE loss,
+labels = guest (txT12) masked argmax rendered "Next move: <RowCol>"
+(A-K + 01-11), 2k steps. Norm guard already kept hs on native scale (no P62
+drowning, no alpha hack). CONTROL ARM the CNN saga never ran cleanly:
+identical FT with ORIGINAL Qwen bottom — board is in-context either way, so
+the contained-minus-original gap is the clean C3 measurement of what
+contained computation buys verbalization. Brackets from the stitch ladder:
+h12-funnel readout ~.30; finishing guest compute in top blocks could reach
+toward cut4's .76.
+
+Predictions (gen top1 = greedy emission vs guest masked argmax on val):
+- P78a (70%): contained arm >= .30 @ 2k steps.
+- P78b (40%): contained arm >= .55 (top blocks add compute beyond the
+  funnel readout — the interesting bar).
+- P78c (55%): contained - original >= .10 (contained state genuinely helps;
+  P60 said zero advantage for the CNN guest, with confounds).
+- P78d (65%): original-bottom control >= .15 (raw in-context board +
+  11 trainable blocks learns something).
