@@ -45,7 +45,10 @@ def temp_schedule(ply):
     return 1.5 if ply < 6 else (1.0 if ply < 20 else 0.5)
 
 
-def new_game(rng):
+def new_game(rng, mix="full"):
+    if mix == "temp":
+        return {"b": Board(11, switch_allowed=False), "ply": 0,
+                "spec": {"kind": "temp", "eps": 0.05}}
     r = rng.random()
     if r < 0.45:
         spec = {"kind": "temp", "eps": 0.05}
@@ -82,6 +85,7 @@ def main():
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--out", default="armF/data/tx_positions.pt")
     ap.add_argument("--logits-out", default="armF/data/tx_teacher.pt")
+    ap.add_argument("--mix", default="full", choices=["full", "temp"])
     args = ap.parse_args()
     rng = random.Random(args.seed)
     torch.manual_seed(args.seed)
@@ -89,7 +93,7 @@ def main():
     model = W.load_model()
     seen = set()
     out_bytes = []
-    active = [new_game(rng) for _ in range(args.par)]
+    active = [new_game(rng, args.mix) for _ in range(args.par)]
     t0 = time.time()
     n_moves = 0
     counts = {"temp": 0, "sharp": 0, "hybrid": 0, "random": 0}
@@ -137,7 +141,7 @@ def main():
         for g in active:
             if g["b"].winner or not g["b"].legal_moves:
                 counts[g["spec"]["kind"]] += 1
-                nxt.append(new_game(rng))
+                nxt.append(new_game(rng, args.mix))
             else:
                 nxt.append(g)
         active = nxt

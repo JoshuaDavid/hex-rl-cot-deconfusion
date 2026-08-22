@@ -5104,3 +5104,25 @@ mechanistically different, reason.
 Artifacts: checkpoints/armF_p76/{best,last}.pt (2.4G bf16),
 armF/results/{p76_run.log,p76_r2log.json,p76_stitch.json}, wandb armF_p76,
 armF/{train_txcontain,eval_stitch_tx}.py.
+
+## 2026-08-22 — P77 registered & launched: crater deconfound — narrow-corpus tx-guest containment (Joshua's steer)
+
+P76's missing off-manifold crater has two candidate explanations: (a) matched
+guest architecture, (b) corpus breadth (tx_positions' 20% hybrid random-open+
+expert-continue, 25% sharp, 10% random — NB the containment corpus had NO
+DAgger positions; those only entered txT12's own training). Joshua's steer:
+the cheap direction is the HEXFORMER guest stitch with the corpus varied
+(~2h), not the CNN guest on the new corpus (~re-run the 30h lineage).
+
+P77: identical P76 recipe (same warm-start probe, same 120k-position budget,
+same 9k steps) on a NARROW corpus — temp-schedule self-play only (kind=temp,
+eps .05; the r1/r4-era distribution class), tx_gen_data --mix temp. Then
+eval_stitch_tx (cuts 0/4/8/12, own-play top1) + val-dist top1 on BOTH the
+narrow val and the P76 mixed val.
+
+Predictions (crater = val-vs-own-play top1 gap; P76's gap at cut4 was .074):
+- P77a (55%): crater appears — cut4 gap (narrow-val top1 minus own-play
+  top1) >= .15.
+- P77b (60%): cut4 stitch play drops to <= 12/40 (P76: 18/40).
+- P77c (50%): mixed-val top1 at cut4 drops >= .10 below narrow-val top1
+  (narrow training visibly narrows even the val-side decodability).

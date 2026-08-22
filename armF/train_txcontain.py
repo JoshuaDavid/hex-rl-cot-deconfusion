@@ -122,6 +122,7 @@ def main():
     ap.add_argument("--n-val", type=int, default=1024)
     ap.add_argument("--eval-every", type=int, default=250)
     ap.add_argument("--save-every", type=int, default=1000)
+    ap.add_argument("--data", default="armF/data/tx_positions.pt")
     ap.add_argument("--probe", default="armF/results/p75_probe_pretrained.pt")
     ap.add_argument("--random-init", action="store_true")
     ap.add_argument("--tag", default="p76")
@@ -133,8 +134,7 @@ def main():
         args.n_val = 128
     torch.manual_seed(0)
 
-    all_boards = torch.load("armF/data/tx_positions.pt",
-                            weights_only=False)["boards"]
+    all_boards = torch.load(args.data, weights_only=False)["boards"]
     perm = torch.randperm(len(all_boards),
                           generator=torch.Generator().manual_seed(1))
     train_b = all_boards[perm[: args.n_boards]]
