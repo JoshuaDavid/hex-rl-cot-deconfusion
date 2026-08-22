@@ -5287,3 +5287,33 @@ sharpened bottom (selection over SHARP scalars, stronger gradient).
 - P80a (65%): assembled cell-head top1 at hs[17] >= .55 after 3k steps.
 - P80b (55%): phase-2 gen top1 >= .30.
 - P80c (35%): phase-2 gen top1 >= .45 (P70-class).
+
+## 2026-08-22 — P80 graded 0/3; triple-replicated negative isolates the missing piece: a selection PRIOR. P81 (hand-wired head) registered
+
+P80 phase 1 (cell-logit sharpening): head_top1 .354 — BROKE the .30 funnel
+ceiling (P80a NO vs .55 bar, but ceiling raised; containment R2 recovered to
+.745; the h_12 anchor and the sharpening target fight, then co-adapt).
+Phase 2 FT on the sharpened bottom: aux .098 / gen .102 — IDENTICAL to
+P79R. P80b/c NO. Ledger 0/3.
+
+Replication grid for the transport failure (gen top1):
+  P78  no aux, lr 1e-5 .039 | lr 1e-4 .070 | P79R aux .102 | P80 aux+sharp
+  cells .102. Neither supervision density, payload sharpness, nor lr moves
+  it off ~.10, while the SITE quality sits at .354. Conclusion: scope=top
+  SGD (2k steps, batch 16) cannot build content-dependent select-and-fetch
+  over 121 positions de novo; P70 succeeded because L27H2 already leaned
+  .097 at the right token — SGD saturates priors, it does not create them.
+
+P81: build the prior by hand in block 17 (sacrifice kv head 0 + q heads
+0/1): k rows fit by ridge so low-freq RoPE dims (63,127 — rotation ~4e-4
+rad over the prompt, RoPE-safe) encode [b*cell_logit, kappa] for cell
+tokens and repel (-5) elsewhere; q@':' = e63 with q_norm.weight[63] large
+(sharpness lever — softmax spread otherwise ~.18, near-uniform); v rows =
+ridge to a 121-dim one-hot cell code; o_proj slice -> fixed residual
+subspace. Every stage checkable at init WITHOUT training; selection quality
+is capped by the site's cellhead top1 (.354), bars set accordingly.
+- P81a (55%): init attended-top1 (block-17 hand head argmax cell == guest
+  argmax) >= .25.
+- P81b (60%): post-FT (aux+CE, 2k) gen top1 >= .30 ~= site quality —
+  transport solved, "prior was the missing ingredient" confirmed.
+- P81c (30%): gen top1 >= .45.
