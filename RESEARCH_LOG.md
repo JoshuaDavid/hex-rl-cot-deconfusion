@@ -5222,3 +5222,23 @@ regime). Predicts verbalization succeeds cheaply once the payload is AT the
 site — would pin the whole P78 failure on placement.
 Artifacts: checkpoints/armF_p78/*.pt, armF/results/{p78_*_hist.json,
 p78_probe.json,p78_*.log}, wandb armF_p78_{cont,orig,cont_hilr}.
+
+## 2026-08-22 — P79 registered: make placement part of containment (Joshua: "get it to where it can")
+
+Recipe per the P70 anatomy: the original frankenqwen verbalized because the
+payload sat AT the emission-adjacent token pre-FT; SGD then built fixed-slot
+fetch + letter/digit factorization (P67/P71). P79 engineers that condition:
+warm-restart P76 containment (+3k steps) with containment text extended by
+"Next move:" and an EMIT HEAD — Linear(2048->121) from hs[17] at the final
+prompt token, KL vs the guest's masked final logits (wt 1.0; 13-layer MSE +
+norm guard unchanged). Blocks lr 5e-6, adapters 2e-4, emit head 1e-3. Then
+P78-style scope=top FT (lr 1e-4, answer-only loss) on the P79 bottom.
+Emission then needs only slot-copy + linear row-marginalization — the
+learnable-in-2k-steps regime.
+
+Predictions:
+- P79a (75%): emit-head val top1 vs guest argmax >= .40 after containment.
+- P79b (60%): >= .55 (blocks route policy better than the h12-funnel's .30).
+- P79c (70%): post-FT gen top1 >= .8 x emit-head top1 (placement was the
+  whole wall).
+- P79d (50%): gen top1 >= .40 (P70-class working output).
