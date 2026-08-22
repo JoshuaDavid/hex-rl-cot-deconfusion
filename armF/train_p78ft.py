@@ -131,6 +131,8 @@ def main():
     ap.add_argument("--bottom", choices=["contained", "original"],
                     default="contained")
     ap.add_argument("--ckpt", default="checkpoints/armF_p76/best.pt")
+    ap.add_argument("--top-init", default=None,
+                    help="p81 handwire.pt: load surgical layer-17 weights")
     ap.add_argument("--aux-wt", type=float, default=0.0,
                     help=">0: auxiliary KL at hs[--aux-layer] @ last prompt "
                          "token vs guest final logits (P79R placement signal)")
@@ -159,6 +161,11 @@ def main():
     tok = AutoTokenizer.from_pretrained(Q.QWEN)
     guest = load_guest()
     model = load_model(args.bottom, args.ckpt)
+    if args.top_init:
+        hw = torch.load(args.top_init, map_location=DEV, weights_only=False)
+        model.model.layers[17].load_state_dict(hw["layer17"])
+        print(f"layer 17 hand-wired from {args.top_init} "
+              f"(init checks {hw['checks']})", flush=True)
     n_tr = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"bottom={args.bottom}, trainable {n_tr/1e6:.0f}M", flush=True)
 
