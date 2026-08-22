@@ -24,7 +24,9 @@ import torch
 import torch.nn as nn
 
 sys.path.insert(0, str(Path(__file__).parent))
-from p75_baselines import batch_prompts, guest_acts, load_guest  # noqa: E402
+from p75_baselines import (batch_prompts, guest_acts, load_guest,  # noqa: E402
+                           render_with_regs)
+from tx_train import boards_to_states  # noqa: E402
 import qwen_embed as Q  # noqa: E402
 
 DEV = "cuda"
@@ -76,36 +78,75 @@ def gather_tok(h, idx):
     return torch.gather(h, 1, idx.unsqueeze(-1).expand(-1, -1, h.shape[-1]))
 
 
-def hiddens_at(backbone, tok, boards_u8):
-    ids, am, idxs = batch_prompts(tok, boards_u8)
+EMIT_TAIL = "Next move:"
+
+
+def hiddens_at(backbone, tok, boards_u8, tail=""):
+    """Returns (hidden_states, aligned_idx, last_idx). With tail, prompts end
+    at the emission site ("...Next move:") and last_idx points at it."""
+    if not tail:
+        ids, am, idxs = batch_prompts(tok, boards_u8)
+    else:
+        texts, all_offs = [], []
+        for b in boards_u8.cpu():
+            text, offs = render_with_regs(b)
+            texts.append(text + tail)
+            all_offs.append(offs)
+        enc = tok(texts, return_offsets_mapping=True, padding=True,
+                  return_tensors="pt", add_special_tokens=False)
+        idxs = torch.zeros(len(texts), 128, dtype=torch.long)
+        for i in range(len(texts)):
+            starts = {}
+            for tj, (a, bnd) in enumerate(enc["offset_mapping"][i].tolist()):
+                if a == bnd:
+                    continue
+                for o in range(a, bnd):
+                    starts[o] = tj
+            idxs[i] = torch.tensor([starts[o] for o in all_offs[i]])
+        ids, am = enc["input_ids"], enc["attention_mask"]
     out = backbone(input_ids=ids.to(DEV), attention_mask=am.to(DEV),
                    output_hidden_states=True, use_cache=False)
-    return out.hidden_states, idxs.to(DEV)
+    last_idx = (am.sum(1) - 1).to(DEV)
+    return out.hidden_states, idxs.to(DEV), last_idx
 
 
 @torch.no_grad()
-def evaluate(backbone, adapters, tok, guest, boards, mu, sd, batch=32):
+def guest_final_logits(guest, boards_u8):
+    st = boards_to_states(boards_u8)
+    return guest(st) - 1000.0 * (st > 0).float()
+
+
+@torch.no_grad()
+def evaluate(backbone, adapters, tok, guest, boards, mu, sd, batch=32,
+             emit=None, tail=""):
     backbone.eval()
     sse = torch.zeros(L, device=DEV)
     ssum = torch.zeros(L, D_G, device=DEV)
     ssq = torch.zeros(L, D_G, device=DEV)
     n = 0
+    emit_top1 = emit_n = 0
     for i in range(0, len(boards), batch):
         bb = boards[i:i + batch].to(DEV)
         z = (guest_acts(guest, bb) - mu[:, None, None]) / sd[:, None, None]
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            hs, idx = hiddens_at(backbone, tok, bb)
+            hs, idx, last = hiddens_at(backbone, tok, bb, tail)
         for l in range(L):
             pred = adapters.maps[l](gather_tok(hs[5 + l].float(), idx))
             y = z[l]
             sse[l] += ((pred - y) ** 2).sum()
             ssum[l] += y.sum(dim=(0, 1))
             ssq[l] += (y * y).sum(dim=(0, 1))
+        if emit is not None:
+            hlast = hs[5 + L - 1][torch.arange(len(bb), device=DEV), last]
+            ref = guest_final_logits(guest, bb).argmax(1)
+            emit_top1 += (emit(hlast.float()).argmax(1) == ref).sum().item()
+            emit_n += len(bb)
         n += len(bb) * 128
     mean = ssum / n
     sstot = (ssq - n * mean * mean).sum(-1)
     backbone.train()
-    return (1 - sse / sstot).cpu()
+    r2 = (1 - sse / sstot).cpu()
+    return (r2, emit_top1 / emit_n) if emit is not None else r2
 
 
 def main():
@@ -123,6 +164,12 @@ def main():
     ap.add_argument("--eval-every", type=int, default=250)
     ap.add_argument("--save-every", type=int, default=1000)
     ap.add_argument("--data", default="armF/data/tx_positions.pt")
+    ap.add_argument("--emit-wt", type=float, default=0.0,
+                    help=">0 enables emission-site head (KL vs guest final "
+                         "logits at the last 'Next move:' token)")
+    ap.add_argument("--emit-lr", type=float, default=1e-3)
+    ap.add_argument("--resume-ckpt", default=None,
+                    help="warm-restart backbone+adapters (weights only)")
     ap.add_argument("--probe", default="armF/results/p75_probe_pretrained.pt")
     ap.add_argument("--random-init", action="store_true")
     ap.add_argument("--tag", default="p76")
@@ -148,10 +195,21 @@ def main():
     adapters = Adapters().to(DEV)
     mu, sd = adapters.warm_start(args.probe)
     print("adapters warm-started from probe", flush=True)
+    tail = EMIT_TAIL if args.emit_wt > 0 else ""
+    emit = torch.nn.Linear(2048, 121).to(DEV) if args.emit_wt > 0 else None
+    if args.resume_ckpt:
+        ck = torch.load(args.resume_ckpt, map_location=DEV, weights_only=False)
+        backbone.load_state_dict({k: v.float() for k, v in ck["backbone"].items()})
+        adapters.load_state_dict(ck["adapters"])
+        mu, sd = ck["mu"].to(DEV), ck["sd"].to(DEV)
+        if emit is not None and "emit" in ck:
+            emit.load_state_dict(ck["emit"])
+        print(f"warm-restarted from {args.resume_ckpt} "
+              f"(step {ck.get('step')})", flush=True)
 
     # norm-guard reference: per-layer RMS at aligned tokens, at init
     with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
-        hs, idx = hiddens_at(backbone, tok, val_b[:128].to(DEV))
+        hs, idx, _last = hiddens_at(backbone, tok, val_b[:128].to(DEV), tail)
         rms_base = torch.stack([
             gather_tok(hs[5 + l].float(), idx).pow(2).mean(-1).sqrt().mean()
             for l in range(L)])
@@ -165,10 +223,13 @@ def main():
                    config=vars(args))
 
     qwen_params = [p for p in backbone.parameters() if p.requires_grad]
-    opt = torch.optim.AdamW([
+    groups = [
         {"params": qwen_params, "lr": args.lr},
         {"params": adapters.parameters(), "lr": args.adapter_lr},
-    ], weight_decay=0.0)
+    ]
+    if emit is not None:
+        groups.append({"params": emit.parameters(), "lr": args.emit_lr})
+    opt = torch.optim.AdamW(groups, weight_decay=0.0)
 
     def lr_scale(step):
         if step < args.warmup:
@@ -193,7 +254,7 @@ def main():
         with torch.no_grad():
             z = (guest_acts(guest, bb) - mu[:, None, None]) / sd[:, None, None]
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            hs, idx = hiddens_at(backbone, tok, bb)
+            hs, idx, last = hiddens_at(backbone, tok, bb, tail)
         loss = 0
         rms_pen = 0
         for l in range(L):
@@ -203,7 +264,16 @@ def main():
             rms_pen = rms_pen + (rms / rms_base[l] - 1.0) ** 2
         loss = loss / L
         rms_pen = rms_pen / L
-        total = loss + args.norm_wt * rms_pen
+        emit_kl = torch.zeros((), device=DEV)
+        if emit is not None:
+            hlast = hs[5 + L - 1][torch.arange(len(bb), device=DEV), last]
+            with torch.no_grad():
+                tgt = guest_final_logits(guest, bb)
+            tp = torch.softmax(tgt, -1)
+            emit_kl = (tp * (torch.log_softmax(tgt, -1)
+                             - torch.log_softmax(emit(hlast.float()), -1))
+                       ).sum(-1).mean()
+        total = loss + args.norm_wt * rms_pen + args.emit_wt * emit_kl
 
         med = sorted(hist)[len(hist) // 2] if len(hist) >= 50 else None
         if med is not None and loss.item() > args.skip_mult * med:
@@ -219,8 +289,9 @@ def main():
 
         opt.zero_grad(set_to_none=True)
         total.backward()
-        gn = torch.nn.utils.clip_grad_norm_(
-            list(qwen_params) + list(adapters.parameters()), 1.0)
+        train_params = list(qwen_params) + list(adapters.parameters()) + (
+            list(emit.parameters()) if emit is not None else [])
+        gn = torch.nn.utils.clip_grad_norm_(train_params, 1.0)
         opt.step()
         sched.step()
         step += 1
@@ -228,30 +299,41 @@ def main():
         if step % 50 == 0 and use_wandb:
             import wandb
             wandb.log({"loss": loss.item(), "rms_pen": rms_pen.item(),
-                       "grad_norm": gn.item(),
+                       "emit_kl": emit_kl.item(), "grad_norm": gn.item(),
                        "lr": sched.get_last_lr()[0]}, step=step)
         if step % args.eval_every == 0 or step == args.steps:
-            r2 = evaluate(backbone, adapters, tok, guest, val_b, mu, sd)
-            r2_log.append({"step": step, "r2": [round(v, 4) for v in r2.tolist()]})
+            ev = evaluate(backbone, adapters, tok, guest, val_b, mu, sd,
+                          emit=emit, tail=tail)
+            r2, emit_t1 = ev if emit is not None else (ev, float("nan"))
+            r2_log.append({"step": step, "r2": [round(v, 4) for v in r2.tolist()],
+                           "emit_top1": None if emit is None
+                           else round(emit_t1, 4)})
             sps = step / (time.time() - t0)
             print(f"step {step}/{args.steps} loss {loss.item():.4f} "
-                  f"rms_pen {rms_pen.item():.4f} mean R2 {r2.mean():.4f} "
+                  f"rms_pen {rms_pen.item():.4f} emit_kl {emit_kl.item():.4f} "
+                  f"emit_top1 {emit_t1:.3f} mean R2 {r2.mean():.4f} "
                   f"[{' '.join(f'{v:.3f}' for v in r2.tolist())}] "
                   f"({sps:.2f} it/s)", flush=True)
             if use_wandb:
                 import wandb
                 wandb.log({"val_r2_mean": r2.mean().item(),
+                           "emit_top1": emit_t1,
                            **{f"val_r2_h{l}": r2[l].item() for l in range(L)}},
                           step=step)
-            if r2.mean() > best:
-                best = r2.mean().item()
+            score = r2.mean().item() + (emit_t1 if emit is not None else 0)
+            if score > best:
+                best = score
                 torch.save({"backbone": bf16_sd(backbone),
                             "adapters": adapters.state_dict(),
+                            **({"emit": emit.state_dict()}
+                               if emit is not None else {}),
                             "mu": mu.cpu(), "sd": sd.cpu(), "step": step,
                             "r2": r2.tolist()}, outdir / "best.pt")
         if step % args.save_every == 0 or step == args.steps:
             torch.save({"backbone": bf16_sd(backbone),
                         "adapters": adapters.state_dict(),
+                        **({"emit": emit.state_dict()}
+                           if emit is not None else {}),
                         "mu": mu.cpu(), "sd": sd.cpu(), "step": step},
                        outdir / "last.pt")
             Path(f"armF/results/{args.tag}_r2log.json").write_text(

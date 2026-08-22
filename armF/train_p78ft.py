@@ -130,6 +130,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bottom", choices=["contained", "original"],
                     default="contained")
+    ap.add_argument("--ckpt", default="checkpoints/armF_p76/best.pt")
     ap.add_argument("--steps", type=int, default=2000)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--lr", type=float, default=1e-5)
@@ -153,7 +154,7 @@ def main():
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(Q.QWEN)
     guest = load_guest()
-    model = load_model(args.bottom)
+    model = load_model(args.bottom, args.ckpt)
     n_tr = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"bottom={args.bottom}, trainable {n_tr/1e6:.0f}M", flush=True)
 
