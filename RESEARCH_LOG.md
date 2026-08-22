@@ -5263,3 +5263,27 @@ fixed site. 2k steps, lr 1e-4.
 - P79Ra (70%): aux-site top1 >= .40 @ 2k.
 - P79Rb (60%): gen top1 >= .35.
 - P79Rc (50%): gen top1 >= .45 (P70-class .465).
+
+## 2026-08-22 — P79R graded 0/3; P80 registered: sharpen per-cell logits at the source (fixed-slot), then re-attempt readout
+
+P79R final: aux_top1 .090, gen top1 .102 (vs P78's .070 — aux supervision
+helped, trajectory still climbing at 2k), legal .55, parsed 1.000. All bars
+missed (.40/.35/.45). Ledger 0/3.
+
+Diagnosis refined: TWO stacked problems. (1) CEILING — the aux teacher is
+the guest's exact logits, but hs[17] cell tokens only support ~.30 argmax
+(the P76 funnel); a perfect selection circuit gains little KL, so SGD's
+incentive to build one is weak. (2) PRIOR — content-dependent selection has
+no pre-existing head raw material (P70's L27H2 was the exception that made
+the CNN-path look easy).
+
+P80 attacks (1) where containment demonstrably works — fixed slots:
+warm-restart P76 containment with a per-cell scalar logit head
+(Linear(2048,1) at each cell token, assembled to (B,121), KL vs guest
+masked softmax; no aggregation anywhere). The host cell state is 2048-dim
+and retains mid-depth residual info beyond its h_12 projection, so the
+funnel tax may be largely removable. Then phase 2 = P79R FT on the
+sharpened bottom (selection over SHARP scalars, stronger gradient).
+- P80a (65%): assembled cell-head top1 at hs[17] >= .55 after 3k steps.
+- P80b (55%): phase-2 gen top1 >= .30.
+- P80c (35%): phase-2 gen top1 >= .45 (P70-class).
