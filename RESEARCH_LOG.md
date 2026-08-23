@@ -5356,3 +5356,34 @@ Artifacts: armF/p81_handwire.py, checkpoints/armF_p81/handwire.pt,
 checkpoints/armF_p78/p81b_ft.pt, armF/results/{p81_init.json,
 p81b_ft_hist.json,p81b_ft.log}, wandb armF_p81b_ft. Emissions eyeballed:
 " G06"-format perfect, misses often adjacent cells.
+
+## 2026-08-23 — P82 registered: input-format robustness, minimal 2-format case (Joshua's "conversational hex" direction)
+
+Joshua's hypothesis: only the first 5 layers need training. VALIDATED IN
+DESIGN TERMS: alignment is h_0 <-> hs[5], so blocks 0-4 are exactly the
+input parser, and the h_0 target is PER-CELL LOCAL (guest emb(state)+pos —
+no cross-cell aggregation at that depth) — 5 layers is more than enough
+capacity for a surface-format map. THE CAVEAT: format flexibility is
+bounded above by the frozen mid-stack's RoPE-relative attention — blocks
+5-16 move info between cell tokens at learned relative offsets, so formats
+that keep the token-layout SKELETON (one token per cell, same separators/
+indentation) but change vocabulary/preamble should transfer; formats that
+change inter-cell spacing should break the frozen stack regardless of the
+parser. True conversation needs the latter -> registered as the follow-up
+(P83 candidate), not this test.
+
+P82 setup: format B = same skeleton, new surface (glyphs w/b/_ for
+X/O/., chatty preamble/mid/post text; ' w',' b',' _' verified single
+tokens); same register suffix + "Next move:" tail (machinery, not format).
+Train blocks 0-4 ONLY (5-block truncated backbone warm from P80), frozen
+adapter_0 interface, loss = guest-normalized h_0 MSE at 128 aligned tokens,
+50/50 mixed A/B batches, 3k steps. Eval through the FULLY FROZEN upper
+stack (blocks 5-16 + adapters + cellhead + p81b FT top): 13-layer R2,
+cellhead top1, gen top1, on BOTH formats.
+
+Predictions:
+- P82a (75%): zero-shot format B (no training) cellhead top1 <= .10.
+- P82b (65%): after 5-layer training, format-B cellhead top1 >= .8x
+  format-A's (i.e. >= ~.28) — Joshua's hypothesis works.
+- P82c (60%): format-A regression <= .03 absolute (mixed training).
+- P82d (55%): format-B gen top1 >= .25 through the p81b emission path.
