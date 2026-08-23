@@ -1,0 +1,30 @@
+{
+ "zeroshot_A": {
+  "r2_mean": 0.743,
+  "r2_h0": 0.99,
+  "cellhead_top1": 0.3477,
+  "gen_top1": 0.2695,
+  "gen_legal": 0.9023
+ },
+ "zeroshot_B": {
+  "r2_mean": -2.8266,
+  "r2_h0": -15.5502,
+  "cellhead_top1": 0.0527,
+  "gen_top1": 0.0156,
+  "gen_legal": 0.4805
+ },
+ "trained_A": {
+  "r2_mean": -0.9518,
+  "r2_h0": 0.9991,
+  "cellhead_top1": 0.0391,
+  "gen_top1": 0.0195,
+  "gen_legal": 0.5
+ },
+ "trained_B": {
+  "r2_mean": -1.0526,
+  "r2_h0": 0.9991,
+  "cellhead_top1": 0.0449,
+  "gen_top1": 0.0156,
+  "gen_legal": 0.4844
+ }
+}
