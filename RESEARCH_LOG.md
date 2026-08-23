@@ -5387,3 +5387,44 @@ Predictions:
   format-A's (i.e. >= ~.28) — Joshua's hypothesis works.
 - P82c (60%): format-A regression <= .03 absolute (mixed training).
 - P82d (55%): format-B gen top1 >= .25 through the p81b emission path.
+
+## 2026-08-23 — P82 graded 4/4: two-format hex model works; Joshua's 5-layer hypothesis holds for the CORE, with the interface contract mapped the hard way
+
+Final assembly (p82 bottom + mixed hand-wire + mixed FT): format A gen
+top1 .320 legal .812 (== P81b's single-format .316) | format B gen .297
+legal .828 — 93% of A, one model, blocks 5-16 NEVER touched at any point.
+- P82a YES (zero-shot B dead: cellhead .053, gen .016).
+- P82b YES (parser-only retraining carried containment to B: cellhead .328
+  vs A's .344 = 95%).
+- P82c YES (A regression .004).
+- P82d YES (.297 >= .25).
+
+The 5-layer hypothesis: CONFIRMED for the computation core — the frozen
+mid-stack is format-invariant given a retrained parser. But the parser's
+contract with the stack is WIDER than the h_0-aligned interface, learned
+across three failed versions (each informative):
+- v1 (aligned-interface loss only): BOTH formats collapse (h0 .999!) —
+  non-cell token states, esp. sinks, are load-bearing for frozen blocks.
+- v2 (+full-seq A-preservation, B suffix/sink pins): A survives, B still
+  dead — two more holes: copy-1 cell states (the stack READS copy 1; only
+  copy 2 was pinned) and the adapter NULLSPACE (matching adapter_0(hs)
+  pins 1024 of 2048 dims; the stack reads the rest).
+- v3 (full-state teacher distillation at all structurally corresponding
+  tokens): containment transfers (cellhead .328) but gen still dead (.016)
+  — the EMISSION wiring is format-bound too: the hand-wired ridge k-values
+  were arbitrary on B's unfitted preamble tokens (attention hijack: on-cell
+  32/32 on A, 0/32 on B), and the FT top was A-only.
+- Fix: refit hand-wire on mixed states (init A .219 / B .168), mixed-format
+  FT -> .320/.297.
+
+Interface-contract lesson (durable): "swap the input layers" requires
+preserving EVERYTHING the frozen stack reads — aligned states, non-aligned
+states (sinks, copy-1), the full 2048-dim stream (not a probe-visible
+subspace), AND any downstream component whose weights were FIT to input-
+distribution statistics (the hand-wired ridges). Conversational hex next
+steps (not run): >2 formats, move-list formats (no cell tokens — needs the
+r3 render-free machinery), layout changes (predicted to break frozen
+RoPE-relative mid-stack attention — the real wall for free-form dialogue).
+Artifacts: armF/p82_format.py, checkpoints/armF_p82/{parser,bottom,
+handwire_mixed}.pt, checkpoints/armF_p78/p82_ft.pt,
+armF/results/{p82_format.json,p82_train*.log,p82_ft.log}, wandb armF_p82_ft.
