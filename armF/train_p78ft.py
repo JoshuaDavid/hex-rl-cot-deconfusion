@@ -78,10 +78,17 @@ def guest_labels(guest, boards_u8):
     return lg.argmax(1)
 
 
-def make_batch(tok, boards_u8, labels):
+def prompt_text(b, fmt="A"):
+    if fmt == "A":
+        return render_with_regs(b)[0] + PROMPT_TAIL
+    from p82_format import prompt_of  # lazy: p82 imports this module
+    return prompt_of(b, fmt)[0]
+
+
+def make_batch(tok, boards_u8, labels, fmt="A"):
     """Loss on ANSWER tokens only. Safe here (unlike P60's masked-loss trap):
     the prompt is always teacher-provided at eval, never free-generated."""
-    prompts = [render_with_regs(b)[0] + PROMPT_TAIL for b in boards_u8.cpu()]
+    prompts = [prompt_text(b, fmt) for b in boards_u8.cpu()]
     fulls = [p + " " + cell_str(l.item()) for p, l in zip(prompts, labels.cpu())]
     p_lens = [len(tok(p, add_special_tokens=False)["input_ids"])
               for p in prompts]
@@ -96,14 +103,14 @@ def make_batch(tok, boards_u8, labels):
 
 
 @torch.no_grad()
-def gen_eval(model, tok, guest, boards_u8, batch=32):
+def gen_eval(model, tok, guest, boards_u8, batch=32, fmt="A"):
     model.eval()
     top1 = legal = parsed = tot = 0
     refs = guest_labels(guest, boards_u8.to(DEV))
     occ = (boards_to_states(boards_u8.to(DEV)) > 0)
     for i in range(0, len(boards_u8), batch):
         bb = boards_u8[i:i + batch]
-        prompts = [render_with_regs(b)[0] + PROMPT_TAIL for b in bb.cpu()]
+        prompts = [prompt_text(b, fmt) for b in bb.cpu()]
         enc = tok(prompts, return_tensors="pt", padding=True,
                   padding_side="left", add_special_tokens=False)
         out = model.generate(input_ids=enc["input_ids"].to(DEV),
@@ -133,6 +140,8 @@ def main():
     ap.add_argument("--ckpt", default="checkpoints/armF_p76/best.pt")
     ap.add_argument("--top-init", default=None,
                     help="p81 handwire.pt: load surgical layer-17 weights")
+    ap.add_argument("--mix-fmt", action="store_true",
+                    help="alternate format A/B prompts (p82)")
     ap.add_argument("--aux-wt", type=float, default=0.0,
                     help=">0: auxiliary KL at hs[--aux-layer] @ last prompt "
                          "token vs guest final logits (P79R placement signal)")
@@ -198,8 +207,9 @@ def main():
             g["lr"] = lr_at(s)
         sel = torch.randint(0, len(train_b), (args.batch,))
         bb = train_b[sel]
+        fmt = "B" if args.mix_fmt and s % 2 == 1 else "A"
         labels = guest_labels(guest, bb.to(DEV))
-        ids, am, lab, p_lens = make_batch(tok, bb, labels)
+        ids, am, lab, p_lens = make_batch(tok, bb, labels, fmt)
         with torch.autocast("cuda", dtype=torch.bfloat16):
             out = model(input_ids=ids.to(DEV), attention_mask=am.to(DEV),
                         labels=lab.to(DEV),
@@ -229,6 +239,15 @@ def main():
                       step=s + 1)
         if (s + 1) % args.eval_every == 0 or s + 1 == args.steps:
             top1, legalr, parsedr = gen_eval(model, tok, guest, val_b)
+            if args.mix_fmt:
+                top1b, legalb, _pb = gen_eval(model, tok, guest, val_b,
+                                              fmt="B")
+                print(f"  [B] gen top1 {top1b:.3f} legal {legalb:.3f}",
+                      flush=True)
+                if use_wandb:
+                    import wandb
+                    wandb.log({"gen_top1_B": top1b, "gen_legal_B": legalb},
+                              step=s + 1)
             aux_t1 = float("nan")
             if aux is not None:
                 model.eval()

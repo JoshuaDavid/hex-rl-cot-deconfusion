@@ -37,15 +37,20 @@ HD = 128  # head dim
 LOW = 63  # lowest-frequency rotary dim (pairs with LOW+64)
 
 
-def capture(model, tok, boards_u8, layer=17, batch=32):
+def capture(model, tok, boards_u8, layer=17, batch=32, fmt="A"):
     """hs[layer] (B,T,2048) + aligned cell idx (B,121) + last idx (B,)."""
     hs_all, idx_all, last_all, occ_all = [], [], [], []
     for i in range(0, len(boards_u8), batch):
         bb = boards_u8[i:i + batch]
         texts, offs = [], []
         for b in bb.cpu():
-            t, o = render_with_regs(b)
-            texts.append(t + PROMPT_TAIL)
+            if fmt == "A":
+                t, o = render_with_regs(b)
+                t = t + PROMPT_TAIL
+            else:
+                from p82_format import prompt_of
+                t, o = prompt_of(b, fmt)
+            texts.append(t)
             offs.append(o[:121])
         enc = tok(texts, return_offsets_mapping=True, padding=True,
                   return_tensors="pt", add_special_tokens=False)
@@ -88,6 +93,8 @@ def main():
     ap.add_argument("--n-fit", type=int, default=768)
     ap.add_argument("--n-val", type=int, default=256)
     ap.add_argument("--check-only", action="store_true")
+    ap.add_argument("--mix-fmt", action="store_true",
+                    help="fit + check on 50/50 format A/B (p82)")
     ap.add_argument("--out", default="checkpoints/armF_p81/handwire.pt")
     args = ap.parse_args()
     torch.manual_seed(0)
@@ -112,36 +119,41 @@ def main():
     ln17 = model.model.layers[17].input_layernorm
 
     print("capturing fit set...", flush=True)
-    hs, cidx, last, occ = capture(model, tok, fit_b)
-    B, T, _ = hs.shape
-    with torch.no_grad():
-        lnx = ln17(hs.to(DEV).to(torch.bfloat16)).float().cpu()
-
-    # per-token targets
     gather = lambda x, i: torch.gather(  # noqa: E731
         x, 1, i.unsqueeze(-1).expand(-1, -1, x.shape[-1]))
-    with torch.no_grad():
-        cell_states = gather(hs, cidx)  # (B,121,2048)
-        logits = cellhead(cell_states.to(DEV)).squeeze(-1).cpu()  # (B,121)
-    mu_l, sd_l = logits[~occ].mean(), logits[~occ].std()
-
-    tk = torch.full((B, T), -6.0)
-    tv = torch.zeros(B, T, 121)
-    for b in range(B):
-        for c in range(121):
-            t = cidx[b, c].item()
-            tv[b, t, c] = 1.0
-            if not occ[b, c]:
-                tk[b, t] = (2.0 * (logits[b, c] - mu_l) / sd_l).clamp(-8, 8)
-    Xf = lnx.reshape(-1, 2048)
-    Ak = ridge(Xf, torch.stack([tk.reshape(-1),
-                                torch.ones(B * T)], 1))     # dims 63,127
-    Aq = ridge(Xf, torch.ones(B * T, 1))                    # dim 63
-    Av = ridge(Xf, tv.reshape(-1, 121))
+    fmts = ["A", "B"] if args.mix_fmt else ["A"]
+    Xrows, tkrows, tvrows = [], [], []
+    for fi, fmt in enumerate(fmts):
+        fb = fit_b[fi::len(fmts)]
+        hs, cidx, last, occ = capture(model, tok, fb, fmt=fmt)
+        B, T, _ = hs.shape
+        with torch.no_grad():
+            lnx = ln17(hs.to(DEV).to(torch.bfloat16)).float().cpu()
+            cell_states = gather(hs, cidx)
+            logits = cellhead(cell_states.to(DEV)).squeeze(-1).cpu()
+        mu_l, sd_l = logits[~occ].mean(), logits[~occ].std()
+        tk = torch.full((B, T), -6.0)
+        tv = torch.zeros(B, T, 121)
+        for b in range(B):
+            for c in range(121):
+                t = cidx[b, c].item()
+                tv[b, t, c] = 1.0
+                if not occ[b, c]:
+                    tk[b, t] = (2.0 * (logits[b, c] - mu_l)
+                                / sd_l).clamp(-8, 8)
+        Xrows.append(lnx.reshape(-1, 2048))
+        tkrows.append(tk.reshape(-1))
+        tvrows.append(tv.reshape(-1, 121))
+    Xf = torch.cat(Xrows)
+    tkf = torch.cat(tkrows)
+    tvf = torch.cat(tvrows)
+    Ak = ridge(Xf, torch.stack([tkf, torch.ones(len(tkf))], 1))
+    Aq = ridge(Xf, torch.ones(len(tkf), 1))
+    Av = ridge(Xf, tvf)
     pred_k = (Xf.to(DEV) @ Ak[:, 0]).cpu()
     pred_c = (Xf.to(DEV) @ Ak[:, 1]).cpu()
     pred_q = (Xf.to(DEV) @ Aq[:, 0]).cpu()
-    corr = torch.corrcoef(torch.stack([pred_k, tk.reshape(-1)]))[0, 1]
+    corr = torch.corrcoef(torch.stack([pred_k, tkf]))[0, 1]
     print(f"k-fit corr {corr:.3f} | const-fit k127 mean {pred_c.mean():.3f} "
           f"std {pred_c.std():.3f} | q mean {pred_q.mean():.3f} "
           f"std {pred_q.std():.3f}", flush=True)
@@ -163,43 +175,43 @@ def main():
         ow[:, 0:2 * HD] = 0
         ow[:, 0:121] = code.to(ow.dtype)
 
-    # ---- init checks on val ----
+    # ---- init checks on val (per format) ----
     model.config._attn_implementation = "eager"
-    hsv, cidxv, lastv, occv = capture(model, tok, val_b)
-    # manual attention recompute for head 0 at the last token
-    with torch.no_grad():
-        lnv = ln17(hsv.to(DEV).to(torch.bfloat16)).float()
-        k63 = lnv @ Ak[:, 0]
-        k127 = lnv @ Ak[:, 1]
-        q63 = lnv @ Aq[:, 0]
-        # post-RMSNorm sparse vectors: khat = (k/rms)*w ; scores at last tok
-        krms = ((k63 ** 2 + k127 ** 2) / HD + 1e-6).sqrt()
-        k63h = k63 / krms * attn.k_norm.weight[LOW].float()
-        qsign = torch.sign(torch.gather(q63, 1, lastv.to(DEV)[:, None]))
-        qmag = HD ** 0.5 * attn.q_norm.weight[LOW].float()
-        scores = (qsign * qmag) * k63h / HD ** 0.5  # (B,T)
-        st = boards_to_states(val_b.to(DEV))
-        g = guest(st) - 1000.0 * (st > 0).float()
-        gref = g.argmax(1).cpu()
-        cref = cellhead(gather(hsv, cidxv).to(DEV)).squeeze(-1)
-        cref = (cref - 1000.0 * occv.to(DEV).float()).argmax(1).cpu()
-        att_cell = []
-        conc = []
-        for b in range(len(val_b)):
-            sc = scores[b, :int(lastv[b]) + 1]
-            p = torch.softmax(sc, 0)
-            t = p.argmax().item()
-            hits = (cidxv[b] == t).nonzero()
-            att_cell.append(hits[0, 0].item() if len(hits) else -1)
-            conc.append(p.max().item())
-        att_cell = torch.tensor(att_cell)
-        vs_guest = (att_cell == gref).float().mean().item()
-        vs_cell = (att_cell == cref).float().mean().item()
-    print(f"init checks: attended-cell vs guest argmax {vs_guest:.3f} | "
-          f"vs cellhead argmax {vs_cell:.3f} | softmax conc "
-          f"{sum(conc)/len(conc):.3f}", flush=True)
-    res = {"k_fit_corr": corr.item(), "att_vs_guest": vs_guest,
-           "att_vs_cellhead": vs_cell, "conc": sum(conc) / len(conc)}
+    res = {"k_fit_corr": corr.item()}
+    for fmt in fmts:
+        hsv, cidxv, lastv, occv = capture(model, tok, val_b, fmt=fmt)
+        with torch.no_grad():
+            lnv = ln17(hsv.to(DEV).to(torch.bfloat16)).float()
+            k63 = lnv @ Ak[:, 0]
+            k127 = lnv @ Ak[:, 1]
+            q63 = lnv @ Aq[:, 0]
+            krms = ((k63 ** 2 + k127 ** 2) / HD + 1e-6).sqrt()
+            k63h = k63 / krms * attn.k_norm.weight[LOW].float()
+            qsign = torch.sign(torch.gather(q63, 1, lastv.to(DEV)[:, None]))
+            qmag = HD ** 0.5 * attn.q_norm.weight[LOW].float()
+            scores = (qsign * qmag) * k63h / HD ** 0.5
+            st = boards_to_states(val_b.to(DEV))
+            g = guest(st) - 1000.0 * (st > 0).float()
+            gref = g.argmax(1).cpu()
+            cref = cellhead(gather(hsv, cidxv).to(DEV)).squeeze(-1)
+            cref = (cref - 1000.0 * occv.to(DEV).float()).argmax(1).cpu()
+            att_cell, conc = [], []
+            for b in range(len(val_b)):
+                sc = scores[b, :int(lastv[b]) + 1]
+                p = torch.softmax(sc, 0)
+                t = p.argmax().item()
+                hits = (cidxv[b] == t).nonzero()
+                att_cell.append(hits[0, 0].item() if len(hits) else -1)
+                conc.append(p.max().item())
+            att_cell = torch.tensor(att_cell)
+            vs_guest = (att_cell == gref).float().mean().item()
+            vs_cell = (att_cell == cref).float().mean().item()
+        print(f"init checks [{fmt}]: attended vs guest {vs_guest:.3f} | "
+              f"vs cellhead {vs_cell:.3f} | conc "
+              f"{sum(conc)/len(conc):.3f}", flush=True)
+        res[f"att_vs_guest_{fmt}"] = vs_guest
+        res[f"att_vs_cellhead_{fmt}"] = vs_cell
+        res[f"conc_{fmt}"] = sum(conc) / len(conc)
     Path("armF/results/p81_init.json").write_text(json.dumps(res, indent=1))
 
     if not args.check_only:
