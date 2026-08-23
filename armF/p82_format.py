@@ -45,9 +45,9 @@ POST_B = "\nThink it over.\n"
 GLYPH_B = {"X": "w", "O": "b", ".": "_"}
 
 
-def render_b(canonical):
+def render_b(canonical, want_off1=False):
     """Same skeleton as render11.render (indent + ' g' per cell) with
-    format-B surface. Returns (text, offsets2) for the second copy."""
+    format-B surface. Returns (text, offsets2[, offsets1])."""
     def body(offset0):
         lines, offs = [], []
         pos = offset0
@@ -69,38 +69,52 @@ def render_b(canonical):
             pos += 1
         return "\n".join(lines), offs
 
-    b1, _ = body(len(PRE_B))
+    b1, off1 = body(len(PRE_B))
     text1 = PRE_B + b1
     b2, off2 = body(len(text1) + len(MID_B))
     text = text1 + MID_B + b2 + POST_B
-    for o in off2:
+    for o in off2 + off1:
         assert text[o] in "wb_", (o, text[o])
+    if want_off1:
+        return text, off2, off1
     return text, off2
 
 
-def prompt_of(board, fmt, tail=True):
+def prompt_of(board, fmt, tail=True, want_off1=False):
     if fmt == "A":
+        if want_off1:
+            text0, off1, off2 = R.render_two_copy(board)
         text, offs = render_with_regs(board)
     else:
-        text, off2 = render_b(board)
+        if want_off1:
+            _t, off2, off1 = render_b(board, want_off1=True)
+        text, off2b = render_b(board)
         base = len(text)
         text = text + REG_SUFFIX
         colon = REG_SUFFIX.index(":")
-        offs = off2 + [base + REG_SUFFIX.index(ch, colon) for ch in "abcdefg"]
+        offs = off2b + [base + REG_SUFFIX.index(ch, colon)
+                        for ch in "abcdefg"]
     if tail:
         text = text + EMIT_TAIL
+    if want_off1:
+        return text, offs, off1
     return text, offs
 
 
-def batch_fmt(tok, boards_u8, fmt):
-    texts, all_offs = [], []
+def batch_fmt(tok, boards_u8, fmt, want_off1=False):
+    texts, all_offs, all_off1 = [], [], []
     for b in boards_u8.cpu():
-        t, o = prompt_of(b, fmt)
+        if want_off1:
+            t, o, o1 = prompt_of(b, fmt, want_off1=True)
+            all_off1.append(o1)
+        else:
+            t, o = prompt_of(b, fmt)
         texts.append(t)
         all_offs.append(o)
     enc = tok(texts, return_offsets_mapping=True, padding=True,
               return_tensors="pt", add_special_tokens=False)
     idxs = torch.zeros(len(texts), 128, dtype=torch.long)
+    idx1 = torch.zeros(len(texts), 121, dtype=torch.long)
     for i in range(len(texts)):
         starts = {}
         for tj, (a, bnd) in enumerate(enc["offset_mapping"][i].tolist()):
@@ -109,6 +123,10 @@ def batch_fmt(tok, boards_u8, fmt):
         row = [starts[o] for o in all_offs[i]]
         assert len(set(row)) == len(row)
         idxs[i] = torch.tensor(row)
+        if want_off1:
+            idx1[i] = torch.tensor([starts[o] for o in all_off1[i]])
+    if want_off1:
+        return enc["input_ids"], enc["attention_mask"], idxs, idx1
     return enc["input_ids"], enc["attention_mask"], idxs
 
 
@@ -293,17 +311,18 @@ def main():
             fmt = "A" if s % 2 == 0 else "B"
             with torch.no_grad():
                 h0 = (guest_acts(guest, bb)[0] - mu0) / sd0
-            ids, am, idxs = batch_fmt(tok, bb, fmt)
+            ids, am, idxs, idx1 = batch_fmt(tok, bb, fmt, want_off1=True)
             ids_d, am_d = ids.to(DEV), am.to(DEV)
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 out = parser(input_ids=ids_d, attention_mask=am_d,
                              output_hidden_states=True, use_cache=False)
             hs5 = out.hidden_states[5].float()
-            pred = adapter0(gather_tok(hs5, idxs.to(DEV)))
-            anchor = ((pred - h0) ** 2).mean()
+            with torch.no_grad():
+                pred = adapter0(gather_tok(hs5, idxs.to(DEV)))
+                anchor = ((pred - h0) ** 2).mean()  # monitor only
             if fmt == "A":
-                # full-sequence preservation: the frozen upper stack depends
-                # on NON-cell states too (sinks etc. — collapse of v1 run)
+                # full-sequence preservation (v1 collapse: non-cell states
+                # incl. sinks are load-bearing for the frozen upper stack)
                 with torch.no_grad(), torch.autocast("cuda",
                                                      dtype=torch.bfloat16):
                     ths5 = teacher(input_ids=ids_d, attention_mask=am_d,
@@ -312,24 +331,32 @@ def main():
                 m = am_d.unsqueeze(-1).float()
                 distill = (((hs5 - ths5) ** 2) * m).sum() / m.sum() / 2048
             else:
-                # B: pin shared suffix tokens + first (sink) token to the
-                # A-teacher states of the same board
-                ids_a, am_a, _ = batch_fmt(tok, bb, "A")
+                # B v3: FULL-STATE teacher distillation at all structurally
+                # corresponding tokens — copy-1 cells (the stack reads them:
+                # v2 hole #1), copy-2 cells+regs in raw hs space (adapter
+                # nullspace was free: v2 hole #2), shared suffix, sink tok 0
+                ids_a, am_a, idxs_a, idx1_a = batch_fmt(tok, bb, "A",
+                                                        want_off1=True)
                 with torch.no_grad(), torch.autocast("cuda",
                                                      dtype=torch.bfloat16):
                     ths5 = teacher(input_ids=ids_a.to(DEV),
                                    attention_mask=am_a.to(DEV),
                                    output_hidden_states=True, use_cache=False
                                    ).hidden_states[5].float()
+                d2 = gather_tok(hs5, idxs.to(DEV)) \
+                    - gather_tok(ths5, idxs_a.to(DEV))
+                d1 = gather_tok(hs5, idx1.to(DEV)) \
+                    - gather_tok(ths5, idx1_a.to(DEV))
                 nb = am_d.sum(1)
                 na = am_a.sum(1).to(DEV)
                 db = torch.stack([hs5[i, nb[i] - K_SFX:nb[i]]
                                   for i in range(len(bb))])
                 da = torch.stack([ths5[i, na[i] - K_SFX:na[i]]
                                   for i in range(len(bb))])
-                distill = ((db - da) ** 2).mean() \
-                    + ((hs5[:, 0] - ths5[:, 0]) ** 2).mean()
-            loss = anchor + args.distill_wt * distill
+                distill = ((d2 ** 2).mean() + (d1 ** 2).mean()
+                           + ((db - da) ** 2).mean()
+                           + ((hs5[:, 0] - ths5[:, 0]) ** 2).mean()) / 4
+            loss = args.distill_wt * distill
             opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(
