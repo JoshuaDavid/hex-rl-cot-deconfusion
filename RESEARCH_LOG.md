@@ -5317,3 +5317,42 @@ is capped by the site's cellhead top1 (.354), bars set accordingly.
 - P81b (60%): post-FT (aux+CE, 2k) gen top1 >= .30 ~= site quality —
   transport solved, "prior was the missing ingredient" confirmed.
 - P81c (30%): gen top1 >= .45.
+
+## 2026-08-23 — P81 graded 1/3 with the headline YES: hand-installed prior + SGD = the model SAYS its move (gen .316); "SGD saturates priors, doesn't create them" CONFIRMED by intervention
+
+P81 construction debugging (both bugs now on record):
+(i) Qwen3 q/k/v projections have NO BIAS — constant ridge targets (k127=1,
+q=1) fit through the intercept, which surgery silently dropped; k_norm then
+saturated sign-only attention (uniform over half the context, conc .005).
+Fix: no-intercept ridge — constants must ride real feature directions (LN
+output has a stable mean component; fit std .068). (ii) o_proj write norm 3
+was buried under per-direction residual std ~5 x soft attention; raised to
+25. After fixes: real-forward attention lands on A cell 32/32, conc .485,
+selection .227 vs guest (P81a NO by .023, bar .25); end-to-end init decode
+~.09 (three ridge stages multiply: selection .44-rel x value-code ~.5 x
+site .354).
+
+P81b FT (identical recipe to the three failed runs — same data, labels,
+aux, lr; ONLY change = the weak hand-wired prior): gen top1
+.055 -> .117 @500 -> .223 @1000 -> .316 @2000 (still climbing), legal .875,
+parsed 1.000. P81b YES (>= .30); P81c NO. Ledger 1/3.
+
+The controlled comparison is the finding: {no prior: .039/.070/.102/.102
+across P78/79R/80} vs {weak installed prior: .316} — SGD refined every
+approximate stage of the hand construction ~3x but could never create the
+circuit from zero gradient signal. P70's success is retro-explained as
+luck-of-the-prior (L27H2 pre-leaning .097); P78-81 shows what happens when
+no such head exists: verbalization is gated on a SELECTION PRIOR that
+pretraining may or may not have left lying around at the right layer.
+C3 final form: verbalizable = (concept at emission site) OR (payload
+decodable at fixed slots AND a select/transfer prior exists above it);
+SGD only ever finishes wiring, it does not begin it.
+
+Ceiling notes: .316 ~= 89% of the cellhead site cap (.354); further gains
+need site quality (more cellhead containment training), not more FT. Curve
+unplateaued at 2k — one 4k rerun would likely saturate ~.35. Declined by
+default (known cap, ~.03 expected — headroom rule).
+Artifacts: armF/p81_handwire.py, checkpoints/armF_p81/handwire.pt,
+checkpoints/armF_p78/p81b_ft.pt, armF/results/{p81_init.json,
+p81b_ft_hist.json,p81b_ft.log}, wandb armF_p81b_ft. Emissions eyeballed:
+" G06"-format perfect, misses often adjacent cells.
