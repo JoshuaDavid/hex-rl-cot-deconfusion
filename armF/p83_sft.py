@@ -140,6 +140,12 @@ def main():
     ap.add_argument("--bottom", default="checkpoints/armF_p82/bottom.pt")
     ap.add_argument("--top", default="checkpoints/armF_p78/p82_ft.pt")
     ap.add_argument("--tag", default="p83")
+    ap.add_argument("--freeze-mid", action="store_true",
+                    help="freeze blocks 5-16 (containment core)")
+    ap.add_argument("--stone-wt", type=float, default=1.0,
+                    help="CE upweight for ' X'/' O' target tokens")
+    ap.add_argument("--preserve-every", type=int, default=0,
+                    help="every Nth step: canonical-FT preservation batch")
     ap.add_argument("--no-wandb", action="store_true")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
@@ -160,10 +166,14 @@ def main():
     sd = model.state_dict()
     for k, v in ft["top"].items():
         sd[k].copy_(v)
-    # all blocks trainable (embeddings + tied head stay frozen)
-    for blk in model.model.layers:
-        blk.requires_grad_(True)
+    # blocks trainable (embeddings + tied head stay frozen)
+    for i, blk in enumerate(model.model.layers):
+        blk.requires_grad_(not (args.freeze_mid and 5 <= i <= 16))
     model.model.norm.requires_grad_(True)
+    ID_X = tok(" X", add_special_tokens=False)["input_ids"]
+    ID_O = tok(" O", add_special_tokens=False)["input_ids"]
+    assert len(ID_X) == 1 and len(ID_O) == 1
+    ID_X, ID_O = ID_X[0], ID_O[0]
     aux = torch.nn.Linear(2048, 121).to(DEV)
     n_tr = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"trainable {n_tr/1e6:.0f}M", flush=True)
@@ -193,22 +203,54 @@ def main():
         lr = args.lr * min(1.0, (s + 1) / args.warmup) * 0.5 * (
             1 + math.cos(math.pi * s / args.steps))
         opt.param_groups[0]["lr"] = lr
-        sel = torch.randint(0, len(train_recs), (args.batch,))
-        rr = [train_recs[i] for i in sel]
-        ids, am, lab, colon = make_batch(tok, rr)
-        with torch.autocast("cuda", dtype=torch.bfloat16):
-            out = model(input_ids=ids.to(DEV), attention_mask=am.to(DEV),
-                        labels=lab.to(DEV), output_hidden_states=True)
-        bts = torch.stack([r["board"] for r in rr]).to(DEV)
-        h = out.hidden_states[args.aux_layer][
-            torch.arange(len(rr), device=DEV), colon.to(DEV)]
-        with torch.no_grad():
-            g = guest_final_logits(guest, bts)
-        tp = torch.softmax(g, -1)
-        aux_kl = (tp * (torch.log_softmax(g, -1)
-                        - torch.log_softmax(aux(h.float()), -1))
-                  ).sum(-1).mean()
-        loss = out.loss + args.aux_wt * aux_kl
+        if args.preserve_every and (s + 1) % args.preserve_every == 0:
+            # canonical-FT preservation batch (P82 objective)
+            from train_p78ft import make_batch as ft_make_batch
+            psel = torch.randint(0, len(train_recs), (args.batch,))
+            pb = torch.stack([train_recs[i]["board"] for i in psel])
+            plab = guest_labels(guest, pb.to(DEV))
+            pfmt = "A" if (s // args.preserve_every) % 2 == 0 else "B"
+            pids, pam, pl, ppl = ft_make_batch(tok, pb, plab, pfmt)
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                pout = model(input_ids=pids.to(DEV),
+                             attention_mask=pam.to(DEV), labels=pl.to(DEV))
+            loss = pout.loss
+            aux_kl = torch.zeros((), device=DEV)
+            out = pout
+        else:
+            sel = torch.randint(0, len(train_recs), (args.batch,))
+            rr = [train_recs[i] for i in sel]
+            ids, am, lab, colon = make_batch(tok, rr)
+            lab_d = lab.to(DEV)
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                out = model(input_ids=ids.to(DEV), attention_mask=am.to(DEV),
+                            output_hidden_states=True)
+            # weighted CE (stone tokens upweighted — empty-board attractor)
+            logits = out.logits[:, :-1]
+            tgt = lab_d[:, 1:]
+            wts = torch.ones_like(tgt, dtype=torch.float)
+            wts[(tgt == ID_X) | (tgt == ID_O)] = args.stone_wt
+            ce_rows = []
+            for i0 in range(0, len(tgt), 2):
+                ce = F.cross_entropy(
+                    logits[i0:i0 + 2].reshape(-1, logits.shape[-1]).float(),
+                    tgt[i0:i0 + 2].reshape(-1), ignore_index=-100,
+                    reduction="none")
+                ce_rows.append(ce)
+            ce = torch.cat(ce_rows)
+            wf = wts.reshape(-1) * (tgt.reshape(-1) != -100)
+            ce_loss = (ce * wf).sum() / wf.sum()
+            bts = torch.stack([r["board"] for r in rr]).to(DEV)
+            h = out.hidden_states[args.aux_layer][
+                torch.arange(len(rr), device=DEV), colon.to(DEV)]
+            with torch.no_grad():
+                g = guest_final_logits(guest, bts)
+            tp = torch.softmax(g, -1)
+            aux_kl = (tp * (torch.log_softmax(g, -1)
+                            - torch.log_softmax(aux(h.float()), -1))
+                      ).sum(-1).mean()
+            loss = ce_loss + args.aux_wt * aux_kl
+            out.loss = ce_loss
         opt.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(

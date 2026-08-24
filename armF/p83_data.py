@@ -124,6 +124,17 @@ def build_input(board, hist, rng):
     return f4_canonical(board), "F4"
 
 
+def row_lists(board):
+    """Per-row breakdown: 'Row A: X at 3, 7; O at 5.' (col numbers)."""
+    out = []
+    for x in range(11):
+        xs = [str(y + 1) for y in range(11) if board[0, x + 1, y + 1] > 0.5]
+        os_ = [str(y + 1) for y in range(11) if board[1, x + 1, y + 1] > 0.5]
+        out.append(f"Row {chr(65+x)}: X at {', '.join(xs) if xs else 'none'}"
+                   f"; O at {', '.join(os_) if os_ else 'none'}.")
+    return "\n".join(out)
+
+
 def target_text(board, label_cell):
     from p75_baselines import render_with_regs
     xs, os_ = stone_lists(board)
@@ -134,7 +145,8 @@ def target_text(board, label_cell):
     if not canon.endswith(EMIT_TAIL):
         canon = canon + EMIT_TAIL
     return (f"Let me lay out the board. X stones: {xstr}. O stones: "
-            f"{ostr}.\n\n{canon} {cell_str(label_cell)}")
+            f"{ostr}.\nRow by row:\n{row_lists(board)}\n\n{canon} "
+            f"{cell_str(label_cell)}")
 
 
 def main():
