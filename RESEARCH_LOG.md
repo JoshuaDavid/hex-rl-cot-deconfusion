@@ -5473,3 +5473,18 @@ between stone list and grid (binding span 121-global -> 11-local); (c)
 stone-cell CE upweight ~10x (kill the empty attractor); (d) freeze blocks
 5-16 + 20% canonical-FT preservation batches (passthrough). Constrained
 grid-structure decoding reserved for converse.py, evals stay unconstrained.
+
+## 2026-08-24 — P83 iteration ledger (b-f) + long run launched
+
+Iteration trail after iter1's placement anatomy: p83b/c eval-truncation
+bugs (row-CoT lengthened targets to 935 tokens max — measure, don't guess);
+p83d found GLOBAL 10x stone upweight induces an 'O at' repetition collapse
+(upweighted-bigram attractor) -> masked to grid-region-only, 4x; p83e found
+freeze-mid STARVES the text task (cellacc flat <.08 at 1500 — the mid-stack
+is needed for generation quality, not just containment); p83f (all blocks +
+preserve-every-4) behaves: passthrough defended (.24 vs iter1's collapse to
+.09) and all families rising, but ~3-4x slower than iter1 (longer targets +
+25% preservation tax). No design change needed — budget change: p83g = same
+config, 12k steps (~5h), evals hourly. Ops: two disk-full incidents
+(pruned p78 dead-end tops, superseded p83 ckpts); pkill-compound self-match
+struck twice more (fourth+fifth time — isolate pkill in its own command).
