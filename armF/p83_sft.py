@@ -90,7 +90,7 @@ def make_batch(tok, recs):
 
 
 @torch.no_grad()
-def full_eval(model, tok, guest, val_recs, batch=16, max_new=540):
+def full_eval(model, tok, guest, val_recs, batch=16, max_new=760):
     model.eval()
     fam_acc, fam_n = {}, {}
     move_top1 = move_legal = move_tot = 0
