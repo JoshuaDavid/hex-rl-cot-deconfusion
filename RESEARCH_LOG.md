@@ -5428,3 +5428,28 @@ RoPE-relative mid-stack attention — the real wall for free-form dialogue).
 Artifacts: armF/p82_format.py, checkpoints/armF_p82/{parser,bottom,
 handwire_mixed}.pt, checkpoints/armF_p78/p82_ft.pt,
 armF/results/{p82_format.json,p82_train*.log,p82_ft.log}, wandb armF_p82_ft.
+
+## 2026-08-24 — P83 registered: conversational hex via SELF-CANONICALIZATION (Joshua: "try the ambitious one first")
+
+Architecture: varied natural-ish input (move narrative / coordinate sets /
+layout-varied diagrams) -> the model GENERATES the canonical render as part
+of its answer (stone-list CoT step first — board reconstruction from moves
+is the hard part, decomposed) -> the frozen machinery reads the model's own
+in-context re-render -> "Next move:". This sidesteps the frozen-mid-stack
+layout wall (machinery always sees canonical layout), handles move-list
+inputs (where direct containment is weak — r3/r4), and playing as X always
+makes canonical frame == absolute frame (no perspective flip in dialogue).
+Pre-empted P82 lesson: hand-wire refit must include varied-prefix contexts.
+Scale-back ladder (ambition only reduced as needed): full-SFT w/o
+preservation -> +preservation mix -> freeze mid -> restrict input families
+-> direct multi-layout containment as fallback.
+
+Predictions:
+- P83a (60%): SFT'd artifact >= 95% held-out re-render CELL accuracy on
+  move-list inputs (hard family) within ~4k steps.
+- P83b (70%): >= 99% on coordinate-set + diagram-variant families.
+- P83c (50%): end-to-end move top1 vs guest >= .25 pooled (through the
+  model's OWN re-renders).
+- P83d (55%): canonical-passthrough machinery survives SFT within .05 gen
+  top1 (else preservation mixing — first scale-back trigger).
+- P83e (40%): full conversational game transcript, 0 illegal model moves.
