@@ -79,14 +79,17 @@ def make_batch(tok, recs):
         colon_idx[i] = -1  # fill via offsets below
     enc2 = tok(fulls, return_offsets_mapping=True, padding=True,
                add_special_tokens=False)
+    grid_mask = torch.zeros_like(ids, dtype=torch.bool)
     for i in range(len(ids)):
         colon_char = len(fulls[i]) - len(" F04") - 1
+        canon_char = fulls[i].index("Hex board, 11x11.", len(prompts[i]))
         for tj, (a, b) in enumerate(enc2["offset_mapping"][i]):
             if a <= colon_char < b:
                 colon_idx[i] = tj
-                break
+            if a >= canon_char:
+                grid_mask[i, tj] = True
         assert colon_idx[i] >= 0
-    return ids, enc["attention_mask"], lab, colon_idx
+    return ids, enc["attention_mask"], lab, colon_idx, grid_mask
 
 
 @torch.no_grad()
@@ -220,16 +223,19 @@ def main():
         else:
             sel = torch.randint(0, len(train_recs), (args.batch,))
             rr = [train_recs[i] for i in sel]
-            ids, am, lab, colon = make_batch(tok, rr)
+            ids, am, lab, colon, gmask = make_batch(tok, rr)
             lab_d = lab.to(DEV)
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 out = model(input_ids=ids.to(DEV), attention_mask=am.to(DEV),
                             output_hidden_states=True)
-            # weighted CE (stone tokens upweighted — empty-board attractor)
+            # weighted CE: stone tokens INSIDE the canonical grid region only
+            # (empty-board attractor; global 10x caused an 'O at' repetition
+            # collapse — p83d anatomy)
             logits = out.logits[:, :-1]
             tgt = lab_d[:, 1:]
+            gm = gmask.to(DEV)[:, 1:]
             wts = torch.ones_like(tgt, dtype=torch.float)
-            wts[(tgt == ID_X) | (tgt == ID_O)] = args.stone_wt
+            wts[((tgt == ID_X) | (tgt == ID_O)) & gm] = args.stone_wt
             ce_rows = []
             for i0 in range(0, len(tgt), 2):
                 ce = F.cross_entropy(
