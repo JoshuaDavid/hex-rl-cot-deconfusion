@@ -5453,3 +5453,23 @@ Predictions:
 - P83d (55%): canonical-passthrough machinery survives SFT within .05 gen
   top1 (else preservation mixing — first scale-back trigger).
 - P83e (40%): full conversational game transcript, 0 illegal model moves.
+
+## 2026-08-24 — P83 iteration 1: renders learned, PLACEMENT is the wall; anatomy in hand
+
+4k-step full-SFT: cellacc F1 .48 / F2 .62 / F3 .37 / F4 .81 (means incl.
+malformed=0), move top1 .031, passthrough .285 -> .086 (machinery cooked —
+P83d NO trigger confirmed). Anatomy (24 gens/family): F4 verbatim copy
+works (.995 mean parsed, 16/24 >= .99); malformed-structure rate 5/24 (F1,
+F2, F4) but 13/24 on F3 (diagram inputs derail grid structure). THE finding:
+a raw F2 gen extracts the stone list CORRECTLY then renders an EMPTY grid —
+extraction works, PLACEMENT fails. Cause: 90% of cells are '.', CE is
+dominated by the empty class; in free-running generation the model falls
+into the modal empty-board attractor and self-conditions on it (low
+teacher-forced CE, catastrophic free-run drift — the exposure gap
+concentrated in one skill).
+
+Iteration 2 (ambition unchanged, mechanism targeted): (b) row-wise CoT
+between stone list and grid (binding span 121-global -> 11-local); (c)
+stone-cell CE upweight ~10x (kill the empty attractor); (d) freeze blocks
+5-16 + 20% canonical-FT preservation batches (passthrough). Constrained
+grid-structure decoding reserved for converse.py, evals stay unconstrained.

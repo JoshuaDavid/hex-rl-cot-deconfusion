@@ -1,0 +1,98 @@
+[
+ {
+  "step": 500,
+  "fam_cellacc": {
+   "F1": 0.1738,
+   "F4": 0.3427,
+   "F2": 0.1971,
+   "F3": 0.3961
+  },
+  "move_top1": 0.0312,
+  "move_legal": 0.3542,
+  "passthrough_top1": 0.1172
+ },
+ {
+  "step": 1000,
+  "fam_cellacc": {
+   "F1": 0.3317,
+   "F4": 0.6863,
+   "F2": 0.6043,
+   "F3": 0.6386
+  },
+  "move_top1": 0.0208,
+  "move_legal": 0.4479,
+  "passthrough_top1": 0.1328
+ },
+ {
+  "step": 1500,
+  "fam_cellacc": {
+   "F1": 0.4072,
+   "F4": 0.7282,
+   "F2": 0.6055,
+   "F3": 0.5521
+  },
+  "move_top1": 0.0312,
+  "move_legal": 0.5312,
+  "passthrough_top1": 0.1016
+ },
+ {
+  "step": 2000,
+  "fam_cellacc": {
+   "F1": 0.4625,
+   "F4": 0.8039,
+   "F2": 0.6074,
+   "F3": 0.357
+  },
+  "move_top1": 0.0312,
+  "move_legal": 0.5104,
+  "passthrough_top1": 0.0938
+ },
+ {
+  "step": 2500,
+  "fam_cellacc": {
+   "F1": 0.4862,
+   "F4": 0.8045,
+   "F2": 0.6192,
+   "F3": 0.3923
+  },
+  "move_top1": 0.0312,
+  "move_legal": 0.5208,
+  "passthrough_top1": 0.0859
+ },
+ {
+  "step": 3000,
+  "fam_cellacc": {
+   "F1": 0.499,
+   "F4": 0.7676,
+   "F2": 0.6208,
+   "F3": 0.357
+  },
+  "move_top1": 0.0208,
+  "move_legal": 0.5,
+  "passthrough_top1": 0.0938
+ },
+ {
+  "step": 3500,
+  "fam_cellacc": {
+   "F1": 0.4645,
+   "F4": 0.7661,
+   "F2": 0.6214,
+   "F3": 0.3069
+  },
+  "move_top1": 0.0312,
+  "move_legal": 0.5208,
+  "passthrough_top1": 0.0859
+ },
+ {
+  "step": 4000,
+  "fam_cellacc": {
+   "F1": 0.4805,
+   "F4": 0.8051,
+   "F2": 0.6211,
+   "F3": 0.3675
+  },
+  "move_top1": 0.0312,
+  "move_legal": 0.5208,
+  "passthrough_top1": 0.0859
+ }
+]
